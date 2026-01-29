@@ -87,20 +87,20 @@
 参照: docs/04-ui-design.md「コンポーネント設計」
 
 #### 基本 UI
-- [ ] src/components/Button.tsx
-- [ ] src/components/Card.tsx
-- [ ] src/components/Checkbox.tsx
-- [ ] src/components/Header.tsx
-- [ ] src/components/Icon.tsx
-- [ ] src/components/Input.tsx
-- [ ] src/components/Modal.tsx
-- [ ] src/components/ProgressBar.tsx
-- [ ] src/components/ProgressRing.tsx
-- [ ] src/components/SegmentedControl.tsx
-- [ ] src/components/Select.tsx
-- [ ] src/components/Spinner.tsx
-- [ ] src/components/Switch.tsx
-- [ ] src/components/Toast.tsx
+- [ ] src/components/ui/Button.tsx
+- [ ] src/components/ui/Card.tsx
+- [ ] src/components/ui/Checkbox.tsx
+- [ ] src/components/ui/Header.tsx
+- [ ] src/components/ui/Icon.tsx
+- [x] src/components/ui/Input.tsx（SearchInput 含む）
+- [ ] src/components/ui/Modal.tsx
+- [ ] src/components/ui/ProgressBar.tsx
+- [ ] src/components/ui/ProgressRing.tsx
+- [x] src/components/ui/SegmentedControl.tsx
+- [ ] src/components/ui/Select.tsx
+- [ ] src/components/ui/Spinner.tsx
+- [ ] src/components/ui/Switch.tsx
+- [ ] src/components/ui/Toast.tsx
 
 #### デザインシステム
 - [x] src/lib/colors.ts - カラーパレット
@@ -122,11 +122,11 @@
 ### 1.4 Habits 画面（習慣一覧）
 参照: docs/04-ui-design.md「2. Habits 画面」
 
-- [ ] app/(tabs)/habits.tsx - 習慣一覧画面
-- [ ] src/components/habits/HabitListItem.tsx - 習慣リストアイテム
+- [x] app/(tabs)/habits.tsx - 習慣一覧画面
+- [x] src/components/habits/HabitListItem.tsx - 習慣リストアイテム
 - [ ] src/components/habits/CategorySection.tsx - カテゴリセクション
-- [ ] 検索機能
-- [ ] フィルター（すべて/アクティブ/アーカイブ）
+- [x] 検索機能
+- [x] フィルター（すべて/アクティブ/アーカイブ）
 - [ ] 並び替え機能
 
 ### 1.5 習慣詳細画面

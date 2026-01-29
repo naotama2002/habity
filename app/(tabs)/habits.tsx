@@ -1,156 +1,326 @@
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
-import { Link } from 'expo-router';
+import { useState, useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useHabits } from '@/state/queries/habits';
-import type { Habit } from '@/types/database';
+import { HabitListItem } from '@/components/habits';
+import { SearchInput, SegmentedControl } from '@/components/ui';
+import { colors, lightTheme } from '@/lib/colors';
+import { typography } from '@/lib/typography';
+import { spacing, borderRadius } from '@/lib/spacing';
+import type { Habit, HabitStatus } from '@/types/database';
 
+/**
+ * フィルターの選択肢
+ */
+type FilterValue = 'all' | 'active' | 'archived';
+
+const FILTER_SEGMENTS: { value: FilterValue; label: string }[] = [
+  { value: 'all', label: 'すべて' },
+  { value: 'active', label: 'アクティブ' },
+  { value: 'archived', label: 'アーカイブ' },
+];
+
+/**
+ * Habits 画面
+ * 全習慣をカテゴリ別に管理
+ * docs/04-ui-design.md「2. Habits 画面」を参照
+ */
 export default function HabitsScreen() {
-  const { data: habits, isLoading, error } = useHabits('active');
+  const router = useRouter();
+  const [filter, setFilter] = useState<FilterValue>('active');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // フィルターに応じたステータスを決定
+  const statusFilter: HabitStatus | undefined =
+    filter === 'all' ? undefined : filter === 'active' ? 'active' : 'archived';
+
+  const { data: habits, isLoading, error } = useHabits(statusFilter);
+
+  // 検索フィルタリング
+  const filteredHabits = useMemo(() => {
+    if (!habits) return [];
+    if (!searchQuery.trim()) return habits;
+
+    const query = searchQuery.toLowerCase();
+    return habits.filter(
+      (habit) =>
+        habit.name.toLowerCase().includes(query) ||
+        habit.description?.toLowerCase().includes(query)
+    );
+  }, [habits, searchQuery]);
+
+  // カテゴリ別にグループ化
+  const groupedHabits = useMemo(() => {
+    const groups: Record<string, Habit[]> = {};
+    const uncategorized: Habit[] = [];
+
+    for (const habit of filteredHabits) {
+      if (habit.category_id) {
+        // TODO: カテゴリ名を取得してグループ化
+        const categoryKey = habit.category_id;
+        if (!groups[categoryKey]) {
+          groups[categoryKey] = [];
+        }
+        groups[categoryKey].push(habit);
+      } else {
+        uncategorized.push(habit);
+      }
+    }
+
+    return { groups, uncategorized };
+  }, [filteredHabits]);
+
+  // 習慣詳細へ遷移
+  const handlePressHabit = (habit: Habit) => {
+    // TODO: 習慣詳細画面へ遷移
+    console.log('Navigate to habit detail:', habit.id);
+  };
+
+  // 新規作成画面へ遷移
+  const handleAddHabit = () => {
+    // TODO: 習慣作成画面へ遷移
+    console.log('Navigate to create habit');
+  };
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary[500]} />
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Error loading habits</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>習慣の読み込みに失敗しました</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={habits}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <HabitListItem habit={item} />}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="add-circle-outline" size={48} color="#9ca3af" />
-            <Text style={styles.emptyText}>習慣がありません</Text>
-            <Text style={styles.emptySubtext}>
-              下のボタンから新しい習慣を追加しましょう
-            </Text>
-          </View>
-        }
-      />
-
-      {/* FAB - Add Habit */}
-      <Link href="/habits/new" asChild>
-        <Pressable style={styles.fab}>
-          <Ionicons name="add" size={28} color="#ffffff" />
-        </Pressable>
-      </Link>
-    </View>
-  );
-}
-
-function HabitListItem({ habit }: { habit: Habit }) {
-  const trackingTypeLabel = {
-    boolean: 'チェック',
-    numeric: '数値',
-    duration: '時間',
-  };
-
-  return (
-    <Link href={`/habits/${habit.id}`} asChild>
-      <Pressable style={styles.card}>
-        <View style={styles.cardContent}>
-          <View style={styles.cardText}>
-            <Text style={styles.habitName}>{habit.name}</Text>
-            <Text style={styles.habitMeta}>
-              {trackingTypeLabel[habit.tracking_type]}
-              {habit.tracking_type !== 'boolean' &&
-                ` • ${habit.goal_value} ${habit.goal_unit}`}
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {/* ヘッダー */}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <Text style={styles.title}>Habits</Text>
+          <Pressable style={styles.addButton} onPress={handleAddHabit}>
+            <Ionicons name="add" size={24} color={colors.white} />
+          </Pressable>
         </View>
+
+        {/* 検索バー */}
+        <SearchInput
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          rightIcon={searchQuery ? 'close-circle' : undefined}
+          onRightIconPress={() => setSearchQuery('')}
+        />
+
+        {/* フィルター */}
+        <View style={styles.filterContainer}>
+          <SegmentedControl
+            segments={FILTER_SEGMENTS}
+            value={filter}
+            onChange={setFilter}
+          />
+        </View>
+      </View>
+
+      {/* 習慣リスト */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {filteredHabits.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Ionicons
+              name="list-outline"
+              size={48}
+              color={lightTheme.textTertiary}
+            />
+            <Text style={styles.emptyText}>
+              {searchQuery ? '検索結果がありません' : '習慣がありません'}
+            </Text>
+            <Text style={styles.emptySubtext}>
+              {searchQuery
+                ? '別のキーワードで検索してみてください'
+                : '新しい習慣を追加して始めましょう'}
+            </Text>
+          </View>
+        ) : (
+          <>
+            {/* 未分類の習慣 */}
+            {groupedHabits.uncategorized.length > 0 && (
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>
+                    未分類 ({groupedHabits.uncategorized.length})
+                  </Text>
+                </View>
+                <View style={styles.sectionContent}>
+                  {groupedHabits.uncategorized.map((habit) => (
+                    <HabitListItem
+                      key={habit.id}
+                      habit={habit}
+                      streak={0} // TODO: ストリーク計算
+                      onPress={handlePressHabit}
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* カテゴリ別の習慣 */}
+            {Object.entries(groupedHabits.groups).map(([categoryId, categoryHabits]) => (
+              <View key={categoryId} style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>
+                    {/* TODO: カテゴリ名を表示 */}
+                    カテゴリ ({categoryHabits.length})
+                  </Text>
+                  <Ionicons
+                    name="chevron-down"
+                    size={20}
+                    color={lightTheme.textSecondary}
+                  />
+                </View>
+                <View style={styles.sectionContent}>
+                  {categoryHabits.map((habit) => (
+                    <HabitListItem
+                      key={habit.id}
+                      habit={habit}
+                      streak={0}
+                      onPress={handlePressHabit}
+                    />
+                  ))}
+                </View>
+              </View>
+            ))}
+          </>
+        )}
+      </ScrollView>
+
+      {/* FAB */}
+      <Pressable style={styles.fab} onPress={handleAddHabit}>
+        <Ionicons name="add" size={28} color={colors.white} />
       </Pressable>
-    </Link>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: lightTheme.surface,
   },
-  loadingText: {
-    textAlign: 'center',
-    marginTop: 100,
-    color: '#6b7280',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing['2xl'],
   },
   errorText: {
-    textAlign: 'center',
-    marginTop: 100,
-    color: '#ef4444',
+    ...typography.h4,
+    color: colors.error[500],
   },
-  listContent: {
-    padding: 16,
-    gap: 12,
+  header: {
+    backgroundColor: lightTheme.background,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: lightTheme.border,
+    gap: spacing.md,
   },
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  cardContent: {
+  title: {
+    ...typography.h2,
+    color: lightTheme.text,
+  },
+  addButton: {
+    width: 36,
+    height: 36,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.primary[500],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterContainer: {
+    marginTop: spacing.xs,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: spacing.lg,
+    paddingBottom: 100, // FAB の余白
+  },
+  section: {
+    marginBottom: spacing.xl,
+  },
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: spacing.md,
+    paddingHorizontal: spacing.xs,
   },
-  cardText: {
-    flex: 1,
+  sectionTitle: {
+    ...typography.bodySmallMedium,
+    color: lightTheme.textSecondary,
   },
-  habitName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#111827',
-  },
-  habitMeta: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginTop: 4,
+  sectionContent: {
+    gap: spacing.sm,
   },
   emptyContainer: {
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingVertical: spacing['5xl'],
   },
   emptyText: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#6b7280',
-    marginTop: 16,
+    ...typography.h4,
+    color: lightTheme.textSecondary,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
   emptySubtext: {
-    fontSize: 14,
-    color: '#9ca3af',
-    marginTop: 8,
+    ...typography.body,
+    color: lightTheme.textTertiary,
     textAlign: 'center',
   },
   fab: {
     position: 'absolute',
-    bottom: 24,
-    right: 24,
+    bottom: spacing['2xl'],
+    right: spacing['2xl'],
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#6366f1',
+    backgroundColor: colors.primary[500],
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#6366f1',
+    shadowColor: colors.primary[500],
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
