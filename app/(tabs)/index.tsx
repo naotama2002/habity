@@ -1,17 +1,30 @@
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { useHabitsWithTodayLog } from '@/state/queries/habits';
 import { useToggleHabitLog } from '@/state/queries/habit-logs';
-import type { HabitWithTodayLog } from '@/types/database';
+import { HabitCard, TimeOfDaySection } from '@/components/habits';
+import { colors, lightTheme } from '@/lib/colors';
+import { typography } from '@/lib/typography';
+import { spacing, borderRadius } from '@/lib/spacing';
+import type { HabitWithTodayLog, TimeOfDay } from '@/types/database';
 
+/**
+ * Today 画面
+ * 今日実行すべき習慣を時間帯別に表示
+ * docs/04-ui-design.md「1. Today 画面」を参照
+ */
 export default function TodayScreen() {
+  const router = useRouter();
   const { data: habits, isLoading, error } = useHabitsWithTodayLog();
   const toggleLog = useToggleHabitLog();
 
   const today = new Date();
   const dateStr = format(today, 'yyyy-MM-dd');
 
+  // 習慣をチェックイン
   const handleToggle = (habit: HabitWithTodayLog) => {
     toggleLog.mutate({
       habitId: habit.id,
@@ -21,30 +34,53 @@ export default function TodayScreen() {
     });
   };
 
+  // 習慣詳細へ遷移
+  const handlePressHabit = (habit: HabitWithTodayLog) => {
+    // TODO: 習慣詳細画面へ遷移
+    console.log('Navigate to habit detail:', habit.id);
+  };
+
+  // 進捗計算
   const completedCount = habits?.filter((h) => h.is_completed_today).length ?? 0;
   const totalCount = habits?.length ?? 0;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
+  // 時間帯ごとに習慣をグループ化
+  const groupedHabits = groupHabitsByTimeOfDay(habits ?? []);
+
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary[500]} />
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Error loading habits</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>習慣の読み込みに失敗しました</Text>
+          <Text style={styles.errorSubtext}>もう一度お試しください</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {/* ヘッダー */}
       <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <Text style={styles.title}>Today</Text>
+          <Pressable style={styles.addButton}>
+            <Text style={styles.addButtonText}>+</Text>
+          </Pressable>
+        </View>
+
+        {/* 日付 & 進捗 */}
         <Text style={styles.dateText}>
           {format(today, 'yyyy年M月d日（E）', { locale: ja })}
         </Text>
@@ -59,186 +95,193 @@ export default function TodayScreen() {
         </View>
       </View>
 
-      {/* Habit List */}
-      <FlatList
-        data={habits}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <HabitCard habit={item} onToggle={() => handleToggle(item)} />
-        )}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
+      {/* 習慣リスト */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {habits?.length === 0 ? (
           <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>📝</Text>
             <Text style={styles.emptyText}>習慣がありません</Text>
             <Text style={styles.emptySubtext}>
-              Habits タブから新しい習慣を追加しましょう
+              新しい習慣を追加して始めましょう
             </Text>
           </View>
-        }
-      />
-    </View>
+        ) : (
+          <>
+            {TIME_OF_DAY_ORDER.map((timeOfDay) => {
+              const habitsInSection = groupedHabits[timeOfDay];
+              if (!habitsInSection || habitsInSection.length === 0) {
+                return null;
+              }
+
+              return (
+                <TimeOfDaySection key={timeOfDay} timeOfDay={timeOfDay}>
+                  {habitsInSection.map((habit) => (
+                    <HabitCard
+                      key={habit.id}
+                      habit={habit}
+                      streak={0} // TODO: ストリーク計算を実装
+                      onToggle={handleToggle}
+                      onPress={handlePressHabit}
+                    />
+                  ))}
+                </TimeOfDaySection>
+              );
+            })}
+          </>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-function HabitCard({
-  habit,
-  onToggle,
-}: {
-  habit: HabitWithTodayLog;
-  onToggle: () => void;
-}) {
-  const isCompleted = habit.is_completed_today;
+/**
+ * 時間帯の表示順序
+ */
+const TIME_OF_DAY_ORDER: TimeOfDay[] = [
+  'morning',
+  'afternoon',
+  'evening',
+  'night',
+  'anytime',
+];
 
-  return (
-    <Pressable
-      style={[styles.card, isCompleted && styles.cardCompleted]}
-      onPress={onToggle}
-    >
-      <View style={styles.cardContent}>
-        <View
-          style={[styles.checkbox, isCompleted && styles.checkboxCompleted]}
-        >
-          {isCompleted && <Text style={styles.checkmark}>✓</Text>}
-        </View>
-        <View style={styles.cardText}>
-          <Text style={[styles.habitName, isCompleted && styles.habitNameCompleted]}>
-            {habit.name}
-          </Text>
-          {habit.tracking_type !== 'boolean' && (
-            <Text style={styles.goalText}>
-              {habit.goal_value} {habit.goal_unit}
-            </Text>
-          )}
-        </View>
-      </View>
-    </Pressable>
-  );
+/**
+ * 習慣を時間帯ごとにグループ化
+ */
+function groupHabitsByTimeOfDay(
+  habits: HabitWithTodayLog[]
+): Record<TimeOfDay, HabitWithTodayLog[]> {
+  const grouped: Record<TimeOfDay, HabitWithTodayLog[]> = {
+    morning: [],
+    afternoon: [],
+    evening: [],
+    night: [],
+    anytime: [],
+  };
+
+  for (const habit of habits) {
+    // time_of_day は配列なので最初の要素を使用
+    const timeOfDay = habit.time_of_day?.[0] ?? 'anytime';
+    grouped[timeOfDay].push(habit);
+  }
+
+  return grouped;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: lightTheme.surface,
   },
-  loadingText: {
-    textAlign: 'center',
-    marginTop: 100,
-    color: '#6b7280',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing['2xl'],
   },
   errorText: {
-    textAlign: 'center',
-    marginTop: 100,
-    color: '#ef4444',
+    ...typography.h4,
+    color: colors.error[500],
+    marginBottom: spacing.sm,
+  },
+  errorSubtext: {
+    ...typography.body,
+    color: lightTheme.textSecondary,
   },
   header: {
-    backgroundColor: '#ffffff',
-    padding: 16,
+    backgroundColor: lightTheme.background,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: lightTheme.border,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  title: {
+    ...typography.h2,
+    color: lightTheme.text,
+  },
+  addButton: {
+    width: 36,
+    height: 36,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.primary[500],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonText: {
+    fontSize: 24,
+    color: colors.white,
+    lineHeight: 28,
   },
   dateText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 12,
+    ...typography.bodySmall,
+    color: lightTheme.textSecondary,
+    marginBottom: spacing.md,
   },
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   progressText: {
-    fontSize: 14,
-    color: '#6b7280',
-    minWidth: 60,
+    ...typography.bodySmall,
+    color: lightTheme.textSecondary,
+    minWidth: 64,
   },
   progressBar: {
     flex: 1,
     height: 8,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 4,
+    backgroundColor: lightTheme.surfaceSecondary,
+    borderRadius: borderRadius.full,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#6366f1',
-    borderRadius: 4,
+    backgroundColor: colors.primary[500],
+    borderRadius: borderRadius.full,
   },
   progressPercent: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6366f1',
+    ...typography.bodySmallMedium,
+    color: colors.primary[500],
     minWidth: 40,
     textAlign: 'right',
   },
-  listContent: {
-    padding: 16,
-    gap: 12,
-  },
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  cardCompleted: {
-    backgroundColor: '#ecfdf5',
-  },
-  cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: '#d1d5db',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxCompleted: {
-    backgroundColor: '#10b981',
-    borderColor: '#10b981',
-  },
-  checkmark: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  cardText: {
+  scrollView: {
     flex: 1,
   },
-  habitName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#111827',
-  },
-  habitNameCompleted: {
-    color: '#059669',
-  },
-  goalText: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginTop: 2,
+  scrollContent: {
+    padding: spacing.lg,
+    gap: spacing['2xl'],
   },
   emptyContainer: {
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingVertical: spacing['5xl'],
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: spacing.lg,
   },
   emptyText: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#6b7280',
+    ...typography.h4,
+    color: lightTheme.textSecondary,
+    marginBottom: spacing.sm,
   },
   emptySubtext: {
-    fontSize: 14,
-    color: '#9ca3af',
-    marginTop: 8,
+    ...typography.body,
+    color: lightTheme.textTertiary,
   },
 });

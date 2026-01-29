@@ -103,21 +103,21 @@
 - [ ] src/components/Toast.tsx
 
 #### デザインシステム
-- [ ] src/lib/colors.ts - カラーパレット
-- [ ] src/lib/typography.ts - タイポグラフィ
-- [ ] src/lib/spacing.ts - スペーシング
+- [x] src/lib/colors.ts - カラーパレット
+- [x] src/lib/typography.ts - タイポグラフィ
+- [x] src/lib/spacing.ts - スペーシング
 
 ### 1.3 Today 画面（ホーム）
 参照: docs/04-ui-design.md「1. Today 画面」
 
-- [ ] app/(tabs)/index.tsx - Today 画面本体
-- [ ] src/components/habits/HabitCard.tsx - 習慣カード
-- [ ] src/components/habits/TimeOfDaySection.tsx - 時間帯セクション
-- [ ] src/components/habits/StreakBadge.tsx - ストリークバッジ
+- [x] app/(tabs)/index.tsx - Today 画面本体
+- [x] src/components/habits/HabitCard.tsx - 習慣カード
+- [x] src/components/habits/TimeOfDaySection.tsx - 時間帯セクション
+- [x] src/components/habits/StreakBadge.tsx - ストリークバッジ
 - [ ] src/components/habits/GoalProgress.tsx - 目標進捗
-- [ ] チェックイン機能（タップでトグル）
+- [x] チェックイン機能（タップでトグル）
 - [ ] 日付選択機能
-- [ ] Haptics フィードバック
+- [x] Haptics フィードバック
 
 ### 1.4 Habits 画面（習慣一覧）
 参照: docs/04-ui-design.md「2. Habits 画面」
