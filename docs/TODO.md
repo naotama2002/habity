@@ -75,11 +75,12 @@
 ## Phase 1: MVP 実装
 
 ### 1.1 認証フロー
-- [ ] app/(auth)/_layout.tsx - 認証レイアウト
-- [ ] app/(auth)/welcome.tsx - ウェルカム画面
-- [ ] app/(auth)/login.tsx - ログイン画面
-- [ ] src/state/session/index.tsx - セッション管理 Context
-- [ ] src/state/session/useSession.ts - セッションフック
+- [x] app/(auth)/_layout.tsx - 認証レイアウト
+- [x] app/(auth)/welcome.tsx - ウェルカム画面
+- [x] app/(auth)/login.tsx - ログイン画面
+- [x] app/(auth)/signup.tsx - サインアップ画面
+- [x] src/state/session/index.tsx - セッション管理 Context
+- [x] src/state/session/types.ts - セッション型定義
 - [ ] Google OAuth 連携テスト
 
 ### 1.2 共通コンポーネント
