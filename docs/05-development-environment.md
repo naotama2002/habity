@@ -17,7 +17,7 @@
 │  │                                                               │   │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │   │
 │  │  │  PostgreSQL │  │   Supabase  │  │    Go Backend       │  │   │
-│  │  │   :5432     │  │   Studio    │  │      :8080          │  │   │
+│  │  │   :5432     │  │   Studio    │  │      :8088          │  │   │
 │  │  │             │  │   :54323    │  │                     │  │   │
 │  │  └─────────────┘  └─────────────┘  └─────────────────────┘  │   │
 │  │         │                                    │               │   │
@@ -51,7 +51,7 @@
 | Supabase Realtime | 54321 | リアルタイム購読 |
 | Supabase Studio | 54323 | 管理 UI |
 | Supabase Inbucket | 54324 | メールテスト用 |
-| Go Backend | 8080 | カスタム API（Habitify インポート等）|
+| Go Backend | 8088 | カスタム API（Habitify インポート等）|
 | React Native Web | 8081 | フロントエンド開発サーバー |
 
 ---
@@ -65,16 +65,9 @@ habity/
 ├── .env                         # ローカル環境変数（.gitignore）
 │
 ├── supabase/                    # Supabase 設定
-│   ├── config.toml              # Supabase 設定
-│   ├── migrations/              # DB マイグレーション
-│   │   ├── 20240101000000_create_enums.sql
-│   │   ├── 20240101000001_create_categories.sql
-│   │   ├── 20240101000002_create_habits.sql
-│   │   ├── 20240101000003_create_habit_logs.sql
-│   │   ├── 20240101000004_create_user_settings.sql
-│   │   ├── 20240101000005_create_triggers.sql
-│   │   └── 20240101000006_create_views.sql
-│   └── seed.sql                 # 初期データ
+│   ├── kong.yml                 # API Gateway 設定
+│   └── migrations/              # DB マイグレーション
+│       └── 20240101000000_init.sql  # 全テーブル・RLS・関数定義
 │
 ├── backend/                     # Go バックエンド
 │   ├── Dockerfile
@@ -91,6 +84,8 @@ habity/
 │   └── go.sum
 │
 ├── src/                         # React Native
+├── metro.config.js              # Metro bundler 設定（pnpm 対応）
+├── babel.config.js              # Babel 設定
 ├── package.json
 └── ...
 ```
@@ -203,6 +198,7 @@ services:
         condition: service_healthy
     environment:
       PORT: 4000
+      APP_NAME: realtime
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: supabase_admin
@@ -215,6 +211,9 @@ services:
       ERL_AFLAGS: -proto_dist inet_tcp
       DNS_NODES: "''"
       RLIMIT_NOFILE: "10000"
+      ENABLE_TAILSCALE: "false"
+      FLY_APP_NAME: ""
+      FLY_ALLOC_ID: ""
     restart: unless-stopped
 
   # ===========================================
@@ -283,6 +282,8 @@ services:
     depends_on:
       kong:
         condition: service_started
+      meta:
+        condition: service_started
     ports:
       - "54323:3000"
     environment:
@@ -298,8 +299,8 @@ services:
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU}
 
       LOGFLARE_API_KEY: ${LOGFLARE_API_KEY:-}
-      LOGFLARE_URL: http://analytics:4000
-      NEXT_PUBLIC_ENABLE_LOGS: true
+      LOGFLARE_URL: http://localhost:4000
+      NEXT_PUBLIC_ENABLE_LOGS: false
       NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
     restart: unless-stopped
 
@@ -346,15 +347,15 @@ services:
       kong:
         condition: service_started
     ports:
-      - "8080:8080"
+      - "8088:8088"
     environment:
-      PORT: 8080
+      PORT: 8088
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/postgres?sslmode=disable
       SUPABASE_URL: http://kong:8000
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU}
       JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters}
-    volumes:
-      - ./backend:/app
+    # volumes:
+    #   - ./backend:/app  # 開発時のホットリロード用（現在は無効）
     restart: unless-stopped
 
 volumes:
@@ -373,9 +374,10 @@ volumes:
 POSTGRES_PASSWORD=postgres
 JWT_SECRET=super-secret-jwt-token-with-at-least-32-characters-long
 JWT_EXPIRY=3600
+SECRET_KEY_BASE=UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
 
 # Supabase Keys (for local development)
-# These are example keys for local development only
+# These are example keys for local development only - DO NOT use in production
 ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
 SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
 
@@ -385,6 +387,7 @@ SITE_URL=http://localhost:8081
 
 # ===========================================
 # Google OAuth (Optional for local)
+# Get credentials from: https://console.cloud.google.com/apis/credentials
 # ===========================================
 ENABLE_GOOGLE_SIGNUP=false
 GOOGLE_CLIENT_ID=
@@ -397,11 +400,11 @@ ENABLE_EMAIL_SIGNUP=true
 ENABLE_EMAIL_AUTOCONFIRM=true
 
 # ===========================================
-# React Native
+# React Native / Expo
 # ===========================================
 EXPO_PUBLIC_SUPABASE_URL=http://localhost:54321
 EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-EXPO_PUBLIC_BACKEND_URL=http://localhost:8080
+EXPO_PUBLIC_BACKEND_URL=http://localhost:8088
 ```
 
 ---
@@ -460,7 +463,7 @@ docker compose logs -f backend
 | Supabase API | http://localhost:54321 | REST API |
 | Supabase Studio | http://localhost:54323 | 管理 UI |
 | Inbucket | http://localhost:54324 | メールテスト |
-| Go Backend | http://localhost:8080 | カスタム API |
+| Go Backend | http://localhost:8088 | カスタム API |
 
 ### 6. React Native セットアップ
 
@@ -481,9 +484,9 @@ pnpm android
 ### 7. DB マイグレーション
 
 ```bash
-# マイグレーション適用（初回起動時に自動実行）
+# マイグレーションは初回起動時に自動実行されます
 # 手動実行する場合:
-docker compose exec db psql -U postgres -d postgres -f /docker-entrypoint-initdb.d/migrations/20240101000000_create_enums.sql
+docker compose exec db psql -U postgres -d postgres -f /docker-entrypoint-initdb.d/migrations/20240101000000_init.sql
 ```
 
 ---
@@ -545,6 +548,41 @@ docker compose restart db
 # ボリュームを削除して再作成
 docker compose down -v
 docker compose up -d
+```
+
+### Supabase Auth が起動しない
+
+`supabase_auth_admin` の認証エラーが出る場合:
+
+```bash
+# DB ユーザーのパスワード設定
+docker exec habity-db psql -U postgres -c "ALTER USER supabase_auth_admin WITH PASSWORD 'postgres';"
+docker exec habity-db psql -U postgres -c "ALTER USER authenticator WITH PASSWORD 'postgres';"
+docker exec habity-db psql -U postgres -c "ALTER USER supabase_storage_admin WITH PASSWORD 'postgres';"
+
+# auth スキーマの所有権を修正
+docker exec habity-db psql -U postgres -c "ALTER SCHEMA auth OWNER TO supabase_auth_admin;"
+
+# サービス再起動
+docker compose restart auth rest storage
+```
+
+### Realtime が起動しない
+
+`_realtime` スキーマがない場合:
+
+```bash
+docker exec habity-db psql -U postgres -c "CREATE SCHEMA IF NOT EXISTS _realtime; GRANT ALL ON SCHEMA _realtime TO supabase_admin;"
+docker compose restart realtime
+```
+
+### Metro bundler エラー (Web)
+
+pnpm 環境で依存関係エラーが出る場合:
+
+```bash
+# キャッシュクリアして再起動
+pnpm expo start --web --clear
 ```
 
 ---
