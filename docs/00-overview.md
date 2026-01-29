@@ -133,7 +133,7 @@ pnpm android  # Android
 |---------|-----|
 | Supabase API | http://localhost:54321 |
 | Supabase Studio | http://localhost:54323 |
-| Go Backend | http://localhost:8080 |
+| Go Backend | http://localhost:8088 |
 | Email (Inbucket) | http://localhost:54324 |
 
 ---

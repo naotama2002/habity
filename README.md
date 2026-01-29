@@ -45,7 +45,7 @@ docker compose up -d
 |---------|-----|------|
 | Supabase API | http://localhost:54321 | REST/Auth/Realtime |
 | Supabase Studio | http://localhost:54323 | 管理 UI |
-| Go Backend | http://localhost:8080 | カスタム API |
+| Go Backend | http://localhost:8088 | カスタム API |
 | Inbucket | http://localhost:54324 | メールテスト |
 
 ### 4. フロントエンド起動
