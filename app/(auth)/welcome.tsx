@@ -5,7 +5,6 @@ import { useSessionApi } from '@/state/session';
 
 /**
  * ウェルカム画面
- * Bluesky の LoggedOut/SplashScreen を参考に設計
  */
 export default function WelcomeScreen() {
   const router = useRouter();

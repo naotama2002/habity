@@ -3,7 +3,6 @@ import 'react-native-gesture-handler/jestSetup';
 
 /**
  * Jest Setup for Habity
- * Bluesky social-app の jestSetup.js を参考に設計
  *
  * モック方針:
  * - React Native のネイティブ機能のみモック

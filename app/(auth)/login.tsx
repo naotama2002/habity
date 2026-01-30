@@ -16,7 +16,6 @@ import { validateLoginForm } from '@/lib/validation/auth';
 
 /**
  * ログイン画面
- * Bluesky の LoginForm を参考に設計
  */
 export default function LoginScreen() {
   const router = useRouter();

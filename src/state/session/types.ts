@@ -2,7 +2,6 @@ import type { Session, User } from '@supabase/supabase-js';
 
 /**
  * セッション状態の型定義
- * Bluesky の SessionStateContext を参考に設計
  */
 export interface SessionState {
   /** 現在のセッション */
@@ -19,7 +18,6 @@ export interface SessionState {
 
 /**
  * セッション操作APIの型定義
- * Bluesky の SessionApiContext を参考に設計
  */
 export interface SessionApi {
   /** Google でサインイン */

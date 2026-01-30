@@ -1,6 +1,5 @@
 /**
  * 認証関連のバリデーション
- * Bluesky の lib/strings/handles.ts を参考に設計
  */
 
 export interface ValidationResult {

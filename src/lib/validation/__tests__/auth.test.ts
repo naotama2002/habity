@@ -9,7 +9,6 @@ import {
 
 /**
  * 認証バリデーションのテスト
- * Bluesky の handles.test.ts を参考に設計
  * テーブル駆動テスト（it.each）パターンを使用
  */
 

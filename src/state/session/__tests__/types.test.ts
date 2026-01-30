@@ -3,7 +3,6 @@ import { initialSessionState, SessionState } from '../types';
 
 /**
  * Session 型定義と初期状態のテスト
- * Bluesky の session-test.ts を参考に設計
  */
 describe('session types', () => {
   describe('initialSessionState', () => {
