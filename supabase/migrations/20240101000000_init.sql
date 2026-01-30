@@ -237,15 +237,19 @@ CREATE TRIGGER user_settings_updated_at
 -- Function to create default settings for new users
 -- ===========================================
 
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
-  INSERT INTO user_settings (user_id)
+  INSERT INTO public.user_settings (user_id)
   VALUES (NEW.id)
   ON CONFLICT (user_id) DO NOTHING;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- Trigger for new user signup
 CREATE TRIGGER on_auth_user_created

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSession, useSessionApi } from '@/state/session';
+import { useSessionApi } from '@/state/session';
 
 /**
  * サインアップ画面
@@ -20,7 +20,6 @@ import { useSession, useSessionApi } from '@/state/session';
  */
 export default function SignupScreen() {
   const router = useRouter();
-  const { isLoading } = useSession();
   const { signUpWithEmail } = useSessionApi();
 
   const [email, setEmail] = useState('');
@@ -28,6 +27,7 @@ export default function SignupScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSignup = async () => {
     setError(null);
@@ -50,6 +50,7 @@ export default function SignupScreen() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await signUpWithEmail(email.trim(), password);
       setSuccess(true);
@@ -60,6 +61,8 @@ export default function SignupScreen() {
       } else {
         setError('登録に失敗しました。もう一度お試しください');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -135,7 +138,7 @@ export default function SignupScreen() {
                   autoCapitalize="none"
                   autoComplete="email"
                   autoCorrect={false}
-                  editable={!isLoading}
+                  editable={!isSubmitting}
                 />
               </View>
 
@@ -151,7 +154,7 @@ export default function SignupScreen() {
                   secureTextEntry
                   autoCapitalize="none"
                   autoComplete="new-password"
-                  editable={!isLoading}
+                  editable={!isSubmitting}
                 />
               </View>
 
@@ -167,7 +170,7 @@ export default function SignupScreen() {
                   secureTextEntry
                   autoCapitalize="none"
                   autoComplete="new-password"
-                  editable={!isLoading}
+                  editable={!isSubmitting}
                 />
               </View>
 
@@ -175,12 +178,12 @@ export default function SignupScreen() {
               <Pressable
                 style={[
                   styles.signupButton,
-                  isLoading && styles.signupButtonDisabled,
+                  isSubmitting && styles.signupButtonDisabled,
                 ]}
                 onPress={handleSignup}
-                disabled={isLoading}
+                disabled={isSubmitting}
               >
-                {isLoading ? (
+                {isSubmitting ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <Text style={styles.signupButtonText}>アカウント作成</Text>

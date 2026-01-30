@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSession, useSessionApi } from '@/state/session';
+import { useSessionApi } from '@/state/session';
 
 /**
  * ログイン画面
@@ -19,12 +19,12 @@ import { useSession, useSessionApi } from '@/state/session';
  */
 export default function LoginScreen() {
   const router = useRouter();
-  const { isLoading } = useSession();
   const { signInWithEmail } = useSessionApi();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogin = async () => {
     setError(null);
@@ -39,6 +39,7 @@ export default function LoginScreen() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await signInWithEmail(email.trim(), password);
       // 成功時は onAuthStateChange でリダイレクトされる
@@ -49,6 +50,8 @@ export default function LoginScreen() {
       } else {
         setError('ログインに失敗しました。もう一度お試しください');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -96,7 +99,7 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect={false}
-                editable={!isLoading}
+                editable={!isSubmitting}
               />
             </View>
 
@@ -112,7 +115,7 @@ export default function LoginScreen() {
                 secureTextEntry
                 autoCapitalize="none"
                 autoComplete="password"
-                editable={!isLoading}
+                editable={!isSubmitting}
               />
             </View>
 
@@ -120,12 +123,12 @@ export default function LoginScreen() {
             <Pressable
               style={[
                 styles.loginButton,
-                isLoading && styles.loginButtonDisabled,
+                isSubmitting && styles.loginButtonDisabled,
               ]}
               onPress={handleLogin}
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.loginButtonText}>サインイン</Text>
