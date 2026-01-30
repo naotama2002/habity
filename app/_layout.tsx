@@ -12,7 +12,6 @@ SplashScreen.preventAutoHideAsync();
 
 /**
  * ナビゲーション制御コンポーネント
- * Bluesky の createNativeStackNavigatorWithAuth を参考に設計
  * 認証状態に応じて適切な画面にリダイレクト
  */
 function NavigationController({ children }: { children: React.ReactNode }) {
@@ -70,7 +69,6 @@ function MainLayout() {
 /**
  * ルートレイアウト
  * Provider 階層: GestureHandler → QueryClient → Session
- * Bluesky の App.native.tsx を参考に設計
  */
 export default function RootLayout() {
   return (

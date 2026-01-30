@@ -1,5 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Link } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 
@@ -42,11 +41,9 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>データ</Text>
           <View style={styles.menuGroup}>
             <MenuItem icon="folder-outline" label="カテゴリ管理" />
-            <Link href="/settings/import" asChild>
-              <Pressable>
-                <MenuItem icon="download-outline" label="Habitify からインポート" />
-              </Pressable>
-            </Link>
+            <Pressable onPress={() => Alert.alert('未実装', 'この機能は準備中です')}>
+              <MenuItem icon="download-outline" label="Habitify からインポート" />
+            </Pressable>
             <MenuItem icon="share-outline" label="データエクスポート" />
           </View>
         </View>

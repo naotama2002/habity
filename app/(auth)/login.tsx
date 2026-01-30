@@ -12,10 +12,10 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
+import { validateLoginForm } from '@/lib/validation/auth';
 
 /**
  * ログイン画面
- * Bluesky の LoginForm を参考に設計
  */
 export default function LoginScreen() {
   const router = useRouter();
@@ -30,12 +30,9 @@ export default function LoginScreen() {
     setError(null);
 
     // バリデーション
-    if (!email.trim()) {
-      setError('メールアドレスを入力してください');
-      return;
-    }
-    if (!password) {
-      setError('パスワードを入力してください');
+    const validationResult = validateLoginForm(email, password);
+    if (!validationResult.isValid) {
+      setError(validationResult.error);
       return;
     }
 

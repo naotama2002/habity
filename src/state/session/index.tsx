@@ -17,13 +17,11 @@ import {
 
 /**
  * セッション状態 Context
- * Bluesky の StateContext を参考に設計
  */
 const SessionStateContext = createContext<SessionState>(initialSessionState);
 
 /**
  * セッション操作 API Context
- * Bluesky の ApiContext を参考に設計
  */
 const SessionApiContext = createContext<SessionApi | null>(null);
 
@@ -36,7 +34,6 @@ interface SessionProviderProps {
 
 /**
  * セッション管理 Provider
- * Bluesky の SessionProvider を参考に設計
  */
 export function SessionProvider({ children }: SessionProviderProps) {
   const [state, setState] = useState<SessionState>(initialSessionState);
@@ -196,7 +193,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
 /**
  * セッション状態を取得するフック
- * Bluesky の useSession を参考に設計
  */
 export function useSession(): SessionState {
   return useContext(SessionStateContext);
@@ -204,7 +200,6 @@ export function useSession(): SessionState {
 
 /**
  * セッション操作 API を取得するフック
- * Bluesky の useSessionApi を参考に設計
  */
 export function useSessionApi(): SessionApi {
   const api = useContext(SessionApiContext);
@@ -216,7 +211,6 @@ export function useSessionApi(): SessionApi {
 
 /**
  * 認証が必要な操作をラップするフック
- * Bluesky の useRequireAuth を参考に設計
  */
 export function useRequireAuth() {
   const { hasSession } = useSession();

@@ -20,6 +20,9 @@
 | コンポーネント設計 | `social-app/src/components/` |
 | プラットフォーム分離 | `.native.tsx`, `.web.tsx` ファイル |
 | React Query 使用法 | `social-app/src/state/queries/` |
+| Jest 設定 | `social-app/jest/`, `social-app/package.json` の jest セクション |
+| テストパターン | `social-app/src/state/session/__tests__/`, `social-app/__tests__/` |
+| GitHub Actions CI | `social-app/.github/workflows/lint.yml` |
 
 ### 実装前のチェックリスト
 
@@ -74,3 +77,37 @@ pnpm test
 - React Query でサーバー状態管理
 - Zod でスキーマ検証
 - プラットフォーム固有コードは `.native.ts` / `.web.ts` で分離
+
+## テスト実装ルール
+
+**各機能の実装時に必ずテストを作成すること。**
+
+### 基本方針
+
+1. **新規ロジック追加時**: 対応するユニットテストを必ず作成
+2. **リファクタリング前**: 既存動作を確認するテストを先に書く
+3. **CI 確認**: `pnpm test:ci` が通ることを確認してからコミット
+
+### テストパターン
+
+- **テーブル駆動テスト**: `it.each()` で複数ケースを効率的にテスト
+- **状態管理テスト**: reducer や state transitions をテスト
+- **バリデーション**: `src/lib/validation/` に抽出してテスト
+
+### モック方針
+
+- **外部 API（Supabase等）**: 必要に応じてモック
+- **それ以外**: 極力モックしない（実際の動作をテスト）
+
+### テストファイル配置
+
+```
+src/lib/**/__tests__/*.test.ts       # ユーティリティ関数
+src/state/**/__tests__/*.test.ts     # 状態管理
+src/components/**/__tests__/*.test.tsx  # コンポーネント
+```
+
+### Jest 設定ファイル
+
+- `jest.config.js` - Jest 設定
+- `jest/jestSetup.js` - React Native モック設定
