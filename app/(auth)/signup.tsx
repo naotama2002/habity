@@ -13,6 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
+import { validateSignupForm } from '@/lib/validation/auth';
 
 /**
  * サインアップ画面
@@ -33,20 +34,9 @@ export default function SignupScreen() {
     setError(null);
 
     // バリデーション
-    if (!email.trim()) {
-      setError('メールアドレスを入力してください');
-      return;
-    }
-    if (!password) {
-      setError('パスワードを入力してください');
-      return;
-    }
-    if (password.length < 6) {
-      setError('パスワードは6文字以上で入力してください');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError('パスワードが一致しません');
+    const validationResult = validateSignupForm(email, password, confirmPassword);
+    if (!validationResult.isValid) {
+      setError(validationResult.error);
       return;
     }
 
