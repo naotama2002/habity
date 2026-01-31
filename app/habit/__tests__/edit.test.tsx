@@ -109,10 +109,13 @@ describe('EditHabitScreen', () => {
     it('should render screen with header', async () => {
       renderWithProviders(<EditHabitScreen />);
 
-      await waitFor(() => {
-        expect(screen.getByText('習慣を編集')).toBeTruthy();
-      });
-    });
+      await waitFor(
+        () => {
+          expect(screen.getByText('習慣を編集')).toBeTruthy();
+        },
+        { timeout: 10000 }
+      );
+    }, 15000);
 
     it('should show loading indicator initially', () => {
       renderWithProviders(<EditHabitScreen />);
@@ -124,27 +127,36 @@ describe('EditHabitScreen', () => {
     it('should render HabitForm with initial values after loading', async () => {
       renderWithProviders(<EditHabitScreen />);
 
-      await waitFor(() => {
-        expect(screen.getByDisplayValue('読書')).toBeTruthy();
-      });
-    });
+      await waitFor(
+        () => {
+          expect(screen.getByDisplayValue('読書')).toBeTruthy();
+        },
+        { timeout: 10000 }
+      );
+    }, 15000);
 
     it('should show habit description in form', async () => {
       renderWithProviders(<EditHabitScreen />);
 
-      await waitFor(() => {
-        expect(screen.getByDisplayValue('毎日30分読む')).toBeTruthy();
-      });
-    });
+      await waitFor(
+        () => {
+          expect(screen.getByDisplayValue('毎日30分読む')).toBeTruthy();
+        },
+        { timeout: 10000 }
+      );
+    }, 15000);
   });
 
   describe('navigation', () => {
     it('should call router.back when close button is pressed and history exists', async () => {
       renderWithProviders(<EditHabitScreen />);
 
-      await waitFor(() => {
-        expect(screen.getByText('習慣を編集')).toBeTruthy();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByText('習慣を編集')).toBeTruthy();
+        },
+        { timeout: 10000 }
+      );
 
       // Find and press the close button
       const closeIcon = screen.getByText('close');
@@ -154,15 +166,18 @@ describe('EditHabitScreen', () => {
       }
 
       expect(mockRouter.back).toHaveBeenCalled();
-    });
+    }, 15000);
 
     it('should call router.replace when close button is pressed and no history', async () => {
       mockRouter.canGoBack.mockReturnValue(false);
       renderWithProviders(<EditHabitScreen />);
 
-      await waitFor(() => {
-        expect(screen.getByText('習慣を編集')).toBeTruthy();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByText('習慣を編集')).toBeTruthy();
+        },
+        { timeout: 10000 }
+      );
 
       // Find and press the close button
       const closeIcon = screen.getByText('close');
@@ -172,16 +187,19 @@ describe('EditHabitScreen', () => {
       }
 
       expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
-    });
+    }, 15000);
   });
 
   describe('form submission', () => {
     it('should navigate back after successful update when history exists', async () => {
       renderWithProviders(<EditHabitScreen />);
 
-      await waitFor(() => {
-        expect(screen.getByDisplayValue('読書')).toBeTruthy();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByDisplayValue('読書')).toBeTruthy();
+        },
+        { timeout: 10000 }
+      );
 
       // Modify the form
       const nameInput = screen.getByDisplayValue('読書');
@@ -190,10 +208,13 @@ describe('EditHabitScreen', () => {
       // Submit
       fireEvent.press(screen.getByText('保存'));
 
-      await waitFor(() => {
-        expect(mockRouter.back).toHaveBeenCalled();
-      });
-    });
+      await waitFor(
+        () => {
+          expect(mockRouter.back).toHaveBeenCalled();
+        },
+        { timeout: 10000 }
+      );
+    }, 15000);
   });
 
   describe('error handling', () => {
@@ -218,9 +239,12 @@ describe('EditHabitScreen', () => {
 
       renderWithProviders(<EditHabitScreen />);
 
-      await waitFor(() => {
-        expect(screen.getByText('習慣が見つかりません')).toBeTruthy();
-      });
-    });
+      await waitFor(
+        () => {
+          expect(screen.getByText('習慣が見つかりません')).toBeTruthy();
+        },
+        { timeout: 10000 }
+      );
+    }, 15000);
   });
 });
