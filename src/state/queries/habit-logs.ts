@@ -72,11 +72,18 @@ export function useCreateHabitLog() {
 
   return useMutation({
     mutationFn: async (input: CreateHabitLogInput) => {
+      // 現在のユーザーIDを取得
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('認証が必要です');
+      }
+
       const { data, error } = await supabase
         .from('habit_logs')
         .insert({
           ...input,
           completed_at: input.completed_at || new Date().toISOString(),
+          user_id: user.id,
         })
         .select()
         .single();
@@ -184,6 +191,12 @@ export function useToggleHabitLog() {
         return null;
       } else {
         // Create new log (complete)
+        // 現在のユーザーIDを取得
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error('認証が必要です');
+        }
+
         const { data, error } = await supabase
           .from('habit_logs')
           .insert({
@@ -191,6 +204,7 @@ export function useToggleHabitLog() {
             target_date: targetDate,
             value,
             completed_at: new Date().toISOString(),
+            user_id: user.id,
           })
           .select()
           .single();

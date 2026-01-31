@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 import { validateLoginForm } from '@/lib/validation/auth';
@@ -19,6 +19,7 @@ import { validateLoginForm } from '@/lib/validation/auth';
  */
 export default function LoginScreen() {
   const router = useRouter();
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { signInWithEmail } = useSessionApi();
 
   const [email, setEmail] = useState('');
@@ -39,7 +40,12 @@ export default function LoginScreen() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email.trim(), password);
-      // 成功時は onAuthStateChange でリダイレクトされる
+      // 成功時にreturnToがあればそこに遷移、なければトップへ
+      if (returnTo) {
+        router.replace(decodeURIComponent(returnTo) as any);
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (err: any) {
       console.error('Login error:', err);
       if (err.message?.includes('Invalid login credentials')) {

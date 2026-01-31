@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 
@@ -8,22 +8,37 @@ import { useSessionApi } from '@/state/session';
  */
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { signInWithGoogle } = useSessionApi();
 
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
+      // Google認証成功後はonAuthStateChangeでセッションが更新される
+      // NavigationControllerがリダイレクトを処理するが、
+      // returnToがある場合はここで明示的に遷移
+      if (returnTo) {
+        router.replace(decodeURIComponent(returnTo) as any);
+      }
     } catch (error) {
       console.error('Google sign in failed:', error);
     }
   };
 
   const handleEmailSignIn = () => {
-    router.push('/(auth)/login');
+    // returnToパラメータを引き継ぐ
+    const loginUrl = returnTo
+      ? `/(auth)/login?returnTo=${returnTo}`
+      : '/(auth)/login';
+    router.push(loginUrl as any);
   };
 
   const handleSignUp = () => {
-    router.push('/(auth)/signup');
+    // returnToパラメータを引き継ぐ
+    const signupUrl = returnTo
+      ? `/(auth)/signup?returnTo=${returnTo}`
+      : '/(auth)/signup';
+    router.push(signupUrl as any);
   };
 
   return (

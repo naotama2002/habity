@@ -75,7 +75,10 @@ export default function TodayScreen() {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.title}>Today</Text>
-          <Pressable style={styles.addButton}>
+          <Pressable
+            style={styles.addButton}
+            onPress={() => router.navigate('/habit/new')}
+          >
             <Text style={styles.addButtonText}>+</Text>
           </Pressable>
         </View>

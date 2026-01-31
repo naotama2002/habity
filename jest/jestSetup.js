@@ -43,3 +43,27 @@ jest.mock('expo-constants', () => ({
 jest.mock('expo-linking', () => ({
   createURL: jest.fn().mockImplementation((path) => `habity://${path}`),
 }));
+
+// @expo/vector-icons - アイコンコンポーネント
+jest.mock('@expo/vector-icons', () => {
+  const { View, Text } = require('react-native');
+  return {
+    Ionicons: jest.fn().mockImplementation(({ name, ...props }) => {
+      return <View {...props}><Text>{name}</Text></View>;
+    }),
+  };
+});
+
+// expo-router - ナビゲーション
+jest.mock('expo-router', () => ({
+  useRouter: jest.fn().mockReturnValue({
+    push: jest.fn(),
+    back: jest.fn(),
+    replace: jest.fn(),
+  }),
+  useLocalSearchParams: jest.fn().mockReturnValue({}),
+  useSegments: jest.fn().mockReturnValue([]),
+  Stack: {
+    Screen: jest.fn().mockImplementation(({ children }) => children),
+  },
+}));

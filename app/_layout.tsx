@@ -13,6 +13,7 @@ SplashScreen.preventAutoHideAsync();
 /**
  * ナビゲーション制御コンポーネント
  * 認証状態に応じて適切な画面にリダイレクト
+ * returnTo パターンで元のページへの復帰をサポート
  */
 function NavigationController({ children }: { children: React.ReactNode }) {
   const { hasSession, isInitialized } = useSession();
@@ -25,12 +26,19 @@ function NavigationController({ children }: { children: React.ReactNode }) {
 
     // 現在のルートグループを確認
     const inAuthGroup = segments[0] === '(auth)';
+    // 現在のパスを構築
+    const currentPath = '/' + segments.join('/');
 
     if (!hasSession && !inAuthGroup) {
-      // 未認証でメイン画面にいる場合 → ウェルカム画面へ
-      router.replace('/(auth)/welcome');
+      // 未認証でメイン画面にいる場合 → ウェルカム画面へ（returnTo付き）
+      const returnTo = currentPath !== '/' ? encodeURIComponent(currentPath) : '';
+      const welcomeUrl = returnTo
+        ? `/(auth)/welcome?returnTo=${returnTo}`
+        : '/(auth)/welcome';
+      router.replace(welcomeUrl as any);
     } else if (hasSession && inAuthGroup) {
       // 認証済みで認証画面にいる場合 → メイン画面へ
+      // 注: returnTo の処理は login/signup 画面で行う
       router.replace('/(tabs)');
     }
   }, [hasSession, isInitialized, segments, router]);
@@ -60,6 +68,20 @@ function MainLayout() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="habit/new"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="habit/[id]/edit"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </NavigationController>
