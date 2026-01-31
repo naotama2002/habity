@@ -10,7 +10,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 import { validateSignupForm } from '@/lib/validation/auth';
@@ -20,6 +20,7 @@ import { validateSignupForm } from '@/lib/validation/auth';
  */
 export default function SignupScreen() {
   const router = useRouter();
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { signUpWithEmail } = useSessionApi();
 
   const [email, setEmail] = useState('');
@@ -60,7 +61,11 @@ export default function SignupScreen() {
   };
 
   const handleGoToLogin = () => {
-    router.replace('/(auth)/login');
+    // returnToパラメータを引き継ぐ
+    const loginUrl = returnTo
+      ? `/(auth)/login?returnTo=${returnTo}`
+      : '/(auth)/login';
+    router.replace(loginUrl as any);
   };
 
   // 登録成功後の画面

@@ -79,16 +79,14 @@ export default function HabitsScreen() {
     return { groups, uncategorized };
   }, [filteredHabits]);
 
-  // 習慣詳細へ遷移
+  // 習慣編集画面へ遷移
   const handlePressHabit = (habit: Habit) => {
-    // TODO: 習慣詳細画面へ遷移
-    console.log('Navigate to habit detail:', habit.id);
+    router.navigate(`/habit/${habit.id}/edit`);
   };
 
   // 新規作成画面へ遷移
   const handleAddHabit = () => {
-    // TODO: 習慣作成画面へ遷移
-    console.log('Navigate to create habit');
+    router.navigate('/habit/new');
   };
 
   if (isLoading) {

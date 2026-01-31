@@ -82,9 +82,15 @@ export function useCreateHabit() {
 
   return useMutation({
     mutationFn: async (input: CreateHabitInput) => {
+      // 現在のユーザーIDを取得
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('認証が必要です');
+      }
+
       const { data, error } = await supabase
         .from('habits')
-        .insert(input)
+        .insert({ ...input, user_id: user.id })
         .select()
         .single();
 

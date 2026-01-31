@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { colors, lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
@@ -30,8 +30,10 @@ export function HabitCard({
   const isCompleted = habit.is_completed_today;
 
   const handleToggle = async () => {
-    // Haptics フィードバック
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Haptics フィードバック（ネイティブプラットフォームのみ）
+    if (Platform.OS !== 'web') {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     onToggle?.(habit);
   };
 
