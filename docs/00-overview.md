@@ -8,12 +8,17 @@ Habity は、Habitify に似た機能を持つマルチプラットフォーム�
 
 ## 対応プラットフォーム
 
-| プラットフォーム | 技術 |
-|-----------------|------|
-| iOS | React Native + Expo |
-| Android | React Native + Expo |
-| macOS | react-native-macos |
-| Web | React Native Web |
+Bluesky と同じアプローチを採用。1つのコードベースで全プラットフォームをカバー。
+
+| プラットフォーム | 対応方法 | 状態 |
+|-----------------|---------|------|
+| iOS | React Native + Expo | ✅ 対応 |
+| Android | React Native + Expo | ✅ 対応 |
+| Web | React Native Web (Expo Web) | ✅ 対応 |
+| macOS | Web版をブラウザで使用 | ✅ 対応 |
+| Windows | Web版をブラウザで使用 | ✅ 対応 |
+
+> **将来の検討**: macOS ネイティブアプリ（Raycast 連携等）は需要に応じて検討
 
 ## 技術スタック
 
