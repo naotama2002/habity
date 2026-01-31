@@ -76,15 +76,17 @@ describe('NewHabitScreen', () => {
     it('should render screen with header', () => {
       renderWithProviders(<NewHabitScreen />);
 
+      // Screen header (not i18n yet)
       expect(screen.getByText('新しい習慣')).toBeTruthy();
     });
 
     it('should render HabitForm', () => {
       renderWithProviders(<NewHabitScreen />);
 
-      expect(screen.getByText('習慣名')).toBeTruthy();
-      expect(screen.getByText('保存')).toBeTruthy();
-      expect(screen.getByText('キャンセル')).toBeTruthy();
+      // i18n mock returns English strings
+      expect(screen.getByText('Habit Name')).toBeTruthy();
+      expect(screen.getByText('Save')).toBeTruthy();
+      expect(screen.getByText('Cancel')).toBeTruthy();
     });
 
     it('should render close button in header', () => {
@@ -113,7 +115,8 @@ describe('NewHabitScreen', () => {
       mockRouter.canGoBack.mockReturnValue(false);
       renderWithProviders(<NewHabitScreen />);
 
-      fireEvent.press(screen.getByText('キャンセル'));
+      // i18n mock returns English
+      fireEvent.press(screen.getByText('Cancel'));
 
       expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
     });
@@ -123,12 +126,12 @@ describe('NewHabitScreen', () => {
     it('should navigate back after successful submission when history exists', async () => {
       renderWithProviders(<NewHabitScreen />);
 
-      // Fill in the form
-      const nameInput = screen.getByPlaceholderText('例: 読書、運動、瞑想');
-      fireEvent.changeText(nameInput, 'テスト習慣');
+      // Fill in the form (i18n placeholder)
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Test Habit');
 
-      // Submit
-      fireEvent.press(screen.getByText('保存'));
+      // Submit (i18n button text)
+      fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockRouter.back).toHaveBeenCalled();
@@ -139,12 +142,12 @@ describe('NewHabitScreen', () => {
       mockRouter.canGoBack.mockReturnValue(false);
       renderWithProviders(<NewHabitScreen />);
 
-      // Fill in the form
-      const nameInput = screen.getByPlaceholderText('例: 読書、運動、瞑想');
-      fireEvent.changeText(nameInput, 'テスト習慣');
+      // Fill in the form (i18n placeholder)
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Test Habit');
 
-      // Submit
-      fireEvent.press(screen.getByText('保存'));
+      // Submit (i18n button text)
+      fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');

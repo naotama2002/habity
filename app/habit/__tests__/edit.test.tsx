@@ -205,8 +205,8 @@ describe('EditHabitScreen', () => {
       const nameInput = screen.getByDisplayValue('読書');
       fireEvent.changeText(nameInput, '読書タイム');
 
-      // Submit
-      fireEvent.press(screen.getByText('保存'));
+      // Submit (i18n returns English)
+      fireEvent.press(screen.getByText('Save'));
 
       await waitFor(
         () => {

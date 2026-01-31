@@ -1,0 +1,162 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-01-31 22:33+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ja\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/forms/HabitForm.tsx:71
+msgid "Afternoon"
+msgstr "昼"
+
+#: src/components/forms/HabitForm.tsx:74
+msgid "Anytime"
+msgstr "いつでも"
+
+#: src/components/forms/HabitForm.tsx:357
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: src/components/forms/HabitForm.tsx:379
+msgid "Continue Editing"
+msgstr "編集を続ける"
+
+#: src/components/forms/HabitForm.tsx:63
+msgid "Daily"
+msgstr "毎日"
+
+#: src/components/forms/HabitForm.tsx:221
+msgid "Description"
+msgstr "説明"
+
+#: src/components/forms/HabitForm.tsx:56
+msgid "Did it"
+msgstr "やったか"
+
+#: src/components/forms/HabitForm.tsx:378
+msgid "Discard"
+msgstr "破棄"
+
+#: src/components/forms/HabitForm.tsx:376
+msgid "Discard Changes"
+msgstr "変更を破棄"
+
+#: src/components/forms/HabitForm.tsx:58
+msgid "Duration"
+msgstr "時間"
+
+#: src/components/forms/HabitForm.tsx:266
+msgid "e.g., 30"
+msgstr "例: 30"
+
+#: src/components/forms/HabitForm.tsx:213
+msgid "e.g., Reading, Exercise, Meditation"
+msgstr "例: 読書、運動、瞑想"
+
+#: src/components/forms/HabitForm.tsx:283
+msgid "e.g., times, km, pages"
+msgstr "例: 回, km, ページ"
+
+#: src/components/forms/HabitForm.tsx:162
+msgid "Error"
+msgstr "エラー"
+
+#: src/components/forms/HabitForm.tsx:72
+msgid "Evening"
+msgstr "夕方"
+
+#: src/components/forms/HabitForm.tsx:156
+msgid "Failed to save. Please try again."
+msgstr "保存に失敗しました。もう一度お試しください。"
+
+#: src/components/forms/HabitForm.tsx:300
+msgid "Goal Period"
+msgstr "目標期間"
+
+#: src/components/forms/HabitForm.tsx:255
+msgid "Goal Value"
+msgstr "目標値"
+
+#: src/components/forms/HabitForm.tsx:205
+msgid "Habit Name"
+msgstr "習慣名"
+
+#: src/components/forms/HabitForm.tsx:143
+msgid "Input Error"
+msgstr "入力エラー"
+
+#: src/components/forms/HabitForm.tsx:292
+msgid "min"
+msgstr "分"
+
+#: src/components/forms/HabitForm.tsx:65
+msgid "Monthly"
+msgstr "毎月"
+
+#: src/components/forms/HabitForm.tsx:70
+msgid "Morning"
+msgstr "朝"
+
+#: src/components/forms/HabitForm.tsx:316
+msgid "Multiple selection allowed"
+msgstr "複数選択可"
+
+#: src/components/forms/HabitForm.tsx:73
+msgid "Night"
+msgstr "夜"
+
+#: src/components/forms/HabitForm.tsx:223
+msgid "Note the purpose or rules of the habit"
+msgstr "習慣の目的やルールをメモ"
+
+#: src/components/forms/HabitForm.tsx:57
+msgid "Numeric"
+msgstr "数値"
+
+#: src/components/forms/HabitForm.tsx:229
+msgid "Optional"
+msgstr "任意"
+
+#: src/components/forms/HabitForm.tsx:368
+msgid "Save"
+msgstr "保存"
+
+#: src/components/forms/HabitForm.tsx:368
+msgid "Saving..."
+msgstr "保存中..."
+
+#: src/components/forms/HabitForm.tsx:327
+msgid "Start Date"
+msgstr "開始日"
+
+#: src/components/forms/HabitForm.tsx:144
+msgid "There are errors in the input. Please check the fields highlighted in red."
+msgstr "入力内容に誤りがあります。赤色で表示されているエラーを確認してください。"
+
+#: src/components/forms/HabitForm.tsx:313
+msgid "Time of Day"
+msgstr "実行する時間帯"
+
+#: src/components/forms/HabitForm.tsx:239
+msgid "Tracking Method"
+msgstr "トラッキング方法"
+
+#: src/components/forms/HabitForm.tsx:275
+msgid "Unit"
+msgstr "単位"
+
+#: src/components/forms/HabitForm.tsx:64
+msgid "Weekly"
+msgstr "毎週"
+
+#: src/components/forms/HabitForm.tsx:377
+msgid "Your input will not be saved. Are you sure?"
+msgstr "入力した内容は保存されません。よろしいですか？"
