@@ -35,17 +35,21 @@ interface ConfirmDialogProps {
  * - 画面中央に表示
  * - 背景タップで閉じる
  * - 全画面共通で使用
+ * Note: confirmText and cancelText should be passed as already-translated strings
  */
 export function ConfirmDialog({
   visible,
   title,
   message,
-  confirmText = '確認',
-  cancelText = 'キャンセル',
+  confirmText,
+  cancelText,
   destructive = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  // Default values are set to English. Callers should pass translated strings.
+  const finalConfirmText = confirmText ?? 'Confirm';
+  const finalCancelText = cancelText ?? 'Cancel';
   // 背景タップでキャンセル
   const handleBackdropPress = useCallback(() => {
     onCancel();
@@ -74,7 +78,7 @@ export function ConfirmDialog({
                   style={[styles.button, styles.cancelButton]}
                   onPress={onCancel}
                 >
-                  <Text style={styles.cancelButtonText}>{cancelText}</Text>
+                  <Text style={styles.cancelButtonText}>{finalCancelText}</Text>
                 </Pressable>
                 <Pressable
                   style={[
@@ -90,7 +94,7 @@ export function ConfirmDialog({
                       destructive && styles.destructiveButtonText,
                     ]}
                   >
-                    {confirmText}
+                    {finalConfirmText}
                   </Text>
                 </Pressable>
               </View>

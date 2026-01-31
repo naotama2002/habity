@@ -67,3 +67,34 @@ jest.mock('expo-router', () => ({
     Screen: jest.fn().mockImplementation(({ children }) => children),
   },
 }));
+
+// @lingui/react - i18n フック
+jest.mock('@lingui/react', () => ({
+  useLingui: jest.fn().mockReturnValue({
+    _: jest.fn().mockImplementation((descriptor) => {
+      // msg`text` は { id: 'text' } のようなオブジェクトを返す
+      if (typeof descriptor === 'object' && descriptor !== null) {
+        return descriptor.message || descriptor.id || '';
+      }
+      return descriptor;
+    }),
+    i18n: {
+      locale: 'ja',
+      activate: jest.fn(),
+      load: jest.fn(),
+    },
+  }),
+  I18nProvider: jest.fn().mockImplementation(({ children }) => children),
+}));
+
+// @lingui/macro - i18n マクロ
+jest.mock('@lingui/macro', () => ({
+  msg: jest.fn().mockImplementation((strings, ...values) => {
+    // テンプレートリテラルを処理
+    if (Array.isArray(strings)) {
+      return { id: strings.join(''), message: strings.join('') };
+    }
+    return { id: strings, message: strings };
+  }),
+  Trans: jest.fn().mockImplementation(({ children }) => children),
+}));

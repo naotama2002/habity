@@ -4,9 +4,9 @@ import { Select } from '../Select';
 
 describe('Select', () => {
   const options = [
-    { value: 'option1', label: 'オプション1' },
-    { value: 'option2', label: 'オプション2' },
-    { value: 'option3', label: 'オプション3' },
+    { value: 'option1', label: 'Option 1' },
+    { value: 'option2', label: 'Option 2' },
+    { value: 'option3', label: 'Option 3' },
   ];
 
   describe('rendering', () => {
@@ -17,11 +17,11 @@ describe('Select', () => {
           options={options}
           value={null}
           onChange={onChange}
-          placeholder="選択してください"
+          placeholder="Please select"
         />
       );
 
-      expect(screen.getByText('選択してください')).toBeTruthy();
+      expect(screen.getByText('Please select')).toBeTruthy();
     });
 
     it('should show selected option label', () => {
@@ -34,7 +34,7 @@ describe('Select', () => {
         />
       );
 
-      expect(screen.getByText('オプション2')).toBeTruthy();
+      expect(screen.getByText('Option 2')).toBeTruthy();
     });
 
     it('should use default placeholder when not provided', () => {
@@ -47,7 +47,8 @@ describe('Select', () => {
         />
       );
 
-      expect(screen.getByText('選択してください')).toBeTruthy();
+      // i18n mock returns English
+      expect(screen.getByText('Select an option')).toBeTruthy();
     });
   });
 
@@ -62,14 +63,14 @@ describe('Select', () => {
         />
       );
 
-      // Press the trigger to open modal
-      fireEvent.press(screen.getByText('選択してください'));
+      // Press the trigger to open modal (i18n mock returns English)
+      fireEvent.press(screen.getByText('Select an option'));
 
-      // Modal should show "選択" title and all options
-      expect(screen.getByText('選択')).toBeTruthy();
-      expect(screen.getByText('オプション1')).toBeTruthy();
-      expect(screen.getByText('オプション2')).toBeTruthy();
-      expect(screen.getByText('オプション3')).toBeTruthy();
+      // Modal should show "Select" title and all options
+      expect(screen.getByText('Select')).toBeTruthy();
+      expect(screen.getByText('Option 1')).toBeTruthy();
+      expect(screen.getByText('Option 2')).toBeTruthy();
+      expect(screen.getByText('Option 3')).toBeTruthy();
     });
 
     it('should call onChange when option is selected', () => {
@@ -83,10 +84,10 @@ describe('Select', () => {
       );
 
       // Open modal
-      fireEvent.press(screen.getByText('選択してください'));
+      fireEvent.press(screen.getByText('Select an option'));
 
       // Select an option
-      fireEvent.press(screen.getByText('オプション2'));
+      fireEvent.press(screen.getByText('Option 2'));
 
       expect(onChange).toHaveBeenCalledWith('option2');
     });
@@ -104,10 +105,10 @@ describe('Select', () => {
         />
       );
 
-      fireEvent.press(screen.getByText('選択してください'));
+      fireEvent.press(screen.getByText('Select an option'));
 
       // Modal title should not appear
-      expect(screen.queryByText('選択')).toBeNull();
+      expect(screen.queryByText('Select')).toBeNull();
     });
   });
 
@@ -123,7 +124,7 @@ describe('Select', () => {
       );
 
       const trigger = screen.getByRole('button');
-      expect(trigger.props.accessibilityLabel).toBe('オプション1');
+      expect(trigger.props.accessibilityLabel).toBe('Option 1');
     });
 
     it('should use placeholder as accessibility label when no value', () => {
@@ -133,12 +134,12 @@ describe('Select', () => {
           options={options}
           value={null}
           onChange={onChange}
-          placeholder="カテゴリを選択"
+          placeholder="Select a category"
         />
       );
 
       const trigger = screen.getByRole('button');
-      expect(trigger.props.accessibilityLabel).toBe('カテゴリを選択');
+      expect(trigger.props.accessibilityLabel).toBe('Select a category');
     });
   });
 });

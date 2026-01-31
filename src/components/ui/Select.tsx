@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, Pressable, Modal, FlatList, SafeAreaView } from 'react-native';
 import { useState } from 'react';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { Ionicons } from '@expo/vector-icons';
 import { lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
@@ -31,10 +33,12 @@ export function Select<T extends string>({
   options,
   value,
   onChange,
-  placeholder = '選択してください',
+  placeholder,
   disabled = false,
 }: SelectProps<T>) {
+  const { _ } = useLingui();
   const [isOpen, setIsOpen] = useState(false);
+  const finalPlaceholder = placeholder ?? _(msg`Select an option`);
 
   const selectedOption = options.find((option) => option.value === value);
 
@@ -49,7 +53,7 @@ export function Select<T extends string>({
         style={[styles.trigger, disabled && styles.triggerDisabled]}
         onPress={() => !disabled && setIsOpen(true)}
         accessibilityRole="button"
-        accessibilityLabel={selectedOption?.label ?? placeholder}
+        accessibilityLabel={selectedOption?.label ?? finalPlaceholder}
       >
         <Text
           style={[
@@ -57,7 +61,7 @@ export function Select<T extends string>({
             !selectedOption && styles.triggerPlaceholder,
           ]}
         >
-          {selectedOption?.label ?? placeholder}
+          {selectedOption?.label ?? finalPlaceholder}
         </Text>
         <Ionicons
           name="chevron-down"
@@ -74,7 +78,7 @@ export function Select<T extends string>({
       >
         <SafeAreaView style={styles.modal}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>選択</Text>
+            <Text style={styles.modalTitle}>{_(msg`Select`)}</Text>
             <Pressable onPress={() => setIsOpen(false)}>
               <Ionicons name="close" size={24} color={lightTheme.text} />
             </Pressable>

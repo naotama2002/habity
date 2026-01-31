@@ -6,6 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/react-query';
 import { SessionProvider, useSession } from '@/state/session';
+import { I18nProvider } from '@/locale';
 
 // Keep splash screen visible while loading
 SplashScreen.preventAutoHideAsync();
@@ -90,16 +91,18 @@ function MainLayout() {
 
 /**
  * ルートレイアウト
- * Provider 階層: GestureHandler → QueryClient → Session
+ * Provider 階層: GestureHandler → I18n → QueryClient → Session
  */
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <SessionProvider>
-          <MainLayout />
-        </SessionProvider>
-      </QueryClientProvider>
+      <I18nProvider>
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider>
+            <MainLayout />
+          </SessionProvider>
+        </QueryClientProvider>
+      </I18nProvider>
     </GestureHandlerRootView>
   );
 }

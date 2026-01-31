@@ -9,6 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { Ionicons } from '@expo/vector-icons';
 import {
   Input,
@@ -16,7 +18,6 @@ import {
   MultiSelect,
   FormField,
   ConfirmDialog,
-  timeOfDayOptions,
 } from '@/components/ui';
 import { colors, lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
@@ -40,24 +41,6 @@ interface HabitFormProps {
 }
 
 /**
- * トラッキングタイプの選択肢
- */
-const TRACKING_TYPE_SEGMENTS: { value: TrackingType; label: string }[] = [
-  { value: 'boolean', label: 'やったか' },
-  { value: 'numeric', label: '数値' },
-  { value: 'duration', label: '時間' },
-];
-
-/**
- * 目標期間の選択肢
- */
-const GOAL_PERIOD_SEGMENTS: { value: GoalPeriod; label: string }[] = [
-  { value: 'daily', label: '毎日' },
-  { value: 'weekly', label: '毎週' },
-  { value: 'monthly', label: '毎月' },
-];
-
-/**
  * 習慣作成/編集フォーム
  */
 export function HabitForm({
@@ -66,6 +49,30 @@ export function HabitForm({
   onCancel,
   isSubmitting = false,
 }: HabitFormProps) {
+  const { _ } = useLingui();
+
+  // トラッキングタイプの選択肢
+  const trackingTypeSegments: { value: TrackingType; label: string }[] = [
+    { value: 'boolean', label: _(msg`Did it`) },
+    { value: 'numeric', label: _(msg`Numeric`) },
+    { value: 'duration', label: _(msg`Duration`) },
+  ];
+
+  // 目標期間の選択肢
+  const goalPeriodSegments: { value: GoalPeriod; label: string }[] = [
+    { value: 'daily', label: _(msg`Daily`) },
+    { value: 'weekly', label: _(msg`Weekly`) },
+    { value: 'monthly', label: _(msg`Monthly`) },
+  ];
+
+  // 時間帯の選択肢
+  const timeOfDayOptions = [
+    { value: 'morning', label: _(msg`Morning`) },
+    { value: 'afternoon', label: _(msg`Afternoon`) },
+    { value: 'evening', label: _(msg`Evening`) },
+    { value: 'night', label: _(msg`Night`) },
+    { value: 'anytime', label: _(msg`Anytime`) },
+  ];
   // フォームの状態
   const [formData, setFormData] = useState<HabitFormData>(() => ({
     ...getDefaultHabitFormData(),
@@ -133,10 +140,12 @@ export function HabitForm({
 
     if (!isValid) {
       // バリデーションエラーがある場合はフィードバック
+      const errorTitle = _(msg`Input Error`);
+      const errorMessage = _(msg`There are errors in the input. Please check the fields highlighted in red.`);
       if (Platform.OS === 'web') {
-        window.alert('入力内容に誤りがあります。赤色で表示されているエラーを確認してください。');
+        window.alert(errorMessage);
       } else {
-        Alert.alert('入力エラー', '入力内容に誤りがあります。確認してください。');
+        Alert.alert(errorTitle, errorMessage);
       }
       return;
     }
@@ -144,16 +153,17 @@ export function HabitForm({
     try {
       await onSubmit(formData);
     } catch (error: unknown) {
-      let message = '保存に失敗しました。もう一度お試しください。';
+      let message = _(msg`Failed to save. Please try again.`);
       if (error instanceof Error) {
         message = error.message;
       } else if (error && typeof error === 'object' && 'message' in error) {
         message = String((error as { message: unknown }).message);
       }
+      const errorLabel = _(msg`Error`);
       if (Platform.OS === 'web') {
-        window.alert(`エラー: ${message}`);
+        window.alert(`${errorLabel}: ${message}`);
       } else {
-        Alert.alert('エラー', message);
+        Alert.alert(errorLabel, message);
       }
     }
   };
@@ -192,7 +202,7 @@ export function HabitForm({
       >
         {/* 習慣名 */}
         <FormField
-          label="習慣名"
+          label={_(msg`Habit Name`)}
           required
           error={getFieldError('name')}
         >
@@ -200,7 +210,7 @@ export function HabitForm({
             value={formData.name}
             onChangeText={(value) => updateField('name', value)}
             onBlur={() => touchField('name')}
-            placeholder="例: 読書、運動、瞑想"
+            placeholder={_(msg`e.g., Reading, Exercise, Meditation`)}
             maxLength={100}
             autoFocus
           />
@@ -208,15 +218,15 @@ export function HabitForm({
 
         {/* 説明 */}
         <FormField
-          label="説明"
+          label={_(msg`Description`)}
           error={getFieldError('description')}
-          hint="習慣の目的やルールをメモ"
+          hint={_(msg`Note the purpose or rules of the habit`)}
         >
           <Input
             value={formData.description ?? ''}
             onChangeText={(value) => updateField('description', value || null)}
             onBlur={() => touchField('description')}
-            placeholder="任意"
+            placeholder={_(msg`Optional`)}
             multiline
             numberOfLines={3}
             maxLength={500}
@@ -226,12 +236,12 @@ export function HabitForm({
 
         {/* トラッキング方法 */}
         <FormField
-          label="トラッキング方法"
+          label={_(msg`Tracking Method`)}
           required
           error={getFieldError('tracking_type')}
         >
           <SegmentedControl
-            segments={TRACKING_TYPE_SEGMENTS}
+            segments={trackingTypeSegments}
             value={formData.tracking_type}
             onChange={(value) => updateField('tracking_type', value)}
           />
@@ -242,7 +252,7 @@ export function HabitForm({
           <View style={styles.row}>
             <View style={styles.flex1}>
               <FormField
-                label="目標値"
+                label={_(msg`Goal Value`)}
                 required
                 error={getFieldError('goal_value')}
               >
@@ -253,7 +263,7 @@ export function HabitForm({
                     updateField('goal_value', num);
                   }}
                   onBlur={() => touchField('goal_value')}
-                  placeholder="例: 30"
+                  placeholder={_(msg`e.g., 30`)}
                   keyboardType="decimal-pad"
                 />
               </FormField>
@@ -262,7 +272,7 @@ export function HabitForm({
             {formData.tracking_type === 'numeric' && (
               <View style={styles.flex1}>
                 <FormField
-                  label="単位"
+                  label={_(msg`Unit`)}
                   required
                   error={getFieldError('goal_unit')}
                 >
@@ -270,7 +280,7 @@ export function HabitForm({
                     value={formData.goal_unit}
                     onChangeText={(value) => updateField('goal_unit', value)}
                     onBlur={() => touchField('goal_unit')}
-                    placeholder="例: 回, km, ページ"
+                    placeholder={_(msg`e.g., times, km, pages`)}
                     maxLength={20}
                   />
                 </FormField>
@@ -279,7 +289,7 @@ export function HabitForm({
 
             {formData.tracking_type === 'duration' && (
               <View style={styles.unitLabel}>
-                <Text style={styles.unitText}>分</Text>
+                <Text style={styles.unitText}>{_(msg`min`)}</Text>
               </View>
             )}
           </View>
@@ -287,12 +297,12 @@ export function HabitForm({
 
         {/* 目標期間 */}
         <FormField
-          label="目標期間"
+          label={_(msg`Goal Period`)}
           required
           error={getFieldError('goal_period')}
         >
           <SegmentedControl
-            segments={GOAL_PERIOD_SEGMENTS}
+            segments={goalPeriodSegments}
             value={formData.goal_period}
             onChange={(value) => updateField('goal_period', value)}
           />
@@ -300,10 +310,10 @@ export function HabitForm({
 
         {/* 時間帯 */}
         <FormField
-          label="実行する時間帯"
+          label={_(msg`Time of Day`)}
           required
           error={getFieldError('time_of_day')}
-          hint="複数選択可"
+          hint={_(msg`Multiple selection allowed`)}
         >
           <MultiSelect
             options={timeOfDayOptions}
@@ -314,7 +324,7 @@ export function HabitForm({
 
         {/* 開始日 */}
         <FormField
-          label="開始日"
+          label={_(msg`Start Date`)}
           required
           error={getFieldError('start_date')}
         >
@@ -344,7 +354,7 @@ export function HabitForm({
           onPress={handleCancel}
           disabled={isSubmitting}
         >
-          <Text style={styles.cancelButtonText}>キャンセル</Text>
+          <Text style={styles.cancelButtonText}>{_(msg`Cancel`)}</Text>
         </Pressable>
         <Pressable
           style={[
@@ -355,7 +365,7 @@ export function HabitForm({
           disabled={isSubmitting}
         >
           <Text style={styles.submitButtonText}>
-            {isSubmitting ? '保存中...' : '保存'}
+            {isSubmitting ? _(msg`Saving...`) : _(msg`Save`)}
           </Text>
         </Pressable>
       </View>
@@ -363,10 +373,10 @@ export function HabitForm({
       {/* キャンセル確認ダイアログ */}
       <ConfirmDialog
         visible={showCancelConfirm}
-        title="変更を破棄"
-        message="入力した内容は保存されません。よろしいですか？"
-        confirmText="破棄"
-        cancelText="編集を続ける"
+        title={_(msg`Discard Changes`)}
+        message={_(msg`Your input will not be saved. Are you sure?`)}
+        confirmText={_(msg`Discard`)}
+        cancelText={_(msg`Continue Editing`)}
         destructive
         onConfirm={handleConfirmCancel}
         onCancel={handleDismissCancelConfirm}

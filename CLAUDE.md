@@ -51,6 +51,16 @@
 - `docs/05-development-environment.md` - 開発環境
 - `docs/TODO.md` - 実装タスクリスト
 
+## Git 操作ルール
+
+**commit / push はユーザーの明示的な指示があるまで実行しないこと。**
+
+- ブランチ作成: 指示があれば実行可
+- ステージング (`git add`): 指示があれば実行可
+- **コミット (`git commit`)**: 必ずユーザーの指示を待つ
+- **プッシュ (`git push`)**: 必ずユーザーの指示を待つ
+- PR作成: 必ずユーザーの指示を待つ
+
 ## 開発コマンド
 
 ```bash
@@ -77,6 +87,68 @@ pnpm test
 - React Query でサーバー状態管理
 - Zod でスキーマ検証
 - プラットフォーム固有コードは `.native.ts` / `.web.ts` で分離
+
+## 国際化（i18n）ルール
+
+**すべての UI テキストは多言語対応必須。**
+
+### 使用ライブラリ
+
+- **Lingui.js** - Bluesky と同じパターン
+- `@lingui/core`, `@lingui/react`, `@lingui/macro`
+
+### 実装パターン
+
+```typescript
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
+
+function MyComponent() {
+  const { _ } = useLingui();
+
+  return (
+    <Text>{_(msg`Hello World`)}</Text>
+  );
+}
+```
+
+### 翻訳ワークフロー
+
+```bash
+# メッセージ抽出 → 翻訳ファイル更新
+pnpm intl:extract
+
+# コンパイル（ビルド時）
+pnpm intl:compile
+
+# 抽出 + コンパイル
+pnpm intl:build
+```
+
+### 翻訳ファイル配置
+
+```
+src/locale/
+├── locales/
+│   ├── en/messages.po    # 英語（ソース言語）
+│   └── ja/messages.po    # 日本語
+├── i18n.ts               # i18n 初期化
+├── i18nProvider.tsx      # プロバイダー
+└── languages.ts          # 言語定義
+```
+
+### 必須ルール
+
+1. **ハードコードされた日本語/英語テキスト禁止**
+2. すべての UI 文字列は `_(msg\`...\`)` でラップ
+3. 新しいテキスト追加後は `pnpm intl:extract` を実行
+4. `ja/messages.po` に日本語翻訳を追加
+5. `pnpm intl:compile` でコンパイル
+
+### テストでの注意
+
+- Jest モックは英語メッセージ ID を返す
+- テストでは英語文字列を期待値として使用
 
 ## テスト実装ルール
 

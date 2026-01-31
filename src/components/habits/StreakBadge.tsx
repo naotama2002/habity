@@ -1,4 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { colors } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 
@@ -14,13 +16,15 @@ interface StreakBadgeProps {
  * 連続達成日数を炎アイコンと共に表示
  */
 export function StreakBadge({ streak, size = 'sm' }: StreakBadgeProps) {
+  const { _ } = useLingui();
+
   if (streak <= 0) return null;
 
   return (
     <View style={[styles.container, size === 'md' && styles.containerMd]}>
       <Text style={[styles.icon, size === 'md' && styles.iconMd]}>🔥</Text>
       <Text style={[styles.text, size === 'md' && styles.textMd]}>
-        {streak}日
+        {_(msg`${streak} days`)}
       </Text>
     </View>
   );

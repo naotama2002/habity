@@ -7,6 +7,8 @@ import {
   Pressable,
   ActivityIndicator,
 } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,21 +25,22 @@ import type { Habit, HabitStatus } from '@/types/database';
  */
 type FilterValue = 'all' | 'active' | 'archived';
 
-const FILTER_SEGMENTS: { value: FilterValue; label: string }[] = [
-  { value: 'all', label: 'すべて' },
-  { value: 'active', label: 'アクティブ' },
-  { value: 'archived', label: 'アーカイブ' },
-];
-
 /**
  * Habits 画面
  * 全習慣をカテゴリ別に管理
  * docs/04-ui-design.md「2. Habits 画面」を参照
  */
 export default function HabitsScreen() {
+  const { _ } = useLingui();
   const router = useRouter();
   const [filter, setFilter] = useState<FilterValue>('active');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const FILTER_SEGMENTS: { value: FilterValue; label: string }[] = [
+    { value: 'all', label: _(msg`All`) },
+    { value: 'active', label: _(msg`Active`) },
+    { value: 'archived', label: _(msg`Archived`) },
+  ];
 
   // フィルターに応じたステータスを決定
   const statusFilter: HabitStatus | undefined =
@@ -103,7 +106,7 @@ export default function HabitsScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>習慣の読み込みに失敗しました</Text>
+          <Text style={styles.errorText}>{_(msg`Failed to load habits`)}</Text>
         </View>
       </SafeAreaView>
     );
@@ -152,12 +155,12 @@ export default function HabitsScreen() {
               color={lightTheme.textTertiary}
             />
             <Text style={styles.emptyText}>
-              {searchQuery ? '検索結果がありません' : '習慣がありません'}
+              {searchQuery ? _(msg`No search results`) : _(msg`No habits yet`)}
             </Text>
             <Text style={styles.emptySubtext}>
               {searchQuery
-                ? '別のキーワードで検索してみてください'
-                : '新しい習慣を追加して始めましょう'}
+                ? _(msg`Try searching with different keywords`)
+                : _(msg`Add a new habit to get started`)}
             </Text>
           </View>
         ) : (
@@ -167,7 +170,7 @@ export default function HabitsScreen() {
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
                   <Text style={styles.sectionTitle}>
-                    未分類 ({groupedHabits.uncategorized.length})
+                    {_(msg`Uncategorized`)} ({groupedHabits.uncategorized.length})
                   </Text>
                 </View>
                 <View style={styles.sectionContent}>
@@ -189,7 +192,7 @@ export default function HabitsScreen() {
                 <View style={styles.sectionHeader}>
                   <Text style={styles.sectionTitle}>
                     {/* TODO: カテゴリ名を表示 */}
-                    カテゴリ ({categoryHabits.length})
+                    {_(msg`Category`)} ({categoryHabits.length})
                   </Text>
                   <Ionicons
                     name="chevron-down"

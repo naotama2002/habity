@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, lightTheme } from '@/lib/colors';
+import { lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing, borderRadius, shadows } from '@/lib/spacing';
 import { StreakBadge } from './StreakBadge';
@@ -16,19 +18,12 @@ interface HabitListItemProps {
 }
 
 /**
- * トラッキングタイプのラベル
- */
-const TRACKING_TYPE_LABELS: Record<Habit['tracking_type'], string> = {
-  boolean: 'チェック',
-  numeric: '数値',
-  duration: '時間',
-};
-
-/**
  * 習慣リストアイテムコンポーネント
  * Habits 画面で使用
  */
 export function HabitListItem({ habit, streak = 0, onPress }: HabitListItemProps) {
+  const { _ } = useLingui();
+
   const handlePress = () => {
     onPress?.(habit);
   };
@@ -36,7 +31,7 @@ export function HabitListItem({ habit, streak = 0, onPress }: HabitListItemProps
   // 頻度の表示テキストを生成
   const getFrequencyText = () => {
     // TODO: recurrence_rule をパースして表示
-    return '毎日';
+    return _(msg`Daily`);
   };
 
   return (

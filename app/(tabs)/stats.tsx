@@ -1,7 +1,10 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { useHabits } from '@/state/queries/habits';
 
 export default function StatsScreen() {
+  const { _ } = useLingui();
   const { data: habits } = useHabits('active');
 
   const totalHabits = habits?.length ?? 0;
@@ -13,33 +16,33 @@ export default function StatsScreen() {
         <View style={styles.summaryRow}>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryValue}>--</Text>
-            <Text style={styles.summaryLabel}>達成率</Text>
+            <Text style={styles.summaryLabel}>{_(msg`Completion Rate`)}</Text>
           </View>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryValue}>{totalHabits}</Text>
-            <Text style={styles.summaryLabel}>習慣数</Text>
+            <Text style={styles.summaryLabel}>{_(msg`Habits`)}</Text>
           </View>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryValue}>--</Text>
-            <Text style={styles.summaryLabel}>最長連続</Text>
+            <Text style={styles.summaryLabel}>{_(msg`Longest Streak`)}</Text>
           </View>
         </View>
 
         {/* Placeholder for Charts */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>週間達成率</Text>
+          <Text style={styles.sectionTitle}>{_(msg`Weekly Completion Rate`)}</Text>
           <View style={styles.placeholder}>
             <Text style={styles.placeholderText}>
-              グラフは今後実装予定です
+              {_(msg`Charts coming soon`)}
             </Text>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>習慣別達成率</Text>
+          <Text style={styles.sectionTitle}>{_(msg`Completion Rate by Habit`)}</Text>
           <View style={styles.placeholder}>
             <Text style={styles.placeholderText}>
-              統計情報は今後実装予定です
+              {_(msg`Statistics coming soon`)}
             </Text>
           </View>
         </View>

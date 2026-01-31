@@ -1,4 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing } from '@/lib/spacing';
@@ -12,17 +14,6 @@ interface TimeOfDaySectionProps {
 }
 
 /**
- * 時間帯ラベルとアイコンのマッピング
- */
-const TIME_OF_DAY_CONFIG: Record<TimeOfDay, { icon: string; label: string }> = {
-  morning: { icon: '🌅', label: '朝' },
-  afternoon: { icon: '🌤️', label: '日中' },
-  evening: { icon: '🌆', label: '夕方' },
-  night: { icon: '🌙', label: '夜' },
-  anytime: { icon: '⏰', label: 'いつでも' },
-};
-
-/**
  * 時間帯セクションコンポーネント
  * 習慣を時間帯ごとにグループ化して表示
  */
@@ -30,6 +21,19 @@ export function TimeOfDaySection({
   timeOfDay,
   children,
 }: TimeOfDaySectionProps) {
+  const { _ } = useLingui();
+
+  /**
+   * 時間帯ラベルとアイコンのマッピング
+   */
+  const TIME_OF_DAY_CONFIG: Record<TimeOfDay, { icon: string; label: string }> = {
+    morning: { icon: '🌅', label: _(msg`Morning`) },
+    afternoon: { icon: '🌤️', label: _(msg`Afternoon`) },
+    evening: { icon: '🌆', label: _(msg`Evening`) },
+    night: { icon: '🌙', label: _(msg`Night`) },
+    anytime: { icon: '⏰', label: _(msg`Anytime`) },
+  };
+
   const config = TIME_OF_DAY_CONFIG[timeOfDay];
 
   return (

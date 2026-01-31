@@ -24,12 +24,13 @@ describe('HabitForm', () => {
         />
       );
 
-      expect(screen.getByText('習慣名')).toBeTruthy();
-      expect(screen.getByText('説明')).toBeTruthy();
-      expect(screen.getByText('トラッキング方法')).toBeTruthy();
-      expect(screen.getByText('目標期間')).toBeTruthy();
-      expect(screen.getByText('実行する時間帯')).toBeTruthy();
-      expect(screen.getByText('開始日')).toBeTruthy();
+      // i18n mock returns English message IDs
+      expect(screen.getByText('Habit Name')).toBeTruthy();
+      expect(screen.getByText('Description')).toBeTruthy();
+      expect(screen.getByText('Tracking Method')).toBeTruthy();
+      expect(screen.getByText('Goal Period')).toBeTruthy();
+      expect(screen.getByText('Time of Day')).toBeTruthy();
+      expect(screen.getByText('Start Date')).toBeTruthy();
     });
 
     it('should render submit and cancel buttons', () => {
@@ -40,8 +41,8 @@ describe('HabitForm', () => {
         />
       );
 
-      expect(screen.getByText('保存')).toBeTruthy();
-      expect(screen.getByText('キャンセル')).toBeTruthy();
+      expect(screen.getByText('Save')).toBeTruthy();
+      expect(screen.getByText('Cancel')).toBeTruthy();
     });
 
     it('should show required markers for required fields', () => {
@@ -61,8 +62,8 @@ describe('HabitForm', () => {
   describe('initial values', () => {
     it('should populate form with initial values', () => {
       const initialValues: Partial<HabitFormData> = {
-        name: 'テスト習慣',
-        description: 'テスト説明',
+        name: 'Test Habit',
+        description: 'Test Description',
       };
 
       render(
@@ -73,8 +74,8 @@ describe('HabitForm', () => {
         />
       );
 
-      expect(screen.getByDisplayValue('テスト習慣')).toBeTruthy();
-      expect(screen.getByDisplayValue('テスト説明')).toBeTruthy();
+      expect(screen.getByDisplayValue('Test Habit')).toBeTruthy();
+      expect(screen.getByDisplayValue('Test Description')).toBeTruthy();
     });
 
     it('should use default values when no initial values provided', () => {
@@ -85,10 +86,10 @@ describe('HabitForm', () => {
         />
       );
 
-      // Default tracking type is 'boolean' (やったか)
-      expect(screen.getByText('やったか')).toBeTruthy();
-      // Default goal period is 'daily' (毎日)
-      expect(screen.getByText('毎日')).toBeTruthy();
+      // Default tracking type is 'boolean' (Did it)
+      expect(screen.getByText('Did it')).toBeTruthy();
+      // Default goal period is 'daily' (Daily)
+      expect(screen.getByText('Daily')).toBeTruthy();
     });
   });
 
@@ -103,7 +104,7 @@ describe('HabitForm', () => {
       );
 
       // Goal value field should not be present
-      expect(screen.queryByText('目標値')).toBeNull();
+      expect(screen.queryByText('Goal Value')).toBeNull();
     });
 
     it('should show goal value and unit inputs for numeric tracking type', () => {
@@ -115,11 +116,11 @@ describe('HabitForm', () => {
         />
       );
 
-      expect(screen.getByText('目標値')).toBeTruthy();
-      expect(screen.getByText('単位')).toBeTruthy();
+      expect(screen.getByText('Goal Value')).toBeTruthy();
+      expect(screen.getByText('Unit')).toBeTruthy();
     });
 
-    it('should show goal value input and 分 label for duration tracking type', () => {
+    it('should show goal value input and min label for duration tracking type', () => {
       render(
         <HabitForm
           initialValues={{ tracking_type: 'duration' }}
@@ -128,8 +129,8 @@ describe('HabitForm', () => {
         />
       );
 
-      expect(screen.getByText('目標値')).toBeTruthy();
-      expect(screen.getByText('分')).toBeTruthy();
+      expect(screen.getByText('Goal Value')).toBeTruthy();
+      expect(screen.getByText('min')).toBeTruthy();
     });
   });
 
@@ -143,7 +144,7 @@ describe('HabitForm', () => {
       );
 
       // Press submit without entering name (form is invalid)
-      fireEvent.press(screen.getByText('保存'));
+      fireEvent.press(screen.getByText('Save'));
 
       // onSubmit should not be called for invalid form
       expect(mockOnSubmit).not.toHaveBeenCalled();
@@ -158,7 +159,7 @@ describe('HabitForm', () => {
       );
 
       // Focus and blur the name input
-      const nameInput = screen.getByPlaceholderText('例: 読書、運動、瞑想');
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
       fireEvent(nameInput, 'blur');
 
       await waitFor(() => {
@@ -179,18 +180,18 @@ describe('HabitForm', () => {
       );
 
       // Fill in required fields
-      const nameInput = screen.getByPlaceholderText('例: 読書、運動、瞑想');
-      fireEvent.changeText(nameInput, 'テスト習慣');
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Test Habit');
 
       // Submit
-      fireEvent.press(screen.getByText('保存'));
+      fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledTimes(1);
       });
 
       const submittedData = mockOnSubmit.mock.calls[0][0];
-      expect(submittedData.name).toBe('テスト習慣');
+      expect(submittedData.name).toBe('Test Habit');
     });
 
     it('should show loading state when submitting', () => {
@@ -202,7 +203,7 @@ describe('HabitForm', () => {
         />
       );
 
-      expect(screen.getByText('保存中...')).toBeTruthy();
+      expect(screen.getByText('Saving...')).toBeTruthy();
     });
 
     it('should show alert on submit error', async () => {
@@ -216,15 +217,15 @@ describe('HabitForm', () => {
       );
 
       // Fill in required fields
-      const nameInput = screen.getByPlaceholderText('例: 読書、運動、瞑想');
-      fireEvent.changeText(nameInput, 'テスト習慣');
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Test Habit');
 
       // Submit
-      fireEvent.press(screen.getByText('保存'));
+      fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith(
-          'エラー',
+          'Error',
           'Test error'
         );
       });
@@ -240,11 +241,11 @@ describe('HabitForm', () => {
         />
       );
 
-      fireEvent.press(screen.getByText('キャンセル'));
+      fireEvent.press(screen.getByText('Cancel'));
 
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
-      // ダイアログは表示されない
-      expect(screen.queryByText('変更を破棄')).toBeNull();
+      // Dialog should not be shown
+      expect(screen.queryByText('Discard Changes')).toBeNull();
     });
 
     it('should show confirmation dialog when form is dirty', () => {
@@ -256,16 +257,16 @@ describe('HabitForm', () => {
       );
 
       // Make form dirty by changing a field
-      const nameInput = screen.getByPlaceholderText('例: 読書、運動、瞑想');
-      fireEvent.changeText(nameInput, '変更した値');
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Changed Value');
 
-      fireEvent.press(screen.getByText('キャンセル'));
+      fireEvent.press(screen.getByText('Cancel'));
 
-      // ConfirmDialogが表示されることを確認
-      expect(screen.getByText('変更を破棄')).toBeTruthy();
-      expect(screen.getByText('入力した内容は保存されません。よろしいですか？')).toBeTruthy();
-      expect(screen.getByText('破棄')).toBeTruthy();
-      expect(screen.getByText('編集を続ける')).toBeTruthy();
+      // ConfirmDialog should be shown
+      expect(screen.getByText('Discard Changes')).toBeTruthy();
+      expect(screen.getByText('Your input will not be saved. Are you sure?')).toBeTruthy();
+      expect(screen.getByText('Discard')).toBeTruthy();
+      expect(screen.getByText('Continue Editing')).toBeTruthy();
     });
 
     it('should call onCancel when confirm button is pressed in dialog', () => {
@@ -277,14 +278,14 @@ describe('HabitForm', () => {
       );
 
       // Make form dirty
-      const nameInput = screen.getByPlaceholderText('例: 読書、運動、瞑想');
-      fireEvent.changeText(nameInput, '変更した値');
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Changed Value');
 
       // Open dialog
-      fireEvent.press(screen.getByText('キャンセル'));
+      fireEvent.press(screen.getByText('Cancel'));
 
       // Press confirm button
-      fireEvent.press(screen.getByText('破棄'));
+      fireEvent.press(screen.getByText('Discard'));
 
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
     });
@@ -298,17 +299,17 @@ describe('HabitForm', () => {
       );
 
       // Make form dirty
-      const nameInput = screen.getByPlaceholderText('例: 読書、運動、瞑想');
-      fireEvent.changeText(nameInput, '変更した値');
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Changed Value');
 
       // Open dialog
-      fireEvent.press(screen.getByText('キャンセル'));
+      fireEvent.press(screen.getByText('Cancel'));
 
       // Press cancel button in dialog
-      fireEvent.press(screen.getByText('編集を続ける'));
+      fireEvent.press(screen.getByText('Continue Editing'));
 
       // Dialog should be closed (title should not be visible)
-      expect(screen.queryByText('変更を破棄')).toBeNull();
+      expect(screen.queryByText('Discard Changes')).toBeNull();
       // onCancel should not have been called
       expect(mockOnCancel).not.toHaveBeenCalled();
     });
@@ -324,10 +325,10 @@ describe('HabitForm', () => {
       );
 
       // Change to numeric
-      fireEvent.press(screen.getByText('数値'));
+      fireEvent.press(screen.getByText('Numeric'));
 
       // Goal value field should appear
-      expect(screen.getByText('目標値')).toBeTruthy();
+      expect(screen.getByText('Goal Value')).toBeTruthy();
     });
 
     it('should update time of day when chip is pressed', () => {
@@ -339,10 +340,10 @@ describe('HabitForm', () => {
       );
 
       // Default is 'anytime', add 'morning'
-      fireEvent.press(screen.getByText('朝'));
+      fireEvent.press(screen.getByText('Morning'));
 
       // Both should be selected now
-      const morningChip = screen.getByLabelText('朝');
+      const morningChip = screen.getByLabelText('Morning');
       expect(morningChip.props.accessibilityState.checked).toBe(true);
     });
   });

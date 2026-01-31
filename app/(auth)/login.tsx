@@ -9,6 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
@@ -18,6 +20,7 @@ import { validateLoginForm } from '@/lib/validation/auth';
  * ログイン画面
  */
 export default function LoginScreen() {
+  const { _ } = useLingui();
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { signInWithEmail } = useSessionApi();
@@ -49,9 +52,9 @@ export default function LoginScreen() {
     } catch (err: any) {
       console.error('Login error:', err);
       if (err.message?.includes('Invalid login credentials')) {
-        setError('メールアドレスまたはパスワードが正しくありません');
+        setError(_(msg`Email or password is incorrect`));
       } else {
-        setError('ログインに失敗しました。もう一度お試しください');
+        setError(_(msg`Login failed. Please try again.`));
       }
     } finally {
       setIsSubmitting(false);
@@ -72,11 +75,11 @@ export default function LoginScreen() {
           {/* ヘッダー */}
           <View style={styles.header}>
             <Pressable onPress={handleBack} style={styles.backButton}>
-              <Text style={styles.backButtonText}>← 戻る</Text>
+              <Text style={styles.backButtonText}>{_(msg`← Back`)}</Text>
             </Pressable>
-            <Text style={styles.title}>サインイン</Text>
+            <Text style={styles.title}>{_(msg`Sign In`)}</Text>
             <Text style={styles.subtitle}>
-              メールアドレスとパスワードを入力してください
+              {_(msg`Enter your email and password`)}
             </Text>
           </View>
 
@@ -91,7 +94,7 @@ export default function LoginScreen() {
 
             {/* メールアドレス */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>メールアドレス</Text>
+              <Text style={styles.label}>{_(msg`Email`)}</Text>
               <TextInput
                 style={styles.input}
                 placeholder="you@example.com"
@@ -108,10 +111,10 @@ export default function LoginScreen() {
 
             {/* パスワード */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>パスワード</Text>
+              <Text style={styles.label}>{_(msg`Password`)}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="パスワード"
+                placeholder={_(msg`Password`)}
                 placeholderTextColor="#9ca3af"
                 value={password}
                 onChangeText={setPassword}
@@ -134,7 +137,7 @@ export default function LoginScreen() {
               {isSubmitting ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.loginButtonText}>サインイン</Text>
+                <Text style={styles.loginButtonText}>{_(msg`Sign In`)}</Text>
               )}
             </Pressable>
           </View>

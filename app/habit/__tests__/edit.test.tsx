@@ -111,7 +111,7 @@ describe('EditHabitScreen', () => {
 
       await waitFor(
         () => {
-          expect(screen.getByText('習慣を編集')).toBeTruthy();
+          expect(screen.getByText('Edit Habit')).toBeTruthy();
         },
         { timeout: 10000 }
       );
@@ -153,7 +153,7 @@ describe('EditHabitScreen', () => {
 
       await waitFor(
         () => {
-          expect(screen.getByText('習慣を編集')).toBeTruthy();
+          expect(screen.getByText('Edit Habit')).toBeTruthy();
         },
         { timeout: 10000 }
       );
@@ -174,7 +174,7 @@ describe('EditHabitScreen', () => {
 
       await waitFor(
         () => {
-          expect(screen.getByText('習慣を編集')).toBeTruthy();
+          expect(screen.getByText('Edit Habit')).toBeTruthy();
         },
         { timeout: 10000 }
       );
@@ -205,8 +205,8 @@ describe('EditHabitScreen', () => {
       const nameInput = screen.getByDisplayValue('読書');
       fireEvent.changeText(nameInput, '読書タイム');
 
-      // Submit
-      fireEvent.press(screen.getByText('保存'));
+      // Submit (i18n returns English)
+      fireEvent.press(screen.getByText('Save'));
 
       await waitFor(
         () => {
@@ -241,7 +241,7 @@ describe('EditHabitScreen', () => {
 
       await waitFor(
         () => {
-          expect(screen.getByText('習慣が見つかりません')).toBeTruthy();
+          expect(screen.getByText('Habit not found')).toBeTruthy();
         },
         { timeout: 10000 }
       );

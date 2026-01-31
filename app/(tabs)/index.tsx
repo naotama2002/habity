@@ -1,14 +1,17 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
-import { ja } from 'date-fns/locale';
+import { ja, enUS } from 'date-fns/locale';
 import { useHabitsWithTodayLog } from '@/state/queries/habits';
 import { useToggleHabitLog } from '@/state/queries/habit-logs';
 import { HabitCard, TimeOfDaySection } from '@/components/habits';
 import { colors, lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing, borderRadius } from '@/lib/spacing';
+import { i18n } from '@/locale/i18n';
 import type { HabitWithTodayLog, TimeOfDay } from '@/types/database';
 
 /**
@@ -17,9 +20,11 @@ import type { HabitWithTodayLog, TimeOfDay } from '@/types/database';
  * docs/04-ui-design.md「1. Today 画面」を参照
  */
 export default function TodayScreen() {
+  const { _ } = useLingui();
   const router = useRouter();
   const { data: habits, isLoading, error } = useHabitsWithTodayLog();
   const toggleLog = useToggleHabitLog();
+  const dateLocale = i18n.locale === 'ja' ? ja : enUS;
 
   const today = new Date();
   const dateStr = format(today, 'yyyy-MM-dd');
@@ -62,8 +67,8 @@ export default function TodayScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>習慣の読み込みに失敗しました</Text>
-          <Text style={styles.errorSubtext}>もう一度お試しください</Text>
+          <Text style={styles.errorText}>{_(msg`Failed to load habits`)}</Text>
+          <Text style={styles.errorSubtext}>{_(msg`Please try again`)}</Text>
         </View>
       </SafeAreaView>
     );
@@ -85,11 +90,11 @@ export default function TodayScreen() {
 
         {/* 日付 & 進捗 */}
         <Text style={styles.dateText}>
-          {format(today, 'yyyy年M月d日（E）', { locale: ja })}
+          {format(today, 'PPP (EEEE)', { locale: dateLocale })}
         </Text>
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>
-            {completedCount}/{totalCount} 完了
+            {completedCount}/{totalCount} {_(msg`completed`)}
           </Text>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${progress}%` }]} />
@@ -107,9 +112,9 @@ export default function TodayScreen() {
         {habits?.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>📝</Text>
-            <Text style={styles.emptyText}>習慣がありません</Text>
+            <Text style={styles.emptyText}>{_(msg`No habits yet`)}</Text>
             <Text style={styles.emptySubtext}>
-              新しい習慣を追加して始めましょう
+              {_(msg`Add a new habit to get started`)}
             </Text>
           </View>
         ) : (
