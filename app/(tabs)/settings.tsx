@@ -1,11 +1,18 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
+import { i18n } from '@/locale/i18n';
 
 export default function SettingsScreen() {
+  const { _ } = useLingui();
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
+
+  const currentLanguage = i18n.locale === 'ja' ? _(msg`Japanese`) : _(msg`English`);
 
   return (
     <ScrollView style={styles.container}>
@@ -16,47 +23,47 @@ export default function SettingsScreen() {
             <Ionicons name="person" size={32} color="#6b7280" />
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>ゲストユーザー</Text>
-            <Text style={styles.userEmail}>ログインしてください</Text>
+            <Text style={styles.userName}>{_(msg`Guest User`)}</Text>
+            <Text style={styles.userEmail}>{_(msg`Please sign in`)}</Text>
           </View>
         </View>
 
         {/* General Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>一般</Text>
+          <Text style={styles.sectionTitle}>{_(msg`General`)}</Text>
           <View style={styles.menuGroup}>
             <MenuItem
               icon="color-palette-outline"
-              label="外観"
-              value="システム"
+              label={_(msg`Appearance`)}
+              value={_(msg`System`)}
             />
-            <MenuItem icon="notifications-outline" label="通知" />
-            <MenuItem icon="language-outline" label="言語" value="日本語" />
-            <MenuItem icon="calendar-outline" label="週の開始日" value="月曜" />
+            <MenuItem icon="notifications-outline" label={_(msg`Notifications`)} />
+            <MenuItem icon="language-outline" label={_(msg`Language`)} value={currentLanguage} />
+            <MenuItem icon="calendar-outline" label={_(msg`Week Starts On`)} value={_(msg`Monday`)} />
           </View>
         </View>
 
         {/* Data Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>データ</Text>
+          <Text style={styles.sectionTitle}>{_(msg`Data`)}</Text>
           <View style={styles.menuGroup}>
-            <MenuItem icon="folder-outline" label="カテゴリ管理" />
-            <Pressable onPress={() => Alert.alert('未実装', 'この機能は準備中です')}>
-              <MenuItem icon="download-outline" label="Habitify からインポート" />
+            <MenuItem icon="folder-outline" label={_(msg`Manage Categories`)} />
+            <Pressable onPress={() => Alert.alert(_(msg`Not Implemented`), _(msg`This feature is coming soon`))}>
+              <MenuItem icon="download-outline" label={_(msg`Import from Habitify`)} />
             </Pressable>
-            <MenuItem icon="share-outline" label="データエクスポート" />
+            <MenuItem icon="share-outline" label={_(msg`Export Data`)} />
           </View>
         </View>
 
         {/* Support */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>サポート</Text>
+          <Text style={styles.sectionTitle}>{_(msg`Support`)}</Text>
           <View style={styles.menuGroup}>
-            <MenuItem icon="help-circle-outline" label="ヘルプ" />
-            <MenuItem icon="chatbubble-outline" label="フィードバック" />
+            <MenuItem icon="help-circle-outline" label={_(msg`Help`)} />
+            <MenuItem icon="chatbubble-outline" label={_(msg`Feedback`)} />
             <MenuItem
               icon="information-circle-outline"
-              label="このアプリについて"
+              label={_(msg`About This App`)}
             />
           </View>
         </View>
@@ -64,7 +71,7 @@ export default function SettingsScreen() {
         {/* Sign Out */}
         <Pressable style={styles.signOutButton} onPress={handleSignOut}>
           <Ionicons name="log-out-outline" size={20} color="#ef4444" />
-          <Text style={styles.signOutText}>ログアウト</Text>
+          <Text style={styles.signOutText}>{_(msg`Sign Out`)}</Text>
         </Pressable>
 
         {/* Version */}

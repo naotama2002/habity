@@ -1,4 +1,6 @@
 import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +17,7 @@ import type { UpdateHabitInput } from '@/types/database';
  * 認証チェックは NavigationController で行われるため、この画面に到達した時点で認証済み
  */
 export default function EditHabitScreen() {
+  const { _ } = useLingui();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: habit, isLoading, error } = useHabit(id ?? '');
@@ -75,13 +78,13 @@ export default function EditHabitScreen() {
           <Pressable style={styles.backButton} onPress={handleCancel}>
             <Ionicons name="close" size={24} color={lightTheme.text} />
           </Pressable>
-          <Text style={styles.title}>習慣を編集</Text>
+          <Text style={styles.title}>{_(msg`Edit Habit`)}</Text>
           <View style={styles.placeholder} />
         </View>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>習慣が見つかりません</Text>
+          <Text style={styles.errorText}>{_(msg`Habit not found`)}</Text>
           <Pressable style={styles.backLink} onPress={handleCancel}>
-            <Text style={styles.backLinkText}>戻る</Text>
+            <Text style={styles.backLinkText}>{_(msg`Back`)}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -113,7 +116,7 @@ export default function EditHabitScreen() {
         <Pressable style={styles.backButton} onPress={handleCancel}>
           <Ionicons name="close" size={24} color={lightTheme.text} />
         </Pressable>
-        <Text style={styles.title}>習慣を編集</Text>
+        <Text style={styles.title}>{_(msg`Edit Habit`)}</Text>
         <View style={styles.placeholder} />
       </View>
 

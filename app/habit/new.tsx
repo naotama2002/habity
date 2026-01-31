@@ -1,4 +1,6 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +17,7 @@ import type { CreateHabitInput } from '@/types/database';
  * 認証チェックは NavigationController で行われるため、この画面に到達した時点で認証済み
  */
 export default function NewHabitScreen() {
+  const { _ } = useLingui();
   const router = useRouter();
   const createHabit = useCreateHabit();
 
@@ -61,7 +64,7 @@ export default function NewHabitScreen() {
         <Pressable style={styles.backButton} onPress={handleCancel}>
           <Ionicons name="close" size={24} color={lightTheme.text} />
         </Pressable>
-        <Text style={styles.title}>新しい習慣</Text>
+        <Text style={styles.title}>{_(msg`New Habit`)}</Text>
         <View style={styles.placeholder} />
       </View>
 

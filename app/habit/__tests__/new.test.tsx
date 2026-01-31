@@ -76,8 +76,8 @@ describe('NewHabitScreen', () => {
     it('should render screen with header', () => {
       renderWithProviders(<NewHabitScreen />);
 
-      // Screen header (not i18n yet)
-      expect(screen.getByText('新しい習慣')).toBeTruthy();
+      // Screen header (i18n mock returns English)
+      expect(screen.getByText('New Habit')).toBeTruthy();
     });
 
     it('should render HabitForm', () => {

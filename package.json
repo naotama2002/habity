@@ -19,7 +19,8 @@
     "test:watch": "NODE_ENV=test jest --watchAll",
     "intl:extract": "lingui extract --clean",
     "intl:compile": "lingui compile",
-    "intl:build": "pnpm intl:extract && pnpm intl:compile"
+    "intl:build": "pnpm intl:extract && pnpm intl:compile",
+    "intl:check": "node scripts/check-translations.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.28.6",

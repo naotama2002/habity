@@ -1,4 +1,6 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
@@ -7,6 +9,7 @@ import { useSessionApi } from '@/state/session';
  * ウェルカム画面
  */
 export default function WelcomeScreen() {
+  const { _ } = useLingui();
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { signInWithGoogle } = useSessionApi();
@@ -47,14 +50,13 @@ export default function WelcomeScreen() {
         {/* ロゴ・タイトル */}
         <View style={styles.header}>
           <Text style={styles.logo}>Habity</Text>
-          <Text style={styles.tagline}>習慣を、もっとシンプルに</Text>
+          <Text style={styles.tagline}>{_(msg`Make habits simpler`)}</Text>
         </View>
 
         {/* 説明 */}
         <View style={styles.description}>
           <Text style={styles.descriptionText}>
-            毎日の習慣を記録して、{'\n'}
-            より良い自分を目指しましょう
+            {_(msg`Track your daily habits and become a better you`)}
           </Text>
         </View>
 
@@ -65,7 +67,7 @@ export default function WelcomeScreen() {
             style={[styles.button, styles.googleButton]}
             onPress={handleGoogleSignIn}
           >
-            <Text style={styles.googleButtonText}>Google でサインイン</Text>
+            <Text style={styles.googleButtonText}>{_(msg`Sign in with Google`)}</Text>
           </Pressable>
 
           {/* メールでサインイン */}
@@ -73,14 +75,14 @@ export default function WelcomeScreen() {
             style={[styles.button, styles.emailButton]}
             onPress={handleEmailSignIn}
           >
-            <Text style={styles.emailButtonText}>メールでサインイン</Text>
+            <Text style={styles.emailButtonText}>{_(msg`Sign in with Email`)}</Text>
           </Pressable>
 
           {/* 新規登録 */}
           <Pressable style={styles.signUpLink} onPress={handleSignUp}>
             <Text style={styles.signUpText}>
-              アカウントをお持ちでない方は
-              <Text style={styles.signUpLinkText}> 新規登録</Text>
+              {_(msg`Don't have an account?`)}
+              <Text style={styles.signUpLinkText}> {_(msg`Sign Up`)}</Text>
             </Text>
           </Pressable>
         </View>

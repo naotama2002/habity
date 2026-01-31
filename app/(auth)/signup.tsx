@@ -10,6 +10,8 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import { msg } from '@lingui/macro';
+import { useLingui } from '@lingui/react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
@@ -19,6 +21,7 @@ import { validateSignupForm } from '@/lib/validation/auth';
  * サインアップ画面
  */
 export default function SignupScreen() {
+  const { _ } = useLingui();
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { signUpWithEmail } = useSessionApi();
@@ -47,9 +50,9 @@ export default function SignupScreen() {
     } catch (err: any) {
       console.error('Signup error:', err);
       if (err.message?.includes('already registered')) {
-        setError('このメールアドレスは既に登録されています');
+        setError(_(msg`This email is already registered`));
       } else {
-        setError('登録に失敗しました。もう一度お試しください');
+        setError(_(msg`Registration failed. Please try again.`));
       }
     } finally {
       setIsSubmitting(false);
@@ -74,14 +77,14 @@ export default function SignupScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.successContent}>
           <Text style={styles.successIcon}>✓</Text>
-          <Text style={styles.successTitle}>登録が完了しました</Text>
+          <Text style={styles.successTitle}>{_(msg`Registration complete`)}</Text>
           <Text style={styles.successMessage}>
-            確認メールを送信しました。{'\n'}
-            メール内のリンクをクリックして、{'\n'}
-            アカウントを有効化してください。
+            {_(msg`We sent you a confirmation email.`)}
+            {'\n'}
+            {_(msg`Click the link in the email to activate your account.`)}
           </Text>
           <Pressable style={styles.loginButton} onPress={handleGoToLogin}>
-            <Text style={styles.loginButtonText}>サインインへ</Text>
+            <Text style={styles.loginButtonText}>{_(msg`Go to Sign In`)}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -102,11 +105,11 @@ export default function SignupScreen() {
             {/* ヘッダー */}
             <View style={styles.header}>
               <Pressable onPress={handleBack} style={styles.backButton}>
-                <Text style={styles.backButtonText}>← 戻る</Text>
+                <Text style={styles.backButtonText}>{_(msg`← Back`)}</Text>
               </Pressable>
-              <Text style={styles.title}>アカウント作成</Text>
+              <Text style={styles.title}>{_(msg`Create Account`)}</Text>
               <Text style={styles.subtitle}>
-                新しいアカウントを作成しましょう
+                {_(msg`Let's create a new account`)}
               </Text>
             </View>
 
@@ -121,7 +124,7 @@ export default function SignupScreen() {
 
               {/* メールアドレス */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>メールアドレス</Text>
+                <Text style={styles.label}>{_(msg`Email`)}</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="you@example.com"
@@ -138,10 +141,10 @@ export default function SignupScreen() {
 
               {/* パスワード */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>パスワード</Text>
+                <Text style={styles.label}>{_(msg`Password`)}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="6文字以上"
+                  placeholder={_(msg`6 or more characters`)}
                   placeholderTextColor="#9ca3af"
                   value={password}
                   onChangeText={setPassword}
@@ -154,10 +157,10 @@ export default function SignupScreen() {
 
               {/* パスワード確認 */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>パスワード（確認）</Text>
+                <Text style={styles.label}>{_(msg`Confirm Password`)}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="パスワードを再入力"
+                  placeholder={_(msg`Re-enter password`)}
                   placeholderTextColor="#9ca3af"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
@@ -180,17 +183,17 @@ export default function SignupScreen() {
                 {isSubmitting ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.signupButtonText}>アカウント作成</Text>
+                  <Text style={styles.signupButtonText}>{_(msg`Create Account`)}</Text>
                 )}
               </Pressable>
 
               {/* ログインリンク */}
               <View style={styles.loginLink}>
                 <Text style={styles.loginLinkText}>
-                  既にアカウントをお持ちの方は
+                  {_(msg`Already have an account?`)}
                 </Text>
                 <Pressable onPress={handleGoToLogin}>
-                  <Text style={styles.loginLinkAction}> サインイン</Text>
+                  <Text style={styles.loginLinkAction}> {_(msg`Sign In`)}</Text>
                 </Pressable>
               </View>
             </View>
