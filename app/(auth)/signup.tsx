@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 import { validateSignupForm } from '@/lib/validation/auth';
@@ -47,9 +47,10 @@ export default function SignupScreen() {
     try {
       await signUpWithEmail(email.trim(), password);
       setSuccess(true);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Signup error:', err);
-      if (err.message?.includes('already registered')) {
+      const errorMessage = err instanceof Error ? err.message : '';
+      if (errorMessage.includes('already registered')) {
         setError(_(msg`This email is already registered`));
       } else {
         setError(_(msg`Registration failed. Please try again.`));
@@ -68,7 +69,7 @@ export default function SignupScreen() {
     const loginUrl = returnTo
       ? `/(auth)/login?returnTo=${returnTo}`
       : '/(auth)/login';
-    router.replace(loginUrl as any);
+    router.replace(loginUrl as Href);
   };
 
   // 登録成功後の画面

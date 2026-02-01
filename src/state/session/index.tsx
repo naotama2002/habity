@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import * as Linking from 'expo-linking';
 import { supabase } from '@/lib/supabase';
-import type { Session, User, AuthChangeEvent } from '@supabase/supabase-js';
+import type { Session, AuthChangeEvent } from '@supabase/supabase-js';
 import {
   SessionState,
   SessionApi,

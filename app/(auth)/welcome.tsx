@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 
@@ -21,7 +21,7 @@ export default function WelcomeScreen() {
       // NavigationControllerがリダイレクトを処理するが、
       // returnToがある場合はここで明示的に遷移
       if (returnTo) {
-        router.replace(decodeURIComponent(returnTo) as any);
+        router.replace(decodeURIComponent(returnTo) as Href);
       }
     } catch (error) {
       console.error('Google sign in failed:', error);
@@ -33,7 +33,7 @@ export default function WelcomeScreen() {
     const loginUrl = returnTo
       ? `/(auth)/login?returnTo=${returnTo}`
       : '/(auth)/login';
-    router.push(loginUrl as any);
+    router.push(loginUrl as Href);
   };
 
   const handleSignUp = () => {
@@ -41,7 +41,7 @@ export default function WelcomeScreen() {
     const signupUrl = returnTo
       ? `/(auth)/signup?returnTo=${returnTo}`
       : '/(auth)/signup';
-    router.push(signupUrl as any);
+    router.push(signupUrl as Href);
   };
 
   return (

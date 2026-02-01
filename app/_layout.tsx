@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments, Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
@@ -36,7 +36,7 @@ function NavigationController({ children }: { children: React.ReactNode }) {
       const welcomeUrl = returnTo
         ? `/(auth)/welcome?returnTo=${returnTo}`
         : '/(auth)/welcome';
-      router.replace(welcomeUrl as any);
+      router.replace(welcomeUrl as Href);
     } else if (hasSession && inAuthGroup) {
       // 認証済みで認証画面にいる場合 → メイン画面へ
       // 注: returnTo の処理は login/signup 画面で行う

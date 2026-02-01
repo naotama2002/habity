@@ -1,6 +1,6 @@
 import { View, TextInput, StyleSheet, TextInputProps } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, lightTheme } from '@/lib/colors';
+import { lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing, borderRadius } from '@/lib/spacing';
 
