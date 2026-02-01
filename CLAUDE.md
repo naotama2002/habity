@@ -9,7 +9,6 @@ Bluesky と同じアプローチ。1つのコードベースで全プラット�
 | プラットフォーム | 対応方法 |
 |-----------------|---------|
 | iOS | React Native + Expo |
-| Android | React Native + Expo |
 | Web | React Native Web (Expo Web) |
 | macOS | Web版をブラウザで使用 |
 | Windows | Web版をブラウザで使用 |
@@ -53,7 +52,7 @@ Bluesky と同じアプローチ。1つのコードベースで全プラット�
 ## プロジェクト概要
 
 - **アプリ名**: Habity（習慣トラッキングアプリ）
-- **対応プラットフォーム**: iOS, Android, Web, macOS
+- **対応プラットフォーム**: iOS, Web, macOS, Windows
 - **技術スタック**: React Native + Expo, Supabase, Go
 
 ## ドキュメント
@@ -89,7 +88,6 @@ docker compose up -d
 # 開発サーバー
 pnpm web       # Web
 pnpm ios       # iOS
-pnpm android   # Android
 
 # 品質チェック
 pnpm lint

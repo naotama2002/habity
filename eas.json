@@ -8,27 +8,17 @@
       "distribution": "internal",
       "ios": {
         "simulator": true
-      },
-      "android": {
-        "buildType": "apk"
       }
     },
     "preview": {
       "distribution": "internal",
       "ios": {
         "simulator": true
-      },
-      "android": {
-        "buildType": "apk"
       }
     },
     "production": {
       "ios": {
         "autoIncrement": true
-      },
-      "android": {
-        "autoIncrement": true,
-        "buildType": "app-bundle"
       }
     }
   },

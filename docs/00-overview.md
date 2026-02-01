@@ -13,7 +13,6 @@ Bluesky と同じアプローチを採用。1つのコードベースで全プ�
 | プラットフォーム | 対応方法 | 状態 |
 |-----------------|---------|------|
 | iOS | React Native + Expo | ✅ 対応 |
-| Android | React Native + Expo | ✅ 対応 |
 | Web | React Native Web (Expo Web) | ✅ 対応 |
 | macOS | Web版をブラウザで使用 | ✅ 対応 |
 | Windows | Web版をブラウザで使用 | ✅ 対応 |
@@ -129,7 +128,6 @@ pnpm install
 # 開発サーバー
 pnpm web      # Web (http://localhost:8081)
 pnpm ios      # iOS
-pnpm android  # Android
 ```
 
 ### サービス URL
