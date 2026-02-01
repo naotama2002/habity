@@ -2,6 +2,22 @@
 
 このファイルは Claude Code がプロジェクトの開発方針を理解するためのガイドです。
 
+## 対応プラットフォーム
+
+Bluesky と同じアプローチ。1つのコードベースで全プラットフォームをカバー。
+
+| プラットフォーム | 対応方法 |
+|-----------------|---------|
+| iOS | React Native + Expo |
+| Web | React Native Web (Expo Web) |
+| macOS | Web版をブラウザで使用 |
+| Windows | Web版をブラウザで使用 |
+
+- プラットフォーム分離は `.native.tsx` / `.web.tsx` で実装
+- デスクトップ専用アプリは作らない（Web版で対応）
+
+---
+
 ## 最重要: 参考実装
 
 **React Native の設計・実装は必ず Bluesky social-app を参考にすること。**
@@ -36,7 +52,7 @@
 ## プロジェクト概要
 
 - **アプリ名**: Habity（習慣トラッキングアプリ）
-- **対応プラットフォーム**: iOS, Android, Web, macOS
+- **対応プラットフォーム**: iOS, Web, macOS, Windows
 - **技術スタック**: React Native + Expo, Supabase, Go
 
 ## ドキュメント
@@ -72,7 +88,6 @@ docker compose up -d
 # 開発サーバー
 pnpm web       # Web
 pnpm ios       # iOS
-pnpm android   # Android
 
 # 品質チェック
 pnpm lint
