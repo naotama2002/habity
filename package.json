@@ -61,7 +61,6 @@
     "@lingui/cli": "^5.9.0",
     "@lingui/macro": "^5.9.0",
     "@lingui/vite-plugin": "^5.9.0",
-    "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^12.5.0",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.0",
