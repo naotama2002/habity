@@ -33,16 +33,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup EAS CLI
+        run: npm install -g eas-cli
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build i18n
         run: pnpm intl:compile
 
-      - name: Generate native code
-        run: npx expo prebuild --platform android --clean
-
       - name: Build Android (APK)
-        run: |
-          cd android
-          ./gradlew assembleRelease --no-daemon
+        run: eas build --platform android --profile preview --local --output build.apk --non-interactive
