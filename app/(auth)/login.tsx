@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 import { validateLoginForm } from '@/lib/validation/auth';
@@ -45,13 +45,14 @@ export default function LoginScreen() {
       await signInWithEmail(email.trim(), password);
       // 成功時にreturnToがあればそこに遷移、なければトップへ
       if (returnTo) {
-        router.replace(decodeURIComponent(returnTo) as any);
+        router.replace(decodeURIComponent(returnTo) as Href);
       } else {
         router.replace('/(tabs)');
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Login error:', err);
-      if (err.message?.includes('Invalid login credentials')) {
+      const errorMessage = err instanceof Error ? err.message : '';
+      if (errorMessage.includes('Invalid login credentials')) {
         setError(_(msg`Email or password is incorrect`));
       } else {
         setError(_(msg`Login failed. Please try again.`));

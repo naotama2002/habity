@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
+import type { Session, User } from '@supabase/supabase-js';
 import { initialSessionState, SessionState } from '../types';
 
 /**
@@ -60,8 +61,8 @@ describe('session types', () => {
       };
 
       const stateWithSession: SessionState = {
-        session: mockSession as any,
-        user: mockUser as any,
+        session: mockSession as unknown as Session,
+        user: mockUser as unknown as User,
         hasSession: true,
         isLoading: false,
         isInitialized: true,
