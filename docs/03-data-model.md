@@ -318,24 +318,21 @@ CREATE TRIGGER on_auth_user_created
 
 ---
 
-## ビュー
+## 計算型（クライアント側結合）
 
 ### 習慣と今日のログ
 
-```sql
-CREATE VIEW habits_with_today_log AS
-SELECT
-  h.*,
-  l.id AS log_id,
-  l.value AS log_value,
-  l.completed_at AS log_completed_at,
-  CASE
-    WHEN l.id IS NOT NULL AND l.value >= h.goal_value THEN true
-    ELSE false
-  END AS is_completed_today
-FROM habits h
-LEFT JOIN habit_logs l ON h.id = l.habit_id AND l.target_date = CURRENT_DATE
-WHERE h.status = 'active';
+`HabitWithTodayLog` は DB ビューではなく、クライアント側で `habits` と `habit_logs` を個別にクエリし結合して生成する。
+実装は `src/state/queries/habits.ts` の `useHabitsWithTodayLog` を参照。
+
+```typescript
+// habits テーブルを直接クエリ（RLS が効く）
+const habits = await supabase.from('habits').select('*').eq('status', 'active');
+
+// 今日のログを取得（RLS が効く）
+const logs = await supabase.from('habit_logs').select('*').in('habit_id', habitIds).eq('target_date', today);
+
+// クライアント側で結合し HabitWithTodayLog を生成
 ```
 
 ### ストリーク計算

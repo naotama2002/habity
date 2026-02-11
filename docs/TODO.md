@@ -59,7 +59,7 @@
 - [x] tsconfig.json 設定
 - [x] babel.config.js 設定
 - [x] app.config.js (Expo設定)
-- [x] .tool-versions (mise)
+- [x] .mise.toml (mise / Supabase CLI 含む)
 - [x] .env.example
 
 ### Docker / インフラ
@@ -76,7 +76,7 @@
   - [x] user_settings テーブル
   - [x] RLS ポリシー
   - [x] トリガー (updated_at)
-  - [x] ビュー (habits_with_today_log)
+  - [x] ~~ビュー (habits_with_today_log)~~ → 削除済み（クライアント側結合に変更）
   - [x] 関数 (calculate_streak)
 
 ### フロントエンド基盤
@@ -185,13 +185,13 @@
 ### 1.8 Settings 画面
 参照: docs/04-ui-design.md「6. Settings 画面」
 
-- [ ] app/(tabs)/settings.tsx - 設定トップ画面
+- [x] app/(tabs)/settings.tsx - 設定トップ画面（ユーザー情報表示 + ログアウト）
 - [ ] app/settings/account.tsx - アカウント設定
 - [ ] app/settings/appearance.tsx - 外観設定
 - [ ] app/settings/notifications.tsx - 通知設定
 - [ ] app/settings/categories.tsx - カテゴリ管理
 - [ ] src/state/queries/user-settings.ts - 設定クエリ
-- [ ] ログアウト機能
+- [x] ログアウト機能
 
 ---
 
@@ -277,3 +277,5 @@
 | [03-data-model.md](./03-data-model.md) | データモデル |
 | [04-ui-design.md](./04-ui-design.md) | UI/UX 設計 |
 | [05-development-environment.md](./05-development-environment.md) | 開発環境 |
+| [06-migration.md](./06-migration.md) | マイグレーション運用ガイド |
+| [07-supabase-cloud-setup.md](./07-supabase-cloud-setup.md) | Supabase Cloud 移行ガイド |

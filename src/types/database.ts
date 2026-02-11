@@ -67,7 +67,7 @@ export interface UserSettings {
 }
 
 // ===========================================
-// Extended Types (Views)
+// Extended Types (Computed)
 // ===========================================
 
 export interface HabitWithTodayLog extends Habit {

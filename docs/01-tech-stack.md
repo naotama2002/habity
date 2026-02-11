@@ -353,18 +353,44 @@ export const habitKeys = {
   detail: (id: string) => [...habitKeys.details(), id] as const,
 };
 
-export function useHabits(status = 'active') {
+export function useHabitsWithTodayLog() {
   return useQuery({
-    queryKey: habitKeys.list({ status }),
+    queryKey: habitKeys.today(),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('habits_with_today_log')
+      const today = new Date().toISOString().split('T')[0];
+
+      // habits テーブルを直接クエリ（RLS が効く）
+      const { data: habits, error: habitsError } = await supabase
+        .from('habits')
         .select('*')
-        .eq('status', status)
+        .eq('status', 'active')
         .order('sort_order');
 
-      if (error) throw error;
-      return data as HabitWithTodayLog[];
+      if (habitsError) throw habitsError;
+      if (!habits || habits.length === 0) return [] as HabitWithTodayLog[];
+
+      // 今日のログを取得して クライアント側で結合
+      const habitIds = habits.map(h => h.id);
+      const { data: logs, error: logsError } = await supabase
+        .from('habit_logs')
+        .select('*')
+        .in('habit_id', habitIds)
+        .eq('target_date', today);
+
+      if (logsError) throw logsError;
+
+      const logMap = new Map(logs?.map(l => [l.habit_id, l]) ?? []);
+      return habits.map(h => {
+        const log = logMap.get(h.id) ?? null;
+        return {
+          ...h,
+          log_id: log?.id ?? null,
+          log_value: log?.value ?? null,
+          log_completed_at: log?.completed_at ?? null,
+          log_note: log?.note ?? null,
+          is_completed_today: log !== null && log.value >= h.goal_value,
+        } as HabitWithTodayLog;
+      });
     },
   });
 }

@@ -79,6 +79,9 @@ yarn-error.log*
 tmp/
 temp/
 
+# Supabase CLI
+supabase/.temp/
+
 # Claude Code
 .claude/
 

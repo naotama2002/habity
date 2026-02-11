@@ -22,10 +22,11 @@
 mise install
 ```
 
-これにより以下がインストールされます（`.tool-versions` で管理）:
+これにより以下がインストールされます（`.mise.toml` で管理）:
 - Node.js 24.13.0 (Active LTS)
 - pnpm 10.28.0
 - Go 1.25.6
+- Supabase CLI 2.75.0
 
 ### 2. 環境変数設定
 
@@ -116,7 +117,7 @@ docker compose -f docker-compose.deploy.yml --env-file .env.deploy down
 
 ```
 habity/
-├── .tool-versions          # mise ツールバージョン定義
+├── .mise.toml              # mise ツールバージョン定義
 ├── app/                    # Expo Router 画面定義
 ├── src/                    # React Native ソースコード
 │   ├── components/         # 共通コンポーネント
@@ -143,6 +144,8 @@ habity/
 - [データモデル](docs/03-data-model.md)
 - [UI/UX 設計](docs/04-ui-design.md)
 - [開発環境](docs/05-development-environment.md)
+- [マイグレーション運用](docs/06-migration.md)
+- [Supabase Cloud 移行](docs/07-supabase-cloud-setup.md)
 - [実装 TODO](docs/TODO.md)
 
 開発ガイド: [CLAUDE.md](CLAUDE.md)
