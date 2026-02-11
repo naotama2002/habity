@@ -6,17 +6,17 @@ import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
 import {spacing, borderRadius, shadows} from '@/lib/spacing';
 import {StreakBadge} from './StreakBadge';
-import type {HabitWithTodayLog} from '@/types/database';
+import type {HabitWithLog} from '@/types/database';
 
 interface HabitCardProps {
   /** 習慣データ */
-  habit: HabitWithTodayLog;
+  habit: HabitWithLog;
   /** ストリーク日数 */
   streak?: number;
   /** チェックイン時のコールバック */
-  onToggle?: (habit: HabitWithTodayLog) => void;
+  onToggle?: (habit: HabitWithLog) => void;
   /** 詳細表示時のコールバック */
-  onPress?: (habit: HabitWithTodayLog) => void;
+  onPress?: (habit: HabitWithLog) => void;
 }
 
 /**
@@ -30,8 +30,8 @@ export function HabitCard({
   onPress,
 }: HabitCardProps) {
   const {_} = useLingui();
-  const isCompleted = habit.is_completed_today;
-  const isSkipped = habit.is_skipped_today;
+  const isCompleted = habit.is_completed;
+  const isSkipped = habit.is_skipped;
 
   const handleToggle = async () => {
     if (isSkipped) return; // スキップ中はトグル不可

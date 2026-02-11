@@ -1,7 +1,7 @@
 import {describe, expect, it, jest} from '@jest/globals';
 import {render, screen, fireEvent, waitFor} from '@testing-library/react-native';
 import {HabitCard} from '../HabitCard';
-import type {HabitWithTodayLog} from '@/types/database';
+import type {HabitWithLog} from '@/types/database';
 
 // expo-haptics モック
 jest.mock('expo-haptics', () => ({
@@ -10,8 +10,8 @@ jest.mock('expo-haptics', () => ({
 }));
 
 function createMockHabitWithLog(
-  overrides: Partial<HabitWithTodayLog> = {},
-): HabitWithTodayLog {
+  overrides: Partial<HabitWithLog> = {},
+): HabitWithLog {
   return {
     id: 'habit-1',
     user_id: 'user-1',
@@ -38,8 +38,8 @@ function createMockHabitWithLog(
     log_completed_at: null,
     log_note: null,
     log_status: null,
-    is_completed_today: false,
-    is_skipped_today: false,
+    is_completed: false,
+    is_skipped: false,
     ...overrides,
   };
 }
@@ -53,7 +53,7 @@ describe('HabitCard', () => {
 
   it('should show checkmark when completed', () => {
     const habit = createMockHabitWithLog({
-      is_completed_today: true,
+      is_completed: true,
       log_status: 'completed',
     });
     render(<HabitCard habit={habit} />);
@@ -62,7 +62,7 @@ describe('HabitCard', () => {
 
   it('should show skip mark when skipped', () => {
     const habit = createMockHabitWithLog({
-      is_skipped_today: true,
+      is_skipped: true,
       log_status: 'skipped',
     });
     render(<HabitCard habit={habit} />);
@@ -71,7 +71,7 @@ describe('HabitCard', () => {
 
   it('should show "Skipped" label when skipped', () => {
     const habit = createMockHabitWithLog({
-      is_skipped_today: true,
+      is_skipped: true,
       log_status: 'skipped',
     });
     render(<HabitCard habit={habit} />);
@@ -91,7 +91,7 @@ describe('HabitCard', () => {
 
   it('should not call onToggle when checkbox is pressed for skipped habit', async () => {
     const habit = createMockHabitWithLog({
-      is_skipped_today: true,
+      is_skipped: true,
       log_status: 'skipped',
     });
     const onToggle = jest.fn();

@@ -35,7 +35,7 @@ msgid "Active"
 msgstr "アクティブ"
 
 #: app/(tabs)/habits.tsx:163
-#: app/(tabs)/index.tsx:134
+#: app/(tabs)/index.tsx:148
 msgid "Add a new habit to get started"
 msgstr "新しい習慣を追加して始めましょう"
 
@@ -85,7 +85,7 @@ msgstr "グラフは今後実装予定です"
 msgid "Click the link in the email to activate your account."
 msgstr "メール内のリンクをクリックしてアカウントを有効化してください。"
 
-#: app/(tabs)/index.tsx:114
+#: app/(tabs)/index.tsx:128
 msgid "completed"
 msgstr "完了"
 
@@ -191,7 +191,7 @@ msgid "Export Data"
 msgstr "データエクスポート"
 
 #: app/(tabs)/habits.tsx:109
-#: app/(tabs)/index.tsx:87
+#: app/(tabs)/index.tsx:98
 msgid "Failed to load habits"
 msgstr "習慣の読み込みに失敗しました"
 
@@ -306,7 +306,7 @@ msgid "Night"
 msgstr "夜"
 
 #: app/(tabs)/habits.tsx:158
-#: app/(tabs)/index.tsx:132
+#: app/(tabs)/index.tsx:146
 msgid "No habits yet"
 msgstr "習慣がありません"
 
@@ -344,7 +344,7 @@ msgstr "パスワード"
 msgid "Please sign in"
 msgstr "ログインしてください"
 
-#: app/(tabs)/index.tsx:88
+#: app/(tabs)/index.tsx:99
 msgid "Please try again"
 msgstr "もう一度お試しください"
 
@@ -360,7 +360,7 @@ msgstr "登録が完了しました"
 msgid "Registration failed. Please try again."
 msgstr "登録に失敗しました。もう一度お試しください"
 
-#: src/components/habits/HabitCardActions.web.tsx:76
+#: src/components/habits/HabitCardActions.web.tsx:77
 msgid "Remove skip"
 msgstr "スキップを解除"
 
@@ -402,7 +402,7 @@ msgstr "ログアウト"
 msgid "Sign Up"
 msgstr "新規登録"
 
-#: src/components/habits/HabitCardActions.web.tsx:86
+#: src/components/habits/HabitCardActions.web.tsx:87
 msgid "Skip for today"
 msgstr "今日はスキップ"
 
@@ -418,7 +418,7 @@ msgstr "開始日"
 msgid "Statistics coming soon"
 msgstr "統計情報は今後実装予定です"
 
-#: src/components/habits/HabitCardActions.web.tsx:89
+#: src/components/habits/HabitCardActions.web.tsx:90
 msgid "Streak will not be broken"
 msgstr "ストリークは途切れません"
 
@@ -445,6 +445,15 @@ msgstr "この機能は準備中です"
 #: src/components/forms/HabitForm.tsx:313
 msgid "Time of Day"
 msgstr "実行する時間帯"
+
+#: app/(tabs)/index.tsx:43
+#: src/components/date/DateStrip.tsx:121
+msgid "Today"
+msgstr "今日"
+
+#: src/components/date/DateStrip.tsx:131
+msgid "Tomorrow"
+msgstr "明日"
 
 #: app/(auth)/welcome.tsx:59
 msgid "Track your daily habits and become a better you"

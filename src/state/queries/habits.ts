@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type {
   Habit,
-  HabitWithTodayLog,
+  HabitWithLog,
   CreateHabitInput,
   UpdateHabitInput,
   LogStatus,
@@ -18,7 +18,7 @@ export const habitKeys = {
   list: (filters: { status?: string }) => [...habitKeys.lists(), filters] as const,
   details: () => [...habitKeys.all, 'detail'] as const,
   detail: (id: string) => [...habitKeys.details(), id] as const,
-  today: () => [...habitKeys.all, 'today'] as const,
+  byDate: (date: string) => [...habitKeys.all, 'byDate', date] as const,
 };
 
 // ===========================================
@@ -41,12 +41,12 @@ export function useHabits(status: string = 'active') {
   });
 }
 
-export function useHabitsWithTodayLog() {
-  return useQuery({
-    queryKey: habitKeys.today(),
-    queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
+export function useHabitsWithLog(date?: string) {
+  const targetDate = date ?? new Date().toISOString().split('T')[0];
 
+  return useQuery({
+    queryKey: habitKeys.byDate(targetDate),
+    queryFn: async () => {
       // habits テーブルを直接クエリ（RLS が効く）
       const {data: habits, error: habitsError} = await supabase
         .from('habits')
@@ -55,15 +55,15 @@ export function useHabitsWithTodayLog() {
         .order('sort_order');
 
       if (habitsError) throw habitsError;
-      if (!habits || habits.length === 0) return [] as HabitWithTodayLog[];
+      if (!habits || habits.length === 0) return [] as HabitWithLog[];
 
-      // 今日のログを取得（RLS が効く）
+      // 指定日のログを取得（RLS が効く）
       const habitIds = habits.map(h => h.id);
       const {data: logs, error: logsError} = await supabase
         .from('habit_logs')
         .select('*')
         .in('habit_id', habitIds)
-        .eq('target_date', today);
+        .eq('target_date', targetDate);
 
       if (logsError) throw logsError;
 
@@ -80,13 +80,16 @@ export function useHabitsWithTodayLog() {
           log_completed_at: log?.completed_at ?? null,
           log_note: log?.note ?? null,
           log_status: logStatus,
-          is_completed_today: log !== null && logStatus === 'completed' && log.value >= h.goal_value,
-          is_skipped_today: logStatus === 'skipped',
-        } as HabitWithTodayLog;
+          is_completed: log !== null && logStatus === 'completed' && log.value >= h.goal_value,
+          is_skipped: logStatus === 'skipped',
+        } as HabitWithLog;
       });
     },
   });
 }
+
+/** @deprecated Use useHabitsWithLog */
+export const useHabitsWithTodayLog = useHabitsWithLog;
 
 export function useHabit(id: string) {
   return useQuery({
@@ -131,7 +134,7 @@ export function useCreateHabit() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
     },
   });
 }
@@ -153,7 +156,7 @@ export function useUpdateHabit() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: habitKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
       queryClient.invalidateQueries({ queryKey: habitKeys.detail(data.id) });
     },
   });
@@ -173,7 +176,7 @@ export function useDeleteHabit() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
     },
   });
 }
@@ -195,7 +198,7 @@ export function useArchiveHabit() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
     },
   });
 }

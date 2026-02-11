@@ -35,7 +35,7 @@ msgid "Active"
 msgstr "Active"
 
 #: app/(tabs)/habits.tsx:163
-#: app/(tabs)/index.tsx:134
+#: app/(tabs)/index.tsx:148
 msgid "Add a new habit to get started"
 msgstr "Add a new habit to get started"
 
@@ -85,7 +85,7 @@ msgstr "Charts coming soon"
 msgid "Click the link in the email to activate your account."
 msgstr "Click the link in the email to activate your account."
 
-#: app/(tabs)/index.tsx:114
+#: app/(tabs)/index.tsx:128
 msgid "completed"
 msgstr "completed"
 
@@ -191,7 +191,7 @@ msgid "Export Data"
 msgstr "Export Data"
 
 #: app/(tabs)/habits.tsx:109
-#: app/(tabs)/index.tsx:87
+#: app/(tabs)/index.tsx:98
 msgid "Failed to load habits"
 msgstr "Failed to load habits"
 
@@ -306,7 +306,7 @@ msgid "Night"
 msgstr "Night"
 
 #: app/(tabs)/habits.tsx:158
-#: app/(tabs)/index.tsx:132
+#: app/(tabs)/index.tsx:146
 msgid "No habits yet"
 msgstr "No habits yet"
 
@@ -344,7 +344,7 @@ msgstr "Password"
 msgid "Please sign in"
 msgstr "Please sign in"
 
-#: app/(tabs)/index.tsx:88
+#: app/(tabs)/index.tsx:99
 msgid "Please try again"
 msgstr "Please try again"
 
@@ -360,7 +360,7 @@ msgstr "Registration complete"
 msgid "Registration failed. Please try again."
 msgstr "Registration failed. Please try again."
 
-#: src/components/habits/HabitCardActions.web.tsx:76
+#: src/components/habits/HabitCardActions.web.tsx:77
 msgid "Remove skip"
 msgstr "Remove skip"
 
@@ -402,7 +402,7 @@ msgstr "Sign Out"
 msgid "Sign Up"
 msgstr "Sign Up"
 
-#: src/components/habits/HabitCardActions.web.tsx:86
+#: src/components/habits/HabitCardActions.web.tsx:87
 msgid "Skip for today"
 msgstr "Skip for today"
 
@@ -418,7 +418,7 @@ msgstr "Start Date"
 msgid "Statistics coming soon"
 msgstr "Statistics coming soon"
 
-#: src/components/habits/HabitCardActions.web.tsx:89
+#: src/components/habits/HabitCardActions.web.tsx:90
 msgid "Streak will not be broken"
 msgstr "Streak will not be broken"
 
@@ -445,6 +445,15 @@ msgstr "This feature is coming soon"
 #: src/components/forms/HabitForm.tsx:313
 msgid "Time of Day"
 msgstr "Time of Day"
+
+#: app/(tabs)/index.tsx:43
+#: src/components/date/DateStrip.tsx:121
+msgid "Today"
+msgstr "Today"
+
+#: src/components/date/DateStrip.tsx:131
+msgid "Tomorrow"
+msgstr "Tomorrow"
 
 #: app/(auth)/welcome.tsx:59
 msgid "Track your daily habits and become a better you"

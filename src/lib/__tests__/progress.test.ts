@@ -1,10 +1,10 @@
 import {describe, expect, it} from '@jest/globals';
-import {calculateTodayProgress} from '../progress';
-import type {HabitWithTodayLog} from '@/types/database';
+import {calculateProgress} from '../progress';
+import type {HabitWithLog} from '@/types/database';
 
 function createHabit(
-  overrides: Partial<HabitWithTodayLog> = {},
-): HabitWithTodayLog {
+  overrides: Partial<HabitWithLog> = {},
+): HabitWithLog {
   return {
     id: 'habit-1',
     user_id: 'user-1',
@@ -31,15 +31,15 @@ function createHabit(
     log_completed_at: null,
     log_note: null,
     log_status: null,
-    is_completed_today: false,
-    is_skipped_today: false,
+    is_completed: false,
+    is_skipped: false,
     ...overrides,
   };
 }
 
-describe('calculateTodayProgress', () => {
+describe('calculateProgress', () => {
   it('should return zero progress for empty habits', () => {
-    const result = calculateTodayProgress([]);
+    const result = calculateProgress([]);
     expect(result).toEqual({
       completedCount: 0,
       skippedCount: 0,
@@ -51,11 +51,11 @@ describe('calculateTodayProgress', () => {
 
   it('should calculate progress without skips', () => {
     const habits = [
-      createHabit({id: '1', is_completed_today: true}),
-      createHabit({id: '2', is_completed_today: false}),
-      createHabit({id: '3', is_completed_today: true}),
+      createHabit({id: '1', is_completed: true}),
+      createHabit({id: '2', is_completed: false}),
+      createHabit({id: '3', is_completed: true}),
     ];
-    const result = calculateTodayProgress(habits);
+    const result = calculateProgress(habits);
     expect(result.completedCount).toBe(2);
     expect(result.totalCount).toBe(3);
     expect(result.skippedCount).toBe(0);
@@ -65,11 +65,11 @@ describe('calculateTodayProgress', () => {
 
   it('should exclude skipped habits from denominator', () => {
     const habits = [
-      createHabit({id: '1', is_completed_today: true}),
-      createHabit({id: '2', is_skipped_today: true}),
-      createHabit({id: '3', is_completed_today: false}),
+      createHabit({id: '1', is_completed: true}),
+      createHabit({id: '2', is_skipped: true}),
+      createHabit({id: '3', is_completed: false}),
     ];
-    const result = calculateTodayProgress(habits);
+    const result = calculateProgress(habits);
     expect(result.completedCount).toBe(1);
     expect(result.skippedCount).toBe(1);
     expect(result.totalCount).toBe(3);
@@ -79,10 +79,10 @@ describe('calculateTodayProgress', () => {
 
   it('should return 0% when all habits are skipped', () => {
     const habits = [
-      createHabit({id: '1', is_skipped_today: true}),
-      createHabit({id: '2', is_skipped_today: true}),
+      createHabit({id: '1', is_skipped: true}),
+      createHabit({id: '2', is_skipped: true}),
     ];
-    const result = calculateTodayProgress(habits);
+    const result = calculateProgress(habits);
     expect(result.completedCount).toBe(0);
     expect(result.skippedCount).toBe(2);
     expect(result.effectiveTotal).toBe(0);
@@ -91,11 +91,11 @@ describe('calculateTodayProgress', () => {
 
   it('should return 100% when all non-skipped habits are completed', () => {
     const habits = [
-      createHabit({id: '1', is_completed_today: true}),
-      createHabit({id: '2', is_completed_today: true}),
-      createHabit({id: '3', is_skipped_today: true}),
+      createHabit({id: '1', is_completed: true}),
+      createHabit({id: '2', is_completed: true}),
+      createHabit({id: '3', is_skipped: true}),
     ];
-    const result = calculateTodayProgress(habits);
+    const result = calculateProgress(habits);
     expect(result.completedCount).toBe(2);
     expect(result.effectiveTotal).toBe(2);
     expect(result.percentage).toBe(100);
