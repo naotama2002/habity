@@ -6,6 +6,7 @@ export type TrackingType = 'boolean' | 'numeric' | 'duration';
 export type HabitStatus = 'active' | 'paused' | 'archived';
 export type GoalPeriod = 'daily' | 'weekly' | 'monthly';
 export type TimeOfDay = 'anytime' | 'morning' | 'afternoon' | 'evening' | 'night';
+export type LogStatus = 'completed' | 'skipped';
 
 export interface Category {
   id: string;
@@ -49,6 +50,7 @@ export interface HabitLog {
   note: string | null;
   completed_at: string;
   target_date: string;
+  status: LogStatus;
   external_id: string | null;
   created_at: string;
 }
@@ -75,12 +77,15 @@ export interface HabitWithTodayLog extends Habit {
   log_value: number | null;
   log_completed_at: string | null;
   log_note: string | null;
+  log_status: LogStatus | null;
   is_completed_today: boolean;
+  is_skipped_today: boolean;
 }
 
 export interface HabitStats {
   total_days: number;
   completed_days: number;
+  skipped_days: number;
   completion_rate: number;
   current_streak: number;
   longest_streak: number;
@@ -110,4 +115,5 @@ export type CreateHabitLogInput = {
   note?: string | null;
   target_date: string;
   completed_at?: string;
+  status?: LogStatus;
 };

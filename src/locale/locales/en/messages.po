@@ -17,16 +17,16 @@ msgstr ""
 msgid "{streak} days"
 msgstr "{streak} days"
 
-#: app/(auth)/login.tsx:78
-#: app/(auth)/signup.tsx:108
+#: app/(auth)/login.tsx:79
+#: app/(auth)/signup.tsx:109
 msgid "← Back"
 msgstr "← Back"
 
-#: app/(auth)/signup.tsx:147
+#: app/(auth)/signup.tsx:148
 msgid "6 or more characters"
 msgstr "6 or more characters"
 
-#: app/(tabs)/settings.tsx:66
+#: app/(tabs)/settings.tsx:73
 msgid "About This App"
 msgstr "About This App"
 
@@ -35,7 +35,7 @@ msgid "Active"
 msgstr "Active"
 
 #: app/(tabs)/habits.tsx:163
-#: app/(tabs)/index.tsx:117
+#: app/(tabs)/index.tsx:134
 msgid "Add a new habit to get started"
 msgstr "Add a new habit to get started"
 
@@ -48,7 +48,7 @@ msgstr "Afternoon"
 msgid "All"
 msgstr "All"
 
-#: app/(auth)/signup.tsx:193
+#: app/(auth)/signup.tsx:194
 msgid "Already have an account?"
 msgstr "Already have an account?"
 
@@ -57,7 +57,7 @@ msgstr "Already have an account?"
 msgid "Anytime"
 msgstr "Anytime"
 
-#: app/(tabs)/settings.tsx:37
+#: app/(tabs)/settings.tsx:44
 msgid "Appearance"
 msgstr "Appearance"
 
@@ -81,11 +81,11 @@ msgstr "Category"
 msgid "Charts coming soon"
 msgstr "Charts coming soon"
 
-#: app/(auth)/signup.tsx:84
+#: app/(auth)/signup.tsx:85
 msgid "Click the link in the email to activate your account."
 msgstr "Click the link in the email to activate your account."
 
-#: app/(tabs)/index.tsx:97
+#: app/(tabs)/index.tsx:114
 msgid "completed"
 msgstr "completed"
 
@@ -97,7 +97,7 @@ msgstr "Completion Rate"
 msgid "Completion Rate by Habit"
 msgstr "Completion Rate by Habit"
 
-#: app/(auth)/signup.tsx:160
+#: app/(auth)/signup.tsx:161
 msgid "Confirm Password"
 msgstr "Confirm Password"
 
@@ -105,8 +105,8 @@ msgstr "Confirm Password"
 msgid "Continue Editing"
 msgstr "Continue Editing"
 
-#: app/(auth)/signup.tsx:110
-#: app/(auth)/signup.tsx:186
+#: app/(auth)/signup.tsx:111
+#: app/(auth)/signup.tsx:187
 msgid "Create Account"
 msgstr "Create Account"
 
@@ -115,7 +115,7 @@ msgstr "Create Account"
 msgid "Daily"
 msgstr "Daily"
 
-#: app/(tabs)/settings.tsx:48
+#: app/(tabs)/settings.tsx:55
 msgid "Data"
 msgstr "Data"
 
@@ -160,20 +160,20 @@ msgstr "e.g., times, km, pages"
 msgid "Edit Habit"
 msgstr "Edit Habit"
 
-#: app/(auth)/login.tsx:97
-#: app/(auth)/signup.tsx:127
+#: app/(auth)/login.tsx:98
+#: app/(auth)/signup.tsx:128
 msgid "Email"
 msgstr "Email"
 
-#: app/(auth)/login.tsx:55
+#: app/(auth)/login.tsx:56
 msgid "Email or password is incorrect"
 msgstr "Email or password is incorrect"
 
-#: app/(tabs)/settings.tsx:15
+#: app/(tabs)/settings.tsx:22
 msgid "English"
 msgstr "English"
 
-#: app/(auth)/login.tsx:82
+#: app/(auth)/login.tsx:83
 msgid "Enter your email and password"
 msgstr "Enter your email and password"
 
@@ -186,12 +186,12 @@ msgstr "Error"
 msgid "Evening"
 msgstr "Evening"
 
-#: app/(tabs)/settings.tsx:54
+#: app/(tabs)/settings.tsx:61
 msgid "Export Data"
 msgstr "Export Data"
 
 #: app/(tabs)/habits.tsx:109
-#: app/(tabs)/index.tsx:70
+#: app/(tabs)/index.tsx:87
 msgid "Failed to load habits"
 msgstr "Failed to load habits"
 
@@ -199,15 +199,15 @@ msgstr "Failed to load habits"
 msgid "Failed to save. Please try again."
 msgstr "Failed to save. Please try again."
 
-#: app/(tabs)/settings.tsx:63
+#: app/(tabs)/settings.tsx:70
 msgid "Feedback"
 msgstr "Feedback"
 
-#: app/(tabs)/settings.tsx:33
+#: app/(tabs)/settings.tsx:40
 msgid "General"
 msgstr "General"
 
-#: app/(auth)/signup.tsx:87
+#: app/(auth)/signup.tsx:88
 msgid "Go to Sign In"
 msgstr "Go to Sign In"
 
@@ -219,7 +219,7 @@ msgstr "Goal Period"
 msgid "Goal Value"
 msgstr "Goal Value"
 
-#: app/(tabs)/settings.tsx:26
+#: app/(tabs)/settings.tsx:15
 msgid "Guest User"
 msgstr "Guest User"
 
@@ -235,11 +235,11 @@ msgstr "Habit not found"
 msgid "Habits"
 msgstr "Habits"
 
-#: app/(tabs)/settings.tsx:62
+#: app/(tabs)/settings.tsx:69
 msgid "Help"
 msgstr "Help"
 
-#: app/(tabs)/settings.tsx:52
+#: app/(tabs)/settings.tsx:59
 msgid "Import from Habitify"
 msgstr "Import from Habitify"
 
@@ -247,19 +247,19 @@ msgstr "Import from Habitify"
 msgid "Input Error"
 msgstr "Input Error"
 
-#: app/(tabs)/settings.tsx:15
+#: app/(tabs)/settings.tsx:22
 msgid "Japanese"
 msgstr "Japanese"
 
-#: app/(tabs)/settings.tsx:41
+#: app/(tabs)/settings.tsx:48
 msgid "Language"
 msgstr "Language"
 
-#: app/(auth)/signup.tsx:112
+#: app/(auth)/signup.tsx:113
 msgid "Let's create a new account"
 msgstr "Let's create a new account"
 
-#: app/(auth)/login.tsx:57
+#: app/(auth)/login.tsx:58
 msgid "Login failed. Please try again."
 msgstr "Login failed. Please try again."
 
@@ -271,7 +271,7 @@ msgstr "Longest Streak"
 msgid "Make habits simpler"
 msgstr "Make habits simpler"
 
-#: app/(tabs)/settings.tsx:50
+#: app/(tabs)/settings.tsx:57
 msgid "Manage Categories"
 msgstr "Manage Categories"
 
@@ -279,7 +279,7 @@ msgstr "Manage Categories"
 msgid "min"
 msgstr "min"
 
-#: app/(tabs)/settings.tsx:42
+#: app/(tabs)/settings.tsx:49
 msgid "Monday"
 msgstr "Monday"
 
@@ -306,7 +306,7 @@ msgid "Night"
 msgstr "Night"
 
 #: app/(tabs)/habits.tsx:158
-#: app/(tabs)/index.tsx:115
+#: app/(tabs)/index.tsx:132
 msgid "No habits yet"
 msgstr "No habits yet"
 
@@ -314,7 +314,7 @@ msgstr "No habits yet"
 msgid "No search results"
 msgstr "No search results"
 
-#: app/(tabs)/settings.tsx:51
+#: app/(tabs)/settings.tsx:58
 msgid "Not Implemented"
 msgstr "Not Implemented"
 
@@ -322,7 +322,7 @@ msgstr "Not Implemented"
 msgid "Note the purpose or rules of the habit"
 msgstr "Note the purpose or rules of the habit"
 
-#: app/(tabs)/settings.tsx:40
+#: app/(tabs)/settings.tsx:47
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -334,31 +334,35 @@ msgstr "Numeric"
 msgid "Optional"
 msgstr "Optional"
 
-#: app/(auth)/login.tsx:114
-#: app/(auth)/login.tsx:117
-#: app/(auth)/signup.tsx:144
+#: app/(auth)/login.tsx:115
+#: app/(auth)/login.tsx:118
+#: app/(auth)/signup.tsx:145
 msgid "Password"
 msgstr "Password"
 
-#: app/(tabs)/settings.tsx:27
+#: app/(tabs)/settings.tsx:16
 msgid "Please sign in"
 msgstr "Please sign in"
 
-#: app/(tabs)/index.tsx:71
+#: app/(tabs)/index.tsx:88
 msgid "Please try again"
 msgstr "Please try again"
 
-#: app/(auth)/signup.tsx:163
+#: app/(auth)/signup.tsx:164
 msgid "Re-enter password"
 msgstr "Re-enter password"
 
-#: app/(auth)/signup.tsx:80
+#: app/(auth)/signup.tsx:81
 msgid "Registration complete"
 msgstr "Registration complete"
 
-#: app/(auth)/signup.tsx:55
+#: app/(auth)/signup.tsx:56
 msgid "Registration failed. Please try again."
 msgstr "Registration failed. Please try again."
+
+#: src/components/habits/HabitCardActions.web.tsx:76
+msgid "Remove skip"
+msgstr "Remove skip"
 
 #: src/components/forms/HabitForm.tsx:368
 msgid "Save"
@@ -376,9 +380,9 @@ msgstr "Select"
 msgid "Select an option"
 msgstr "Select an option"
 
-#: app/(auth)/login.tsx:80
-#: app/(auth)/login.tsx:140
-#: app/(auth)/signup.tsx:196
+#: app/(auth)/login.tsx:81
+#: app/(auth)/login.tsx:141
+#: app/(auth)/signup.tsx:197
 msgid "Sign In"
 msgstr "Sign In"
 
@@ -390,13 +394,21 @@ msgstr "Sign in with Email"
 msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
-#: app/(tabs)/settings.tsx:74
+#: app/(tabs)/settings.tsx:81
 msgid "Sign Out"
 msgstr "Sign Out"
 
 #: app/(auth)/welcome.tsx:85
 msgid "Sign Up"
 msgstr "Sign Up"
+
+#: src/components/habits/HabitCardActions.web.tsx:86
+msgid "Skip for today"
+msgstr "Skip for today"
+
+#: src/components/habits/HabitCard.tsx:105
+msgid "Skipped"
+msgstr "Skipped"
 
 #: src/components/forms/HabitForm.tsx:327
 msgid "Start Date"
@@ -406,11 +418,15 @@ msgstr "Start Date"
 msgid "Statistics coming soon"
 msgstr "Statistics coming soon"
 
-#: app/(tabs)/settings.tsx:60
+#: src/components/habits/HabitCardActions.web.tsx:89
+msgid "Streak will not be broken"
+msgstr "Streak will not be broken"
+
+#: app/(tabs)/settings.tsx:67
 msgid "Support"
 msgstr "Support"
 
-#: app/(tabs)/settings.tsx:38
+#: app/(tabs)/settings.tsx:45
 msgid "System"
 msgstr "System"
 
@@ -418,11 +434,11 @@ msgstr "System"
 msgid "There are errors in the input. Please check the fields highlighted in red."
 msgstr "There are errors in the input. Please check the fields highlighted in red."
 
-#: app/(auth)/signup.tsx:53
+#: app/(auth)/signup.tsx:54
 msgid "This email is already registered"
 msgstr "This email is already registered"
 
-#: app/(tabs)/settings.tsx:51
+#: app/(tabs)/settings.tsx:58
 msgid "This feature is coming soon"
 msgstr "This feature is coming soon"
 
@@ -450,11 +466,11 @@ msgstr "Uncategorized"
 msgid "Unit"
 msgstr "Unit"
 
-#: app/(auth)/signup.tsx:82
+#: app/(auth)/signup.tsx:83
 msgid "We sent you a confirmation email."
 msgstr "We sent you a confirmation email."
 
-#: app/(tabs)/settings.tsx:42
+#: app/(tabs)/settings.tsx:49
 msgid "Week Starts On"
 msgstr "Week Starts On"
 

@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
+import {View, Text, StyleSheet, Pressable, Platform} from 'react-native';
+import {msg} from '@lingui/macro';
+import {useLingui} from '@lingui/react';
 import * as Haptics from 'expo-haptics';
-import { colors, lightTheme } from '@/lib/colors';
-import { typography } from '@/lib/typography';
-import { spacing, borderRadius, shadows } from '@/lib/spacing';
-import { StreakBadge } from './StreakBadge';
-import type { HabitWithTodayLog } from '@/types/database';
+import {colors, lightTheme} from '@/lib/colors';
+import {typography} from '@/lib/typography';
+import {spacing, borderRadius, shadows} from '@/lib/spacing';
+import {StreakBadge} from './StreakBadge';
+import type {HabitWithTodayLog} from '@/types/database';
 
 interface HabitCardProps {
   /** 習慣データ */
@@ -27,9 +29,12 @@ export function HabitCard({
   onToggle,
   onPress,
 }: HabitCardProps) {
+  const {_} = useLingui();
   const isCompleted = habit.is_completed_today;
+  const isSkipped = habit.is_skipped_today;
 
   const handleToggle = async () => {
+    if (isSkipped) return; // スキップ中はトグル不可
     // Haptics フィードバック（ネイティブプラットフォームのみ）
     if (Platform.OS !== 'web') {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -52,42 +57,66 @@ export function HabitCard({
 
   const goalText = getGoalText();
 
+  // コンテナスタイルの決定
+  const containerStyle = [
+    styles.container,
+    isCompleted && styles.containerCompleted,
+    isSkipped && styles.containerSkipped,
+  ];
+
+  // チェックボックススタイルの決定
+  const checkboxStyle = [
+    styles.checkbox,
+    isCompleted && styles.checkboxCompleted,
+    isSkipped && styles.checkboxSkipped,
+  ];
+
+  // 名前スタイルの決定
+  const nameStyle = [
+    styles.name,
+    isCompleted && styles.nameCompleted,
+    isSkipped && styles.nameSkipped,
+  ];
+
   return (
-    <Pressable
-      style={[styles.container, isCompleted && styles.containerCompleted]}
-      onPress={handlePress}
-      onLongPress={handlePress}
-    >
-      {/* チェックボックス */}
       <Pressable
-        style={[styles.checkbox, isCompleted && styles.checkboxCompleted]}
-        onPress={handleToggle}
-        hitSlop={8}
+        testID="habit-card"
+        style={containerStyle}
+        onPress={handlePress}
       >
-        {isCompleted && <Text style={styles.checkmark}>✓</Text>}
-      </Pressable>
+        {/* チェックボックス */}
+        <Pressable
+          testID="habit-checkbox"
+          style={checkboxStyle}
+          onPress={handleToggle}
+          hitSlop={8}
+        >
+          {isCompleted && <Text style={styles.checkmark}>✓</Text>}
+          {isSkipped && <Text style={styles.skipMark}>⊘</Text>}
+        </Pressable>
 
-      {/* コンテンツ */}
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text
-            style={[styles.name, isCompleted && styles.nameCompleted]}
-            numberOfLines={1}
-          >
-            {habit.name}
-          </Text>
-          {goalText && (
-            <Text style={styles.goal}>
-              {goalText}
-              {isCompleted && ' ✓'}
+        {/* コンテンツ */}
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={nameStyle} numberOfLines={1}>
+              {habit.name}
             </Text>
-          )}
-        </View>
+            {isSkipped ? (
+              <Text style={styles.skipLabel}>{_(msg`Skipped`)}</Text>
+            ) : (
+              goalText && (
+                <Text style={styles.goal}>
+                  {goalText}
+                  {isCompleted && ' ✓'}
+                </Text>
+              )
+            )}
+          </View>
 
-        {/* ストリーク */}
-        <StreakBadge streak={streak} />
-      </View>
-    </Pressable>
+          {/* ストリーク */}
+          <StreakBadge streak={streak} />
+        </View>
+      </Pressable>
   );
 }
 
@@ -107,6 +136,11 @@ const styles = StyleSheet.create({
     backgroundColor: lightTheme.surfaceSecondary,
     borderColor: lightTheme.borderLight,
   },
+  containerSkipped: {
+    backgroundColor: colors.gray[50],
+    borderColor: colors.gray[200],
+    opacity: 0.7,
+  },
   checkbox: {
     width: 24,
     height: 24,
@@ -120,7 +154,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.success[500],
     borderColor: colors.success[500],
   },
+  checkboxSkipped: {
+    backgroundColor: colors.gray[300],
+    borderColor: colors.gray[300],
+  },
   checkmark: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  skipMark: {
     color: colors.white,
     fontSize: 14,
     fontWeight: '700',
@@ -144,8 +187,16 @@ const styles = StyleSheet.create({
     color: lightTheme.textSecondary,
     textDecorationLine: 'line-through',
   },
+  nameSkipped: {
+    color: lightTheme.textTertiary,
+    textDecorationLine: 'line-through',
+  },
   goal: {
     ...typography.bodySmall,
     color: lightTheme.textSecondary,
+  },
+  skipLabel: {
+    ...typography.bodySmall,
+    color: colors.gray[400],
   },
 });

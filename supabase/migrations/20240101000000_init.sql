@@ -13,6 +13,7 @@ CREATE TYPE tracking_type AS ENUM ('boolean', 'numeric', 'duration');
 CREATE TYPE habit_status AS ENUM ('active', 'paused', 'archived');
 CREATE TYPE goal_period AS ENUM ('daily', 'weekly', 'monthly');
 CREATE TYPE time_of_day AS ENUM ('anytime', 'morning', 'afternoon', 'evening', 'night');
+CREATE TYPE log_status AS ENUM ('completed', 'skipped');
 
 -- ===========================================
 -- Categories Table
@@ -127,6 +128,7 @@ CREATE TABLE habit_logs (
   -- Log content
   value NUMERIC NOT NULL DEFAULT 1,
   note TEXT,
+  status log_status NOT NULL DEFAULT 'completed',
 
   -- Date/time
   completed_at TIMESTAMPTZ NOT NULL,
@@ -147,6 +149,7 @@ CREATE INDEX idx_habit_logs_habit_id ON habit_logs(habit_id);
 CREATE INDEX idx_habit_logs_target_date ON habit_logs(target_date);
 CREATE INDEX idx_habit_logs_habit_date ON habit_logs(habit_id, target_date);
 CREATE INDEX idx_habit_logs_user_date ON habit_logs(user_id, target_date);
+CREATE INDEX idx_habit_logs_status ON habit_logs(status);
 
 -- RLS for habit_logs
 ALTER TABLE habit_logs ENABLE ROW LEVEL SECURITY;
@@ -261,21 +264,27 @@ CREATE TRIGGER on_auth_user_created
 -- ===========================================
 
 -- Function to calculate streak for a habit
+-- Skipped days do not break the streak but do not count toward it
 CREATE OR REPLACE FUNCTION calculate_streak(p_habit_id UUID)
 RETURNS INTEGER AS $$
 DECLARE
   v_streak INTEGER := 0;
   v_date DATE := CURRENT_DATE;
+  v_log_status log_status;
   v_has_log BOOLEAN;
 BEGIN
   LOOP
-    SELECT EXISTS(
-      SELECT 1 FROM habit_logs
-      WHERE habit_id = p_habit_id AND target_date = v_date
-    ) INTO v_has_log;
+    SELECT l.status INTO v_log_status
+    FROM habit_logs l
+    WHERE l.habit_id = p_habit_id AND l.target_date = v_date;
+
+    v_has_log := FOUND;
 
     IF v_has_log THEN
-      v_streak := v_streak + 1;
+      IF v_log_status = 'completed' THEN
+        v_streak := v_streak + 1;
+      END IF;
+      -- 'skipped' does not break streak, just skip this day
       v_date := v_date - 1;
     ELSE
       EXIT;
@@ -292,6 +301,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Function to get habit statistics
+-- Skipped days are excluded from completion rate denominator
 CREATE OR REPLACE FUNCTION get_habit_stats(
   p_habit_id UUID,
   p_from_date DATE DEFAULT CURRENT_DATE - INTERVAL '30 days',
@@ -300,6 +310,7 @@ CREATE OR REPLACE FUNCTION get_habit_stats(
 RETURNS TABLE (
   total_days INTEGER,
   completed_days INTEGER,
+  skipped_days INTEGER,
   completion_rate NUMERIC,
   current_streak INTEGER,
   longest_streak INTEGER
@@ -309,24 +320,29 @@ DECLARE
   v_longest_streak INTEGER := 0;
   v_temp_streak INTEGER := 0;
   v_date DATE;
+  v_log_status log_status;
   v_has_log BOOLEAN;
 BEGIN
   -- Calculate current streak
   v_current_streak := calculate_streak(p_habit_id);
 
-  -- Calculate longest streak in period
+  -- Calculate longest streak in period (skipped days don't break it)
   v_date := p_from_date;
   WHILE v_date <= p_to_date LOOP
-    SELECT EXISTS(
-      SELECT 1 FROM habit_logs
-      WHERE habit_id = p_habit_id AND target_date = v_date
-    ) INTO v_has_log;
+    SELECT l.status INTO v_log_status
+    FROM habit_logs l
+    WHERE l.habit_id = p_habit_id AND l.target_date = v_date;
 
-    IF v_has_log THEN
+    v_has_log := FOUND;
+
+    IF v_has_log AND v_log_status = 'completed' THEN
       v_temp_streak := v_temp_streak + 1;
       IF v_temp_streak > v_longest_streak THEN
         v_longest_streak := v_temp_streak;
       END IF;
+    ELSIF v_has_log AND v_log_status = 'skipped' THEN
+      -- Skipped: don't break streak, don't increment
+      NULL;
     ELSE
       v_temp_streak := 0;
     END IF;
@@ -337,8 +353,16 @@ BEGIN
   RETURN QUERY
   SELECT
     (p_to_date - p_from_date + 1)::INTEGER AS total_days,
-    COUNT(l.id)::INTEGER AS completed_days,
-    ROUND(COUNT(l.id)::NUMERIC / (p_to_date - p_from_date + 1) * 100, 1) AS completion_rate,
+    COUNT(l.id) FILTER (WHERE l.status = 'completed')::INTEGER AS completed_days,
+    COUNT(l.id) FILTER (WHERE l.status = 'skipped')::INTEGER AS skipped_days,
+    CASE
+      WHEN (p_to_date - p_from_date + 1) - COUNT(l.id) FILTER (WHERE l.status = 'skipped')::INTEGER = 0 THEN 0
+      ELSE ROUND(
+        COUNT(l.id) FILTER (WHERE l.status = 'completed')::NUMERIC /
+        ((p_to_date - p_from_date + 1) - COUNT(l.id) FILTER (WHERE l.status = 'skipped')::INTEGER) * 100,
+        1
+      )
+    END AS completion_rate,
     v_current_streak AS current_streak,
     v_longest_streak AS longest_streak
   FROM habit_logs l
