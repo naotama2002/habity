@@ -342,8 +342,8 @@ export const queryClient = new QueryClient({
 ```typescript
 // src/state/queries/habits.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/api/supabase';
-import type { Habit, HabitWithTodayLog } from '@/types/database';
+import { supabase } from '@/lib/supabase';
+import type { Habit, HabitWithLog } from '@/types/database';
 
 export const habitKeys = {
   all: ['habits'] as const,
@@ -351,14 +351,15 @@ export const habitKeys = {
   list: (filters: { status?: string }) => [...habitKeys.lists(), filters] as const,
   details: () => [...habitKeys.all, 'detail'] as const,
   detail: (id: string) => [...habitKeys.details(), id] as const,
+  byDate: (date: string) => [...habitKeys.all, 'byDate', date] as const,
 };
 
-export function useHabitsWithTodayLog() {
-  return useQuery({
-    queryKey: habitKeys.today(),
-    queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
+export function useHabitsWithLog(date?: string) {
+  const targetDate = date ?? new Date().toISOString().split('T')[0];
 
+  return useQuery({
+    queryKey: habitKeys.byDate(targetDate),
+    queryFn: async () => {
       // habits テーブルを直接クエリ（RLS が効く）
       const { data: habits, error: habitsError } = await supabase
         .from('habits')
@@ -367,29 +368,32 @@ export function useHabitsWithTodayLog() {
         .order('sort_order');
 
       if (habitsError) throw habitsError;
-      if (!habits || habits.length === 0) return [] as HabitWithTodayLog[];
+      if (!habits || habits.length === 0) return [] as HabitWithLog[];
 
-      // 今日のログを取得して クライアント側で結合
+      // 指定日のログを取得して クライアント側で結合
       const habitIds = habits.map(h => h.id);
       const { data: logs, error: logsError } = await supabase
         .from('habit_logs')
         .select('*')
         .in('habit_id', habitIds)
-        .eq('target_date', today);
+        .eq('target_date', targetDate);
 
       if (logsError) throw logsError;
 
       const logMap = new Map(logs?.map(l => [l.habit_id, l]) ?? []);
       return habits.map(h => {
         const log = logMap.get(h.id) ?? null;
+        const logStatus = log?.status ?? null;
         return {
           ...h,
           log_id: log?.id ?? null,
           log_value: log?.value ?? null,
           log_completed_at: log?.completed_at ?? null,
           log_note: log?.note ?? null,
-          is_completed_today: log !== null && log.value >= h.goal_value,
-        } as HabitWithTodayLog;
+          log_status: logStatus,
+          is_completed: log !== null && logStatus === 'completed' && log.value >= h.goal_value,
+          is_skipped: logStatus === 'skipped',
+        } as HabitWithLog;
       });
     },
   });
