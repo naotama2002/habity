@@ -95,7 +95,7 @@ CREATE TABLE habits (
 CREATE INDEX idx_habits_user_id ON habits(user_id);
 CREATE INDEX idx_habits_user_status ON habits(user_id, status);
 CREATE INDEX idx_habits_category_id ON habits(category_id);
-CREATE INDEX idx_habits_external ON habits(external_source, external_id);
+CREATE UNIQUE INDEX idx_habits_user_external_id ON habits(user_id, external_id) WHERE external_id IS NOT NULL;
 
 -- RLS for habits
 ALTER TABLE habits ENABLE ROW LEVEL SECURITY;

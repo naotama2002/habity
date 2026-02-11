@@ -57,8 +57,9 @@ React Native:    Supabase Cloud URL を参照
 ### 2-1. Supabase CLI でリモート DB にマイグレーション適用
 
 ```bash
-# 接続文字列を組み立て（Settings → Database → Connection string → URI から取得可能）
-DB_URL="postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres"
+# Pooler URI を使用（Settings → Database → Connection string → Transaction mode）
+# 直接接続（port 5432）は IPv6 環境で失敗する場合があるため Pooler（port 6543）を使う
+DB_URL="postgresql://postgres.your-project:[PASSWORD]@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
 
 # 既存マイグレーションを適用
 supabase db push --db-url "$DB_URL"
@@ -74,6 +75,7 @@ supabase migration list --db-url "$DB_URL"
 
 ### 2-3. 注意事項
 
+- 直接接続（`db.xxx.supabase.co:5432`）は IPv6 環境で失敗する場合がある。**Pooler URI（port 6543）を使うこと**。
 - ローカルの `supabase/post-init.sh` で行っているロールのパスワード設定・auth 関数の所有権修正は **不要**。Supabase Cloud が管理する。
 - `docker-entrypoint-initdb.d` の仕組みも関係ない。マイグレーションは `supabase db push` のみで管理する。
 
@@ -81,65 +83,43 @@ supabase migration list --db-url "$DB_URL"
 
 ## 3. 環境変数の設定
 
-### 3-1. React Native（フロントエンド）
-
-`.env` を Supabase Cloud の値に更新:
+デプロイ用の環境変数は `.env.deploy` に設定する（`.env` はローカル開発専用）。
 
 ```bash
-# Supabase Cloud
-EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...（anon key）
-
-# Go Backend（デプロイ先に合わせる）
-EXPO_PUBLIC_BACKEND_URL=https://api.example.com
+# .env.deploy.example をコピー
+cp .env.deploy.example .env.deploy
 ```
 
-### 3-2. Go バックエンド
+### 変数一覧
 
-```bash
-# Supabase Cloud 接続
-DATABASE_URL=postgresql://postgres:[PASSWORD]@[HOST]:6543/postgres?sslmode=require
-SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_SERVICE_KEY=eyJ...（service_role key）
-JWT_SECRET=（JWT Secret）
-```
+| 変数 | 取得元 | 説明 |
+|------|--------|------|
+| `SUPABASE_URL` | Settings → API → Project URL | Web フロントエンド・バックエンド共通 |
+| `SUPABASE_ANON_KEY` | Settings → API → anon public key | Web フロントエンドが使用 |
+| `SUPABASE_SERVICE_KEY` | Settings → API → service_role key | Go バックエンドが使用 |
+| `JWT_SECRET` | Settings → API → JWT Settings | Go バックエンドが使用 |
+| `DATABASE_URL` | Settings → Database → Connection string (Transaction mode) | Go バックエンドが使用。Pooler（port 6543）を指定 |
+| `WEB_PORT` | — | Web フロントエンドの公開ポート（デフォルト: 3000） |
+| `BACKEND_URL` | — | Web フロントエンドから見たバックエンドの URL |
 
-| 項目 | ローカルとの違い |
-|------|----------------|
-| `DATABASE_URL` | Pooler ポート `6543` + `sslmode=require` を使用 |
-| `SUPABASE_URL` | `http://localhost:54321` → `https://<ref>.supabase.co` |
-| `SUPABASE_SERVICE_KEY` | Supabase Cloud の service_role key |
+### ローカル開発との違い
+
+| 項目 | ローカル（`.env`） | デプロイ（`.env.deploy`） |
+|------|-------------------|--------------------------|
+| DB 接続 | docker-compose 内の PostgreSQL | Supabase Cloud Pooler（port 6543） |
+| Supabase URL | `http://localhost:54321` | `https://<ref>.supabase.co` |
+| フロントエンドの環境注入 | `EXPO_PUBLIC_*` で直接参照 | `web-entrypoint.sh` がランタイムで置換 |
 
 ---
 
-## 4. docker-compose の変更
+## 4. デプロイ
 
-Supabase 外だし後は Go バックエンドのみ残す。本番用の compose ファイルを作成:
-
-```yaml
-# docker-compose.prod.yml
-services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8088:8088"
-    environment:
-      PORT: 8088
-      DATABASE_URL: ${DATABASE_URL}
-      SUPABASE_URL: ${SUPABASE_URL}
-      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
-      JWT_SECRET: ${JWT_SECRET}
-    restart: unless-stopped
-```
+`docker-compose.deploy.yml`（backend + web のみ）を使用する。ローカル開発は引き続き `docker-compose.yml` を使用。
 
 ```bash
-# 本番用で起動
-docker compose -f docker-compose.prod.yml up -d
+# デプロイ用で起動（.env.deploy を読み込む）
+docker compose -f docker-compose.deploy.yml --env-file .env.deploy up -d
 ```
-
-ローカル開発は引き続き既存の `docker-compose.yml` を使用可能。
 
 ---
 
@@ -150,7 +130,7 @@ docker compose -f docker-compose.prod.yml up -d
 Supabase Dashboard → Authentication → Providers で設定:
 
 - **Email**: 有効化、確認メール設定
-- **Google OAuth**: Client ID / Secret を設定
+- **GitHub OAuth**: Client ID / Secret を設定
 
 ### 5-2. リダイレクト URL
 
@@ -193,14 +173,14 @@ Supabase Dashboard → Table Editor で各テーブルの RLS が有効になっ
 
 ### 環境変数
 
-- [ ] React Native の `.env` を更新
-- [ ] Go バックエンドの環境変数を設定
-- [ ] `DATABASE_URL` で `sslmode=require` を指定
+- [ ] `.env.deploy.example` をコピーして `.env.deploy` を作成
+- [ ] Supabase Cloud の値を `.env.deploy` に設定
+- [ ] `DATABASE_URL` は Pooler URI（port 6543）を指定
 
 ### 認証
 
 - [ ] Email プロバイダーを有効化
-- [ ] Google OAuth の設定（必要な場合）
+- [ ] GitHub OAuth の設定（必要な場合）
 - [ ] Site URL / Redirect URLs の設定
 
 ### 動作確認

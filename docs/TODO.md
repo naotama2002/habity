@@ -103,7 +103,7 @@
 - [x] app/(auth)/signup.tsx - サインアップ画面
 - [x] src/state/session/index.tsx - セッション管理 Context
 - [x] src/state/session/types.ts - セッション型定義
-- [ ] Google OAuth 連携テスト
+- [ ] GitHub OAuth 連携テスト
 
 ### 1.2 共通コンポーネント
 参照: docs/04-ui-design.md「コンポーネント設計」

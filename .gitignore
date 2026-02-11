@@ -52,6 +52,7 @@ local.properties
 
 # Environment variables
 .env
+.env.deploy
 .env.local
 .env.*.local
 

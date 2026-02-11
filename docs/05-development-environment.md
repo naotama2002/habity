@@ -152,11 +152,11 @@ services:
       GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED: ${ENABLE_ANONYMOUS_USERS:-false}
       GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM:-true}
 
-      # Google OAuth
-      GOTRUE_EXTERNAL_GOOGLE_ENABLED: ${ENABLE_GOOGLE_SIGNUP:-true}
-      GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOTRUE_EXTERNAL_GOOGLE_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI: ${API_EXTERNAL_URL:-http://localhost:54321}/auth/v1/callback
+      # GitHub OAuth
+      GOTRUE_EXTERNAL_GITHUB_ENABLED: ${ENABLE_GITHUB_SIGNUP:-true}
+      GOTRUE_EXTERNAL_GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GOTRUE_EXTERNAL_GITHUB_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GOTRUE_EXTERNAL_GITHUB_REDIRECT_URI: ${API_EXTERNAL_URL:-http://localhost:54321}/auth/v1/callback
 
       GOTRUE_SMTP_HOST: inbucket
       GOTRUE_SMTP_PORT: 2500
@@ -386,12 +386,12 @@ API_EXTERNAL_URL=http://localhost:54321
 SITE_URL=http://localhost:8081
 
 # ===========================================
-# Google OAuth (Optional for local)
-# Get credentials from: https://console.cloud.google.com/apis/credentials
+# GitHub OAuth (Optional for local)
+# Get credentials from: https://github.com/settings/developers
 # ===========================================
-ENABLE_GOOGLE_SIGNUP=false
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+ENABLE_GITHUB_SIGNUP=false
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
 
 # ===========================================
 # Email

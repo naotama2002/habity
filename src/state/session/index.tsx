@@ -89,15 +89,15 @@ export function SessionProvider({ children }: SessionProviderProps) {
   }, [updateState]);
 
   /**
-   * Google でサインイン
+   * GitHub でサインイン
    */
-  const signInWithGoogle = useCallback(async () => {
+  const signInWithGitHub = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true }));
     try {
       const redirectUri = Linking.createURL('auth/callback');
 
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: 'github',
         options: {
           redirectTo: redirectUri,
         },
@@ -105,7 +105,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Google sign in error:', error);
+      console.error('GitHub sign in error:', error);
       setState(prev => ({ ...prev, isLoading: false }));
       throw error;
     }
@@ -182,12 +182,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
    * API コンテキストの値をメモ化
    */
   const api = useMemo<SessionApi>(() => ({
-    signInWithGoogle,
+    signInWithGitHub,
     signInWithEmail,
     signUpWithEmail,
     signOut,
     refreshSession,
-  }), [signInWithGoogle, signInWithEmail, signUpWithEmail, signOut, refreshSession]);
+  }), [signInWithGitHub, signInWithEmail, signUpWithEmail, signOut, refreshSession]);
 
   return (
     <SessionStateContext.Provider value={state}>
