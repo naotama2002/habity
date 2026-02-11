@@ -45,7 +45,7 @@ export function HabitCardActions({
   }, [onUnskip]);
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, open && styles.wrapperOpen]}>
       {children}
 
       {/* カード右端に絶対配置されるメニュー */}
@@ -102,6 +102,10 @@ export function HabitCardActions({
 const styles = StyleSheet.create({
   wrapper: {
     position: 'relative',
+    zIndex: 1,
+  },
+  wrapperOpen: {
+    zIndex: 9999,
   },
   menuAnchor: {
     position: 'absolute',
