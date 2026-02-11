@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,12 +12,13 @@ import { useLingui } from '@lingui/react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useHabits } from '@/state/queries/habits';
+import { useHabits, useReorderHabits } from '@/state/queries/habits';
 import { HabitListItem } from '@/components/habits';
 import { SearchInput, SegmentedControl } from '@/components/ui';
 import { colors, lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing, borderRadius } from '@/lib/spacing';
+import { moveUp, moveDown, buildSortOrderUpdates } from '@/lib/reorder';
 import type { Habit, HabitStatus } from '@/types/database';
 
 /**
@@ -35,6 +36,9 @@ export default function HabitsScreen() {
   const router = useRouter();
   const [filter, setFilter] = useState<FilterValue>('active');
   const [searchQuery, setSearchQuery] = useState('');
+  const [editMode, setEditMode] = useState(false);
+  const [localHabits, setLocalHabits] = useState<Habit[]>([]);
+  const reorderMutation = useReorderHabits();
 
   const FILTER_SEGMENTS: { value: FilterValue; label: string }[] = [
     { value: 'all', label: _(msg`All`) },
@@ -92,6 +96,34 @@ export default function HabitsScreen() {
     router.navigate('/habit/new');
   };
 
+  // 編集モード開始
+  const handleStartEdit = useCallback(() => {
+    if (habits) {
+      setLocalHabits([...habits]);
+    }
+    setEditMode(true);
+  }, [habits]);
+
+  // 編集モード終了・保存
+  const handleDoneEdit = useCallback(() => {
+    const updates = buildSortOrderUpdates(localHabits);
+    reorderMutation.mutate(updates);
+    setEditMode(false);
+  }, [localHabits, reorderMutation]);
+
+  // 上に移動
+  const handleMoveUp = useCallback((index: number) => {
+    setLocalHabits(prev => moveUp(prev, index));
+  }, []);
+
+  // 下に移動
+  const handleMoveDown = useCallback((index: number) => {
+    setLocalHabits(prev => moveDown(prev, index));
+  }, []);
+
+  // 表示するリスト（editMode 中は localHabits）
+  const displayHabits = editMode ? localHabits : filteredHabits;
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -118,27 +150,40 @@ export default function HabitsScreen() {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.title}>Habits</Text>
-          <Pressable style={styles.addButton} onPress={handleAddHabit}>
-            <Ionicons name="add" size={24} color={colors.white} />
-          </Pressable>
+          <View style={styles.headerActions}>
+            {habits && habits.length > 0 && (
+              <Pressable onPress={editMode ? handleDoneEdit : handleStartEdit}>
+                <Text style={styles.editButtonText}>
+                  {editMode ? _(msg`Done`) : _(msg`Edit`)}
+                </Text>
+              </Pressable>
+            )}
+            {!editMode && (
+              <Pressable style={styles.addButton} onPress={handleAddHabit}>
+                <Ionicons name="add" size={24} color={colors.white} />
+              </Pressable>
+            )}
+          </View>
         </View>
 
-        {/* 検索バー */}
-        <SearchInput
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          rightIcon={searchQuery ? 'close-circle' : undefined}
-          onRightIconPress={() => setSearchQuery('')}
-        />
-
-        {/* フィルター */}
-        <View style={styles.filterContainer}>
-          <SegmentedControl
-            segments={FILTER_SEGMENTS}
-            value={filter}
-            onChange={setFilter}
-          />
-        </View>
+        {/* 検索バー・フィルター (編集モード中は非表示) */}
+        {!editMode && (
+          <>
+            <SearchInput
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              rightIcon={searchQuery ? 'close-circle' : undefined}
+              onRightIconPress={() => setSearchQuery('')}
+            />
+            <View style={styles.filterContainer}>
+              <SegmentedControl
+                segments={FILTER_SEGMENTS}
+                value={filter}
+                onChange={setFilter}
+              />
+            </View>
+          </>
+        )}
       </View>
 
       {/* 習慣リスト */}
@@ -147,7 +192,7 @@ export default function HabitsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {filteredHabits.length === 0 ? (
+        {displayHabits.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Ionicons
               name="list-outline"
@@ -162,6 +207,21 @@ export default function HabitsScreen() {
                 ? _(msg`Try searching with different keywords`)
                 : _(msg`Add a new habit to get started`)}
             </Text>
+          </View>
+        ) : editMode ? (
+          /* 編集モード: フラットリスト */
+          <View style={styles.sectionContent}>
+            {displayHabits.map((habit, index) => (
+              <HabitListItem
+                key={habit.id}
+                habit={habit}
+                editMode
+                isFirst={index === 0}
+                isLast={index === displayHabits.length - 1}
+                onMoveUp={() => handleMoveUp(index)}
+                onMoveDown={() => handleMoveDown(index)}
+              />
+            ))}
           </View>
         ) : (
           <>
@@ -216,10 +276,12 @@ export default function HabitsScreen() {
         )}
       </ScrollView>
 
-      {/* FAB */}
-      <Pressable style={styles.fab} onPress={handleAddHabit}>
-        <Ionicons name="add" size={28} color={colors.white} />
-      </Pressable>
+      {/* FAB (編集モード中は非表示) */}
+      {!editMode && (
+        <Pressable style={styles.fab} onPress={handleAddHabit}>
+          <Ionicons name="add" size={28} color={colors.white} />
+        </Pressable>
+      )}
     </SafeAreaView>
   );
 }
@@ -256,6 +318,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  editButtonText: {
+    ...typography.bodyMedium,
+    color: colors.primary[500],
   },
   title: {
     ...typography.h2,

@@ -28,3 +28,21 @@ export function calculateProgress(habits: HabitWithLog[]): {
 
 /** @deprecated Use calculateProgress */
 export const calculateTodayProgress = calculateProgress;
+
+/**
+ * 未完了を先、完了・スキップを後に並べる（元の順序は維持）
+ */
+export function sortByCompletion(habits: HabitWithLog[]): HabitWithLog[] {
+  const incomplete: HabitWithLog[] = [];
+  const done: HabitWithLog[] = [];
+
+  for (const habit of habits) {
+    if (habit.is_completed || habit.is_skipped) {
+      done.push(habit);
+    } else {
+      incomplete.push(habit);
+    }
+  }
+
+  return [...incomplete, ...done];
+}

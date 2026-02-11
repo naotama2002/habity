@@ -16,16 +16,36 @@ interface HabitListItemProps {
   streak?: number;
   /** タップ時のコールバック */
   onPress?: (habit: Habit) => void;
+  /** 編集モード */
+  editMode?: boolean;
+  /** 先頭アイテム（上矢印を無効化） */
+  isFirst?: boolean;
+  /** 末尾アイテム（下矢印を無効化） */
+  isLast?: boolean;
+  /** 上に移動 */
+  onMoveUp?: () => void;
+  /** 下に移動 */
+  onMoveDown?: () => void;
 }
 
 /**
  * 習慣リストアイテムコンポーネント
  * Habits 画面で使用
  */
-export function HabitListItem({ habit, streak = 0, onPress }: HabitListItemProps) {
+export function HabitListItem({
+  habit,
+  streak = 0,
+  onPress,
+  editMode = false,
+  isFirst = false,
+  isLast = false,
+  onMoveUp,
+  onMoveDown,
+}: HabitListItemProps) {
   const { _ } = useLingui();
 
   const handlePress = () => {
+    if (editMode) return;
     onPress?.(habit);
   };
 
@@ -58,7 +78,7 @@ export function HabitListItem({ habit, streak = 0, onPress }: HabitListItemProps
 
   return (
     <Pressable
-      style={({ pressed }) => [styles.container, pressed && styles.containerPressed]}
+      style={({ pressed }) => [styles.container, pressed && !editMode && styles.containerPressed]}
       onPress={handlePress}
     >
       <View style={styles.content}>
@@ -72,12 +92,40 @@ export function HabitListItem({ habit, streak = 0, onPress }: HabitListItemProps
         </View>
 
         <View style={styles.right}>
-          {streak > 0 && <StreakBadge streak={streak} />}
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={lightTheme.textTertiary}
-          />
+          {editMode ? (
+            <View style={styles.arrowButtons}>
+              <Pressable
+                onPress={onMoveUp}
+                disabled={isFirst}
+                accessibilityLabel={_(msg`Move up`)}
+                accessibilityRole="button"
+                style={[styles.arrowButton, isFirst && styles.arrowButtonDisabled]}
+              >
+                <Ionicons
+                  name="chevron-up"
+                  size={22}
+                  color={isFirst ? lightTheme.textTertiary : lightTheme.text}
+                />
+              </Pressable>
+              <Pressable
+                onPress={onMoveDown}
+                disabled={isLast}
+                accessibilityLabel={_(msg`Move down`)}
+                accessibilityRole="button"
+                style={[styles.arrowButton, isLast && styles.arrowButtonDisabled]}
+              >
+                <Ionicons
+                  name="chevron-down"
+                  size={22}
+                  color={isLast ? lightTheme.textTertiary : lightTheme.text}
+                />
+              </Pressable>
+            </View>
+          ) : (
+            <>
+              {streak > 0 && <StreakBadge streak={streak} />}
+            </>
+          )}
         </View>
       </View>
     </Pressable>
@@ -116,5 +164,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  arrowButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  arrowButton: {
+    padding: spacing.xs,
+  },
+  arrowButtonDisabled: {
+    opacity: 0.4,
   },
 });

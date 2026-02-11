@@ -193,6 +193,25 @@ export function useDeleteHabit() {
   });
 }
 
+export function useReorderHabits() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (updates: { id: string; sort_order: number }[]) => {
+      const promises = updates.map(({ id, sort_order }) =>
+        supabase.from('habits').update({ sort_order }).eq('id', id),
+      );
+      const results = await Promise.all(promises);
+      for (const result of results) {
+        if (result.error) throw result.error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
+    },
+  });
+}
+
 export function useArchiveHabit() {
   const queryClient = useQueryClient();
 

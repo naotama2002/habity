@@ -8,7 +8,7 @@ import {format, parseISO, isToday as dateIsToday} from 'date-fns';
 import {ja, enUS} from 'date-fns/locale';
 import {useHabitsWithLog} from '@/state/queries/habits';
 import {useToggleHabitLog, useSkipHabitLog, useUnskipHabitLog} from '@/state/queries/habit-logs';
-import {calculateProgress} from '@/lib/progress';
+import {calculateProgress, sortByCompletion} from '@/lib/progress';
 import {HabitCard, HabitCardActions, TimeOfDaySection} from '@/components/habits';
 import {DateStrip} from '@/components/date/DateStrip';
 import {colors, lightTheme} from '@/lib/colors';
@@ -195,7 +195,8 @@ const TIME_OF_DAY_ORDER: TimeOfDay[] = [
 ];
 
 /**
- * 習慣を時間帯ごとにグループ化
+ * 習慣を時間帯ごとにグループ化し、未完了を先に表示
+ * 各グループ内: 未完了(sort_order順) → 完了・スキップ(sort_order順)
  */
 function groupHabitsByTimeOfDay(
   habits: HabitWithLog[],
@@ -212,6 +213,11 @@ function groupHabitsByTimeOfDay(
     // time_of_day は配列なので最初の要素を使用
     const timeOfDay = habit.time_of_day?.[0] ?? 'anytime';
     grouped[timeOfDay].push(habit);
+  }
+
+  // 各グループ内で未完了を先、完了・スキップを後に並べる
+  for (const key of Object.keys(grouped) as TimeOfDay[]) {
+    grouped[key] = sortByCompletion(grouped[key]);
   }
 
   return grouped;

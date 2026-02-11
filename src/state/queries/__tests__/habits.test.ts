@@ -21,11 +21,12 @@ jest.mock('@tanstack/react-query', () => ({
   useQueryClient: jest.fn(),
 }));
 
-import {useQuery} from '@tanstack/react-query';
-import {habitKeys, useHabitsWithLog} from '../habits';
+import {useQuery, useQueryClient, useMutation} from '@tanstack/react-query';
+import {habitKeys, useHabitsWithLog, useReorderHabits} from '../habits';
 import type {Habit} from '@/types/database';
 
 const mockedUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
+const mockedUseQueryClient = useQueryClient as jest.MockedFunction<typeof useQueryClient>;
 
 // テスト用ヘルパー: useQuery に渡された queryFn を取得して実行
 function getQueryFn(date?: string) {
@@ -373,6 +374,98 @@ describe('habits queries', () => {
         // Day 0 (Jan 1) should match
         const result1 = (await executeQueryFn('2024-01-01')) as Array<{id: string}>;
         expect(result1).toHaveLength(1);
+      });
+    });
+  });
+
+  describe('useReorderHabits', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mockUseMutation = useMutation as any;
+
+    function setupMutationMock() {
+      const mockInvalidateQueries = jest.fn();
+      mockedUseQueryClient.mockReturnValue({
+        invalidateQueries: mockInvalidateQueries,
+      } as unknown as ReturnType<typeof useQueryClient>);
+      return {mockInvalidateQueries};
+    }
+
+    it('should call useMutation with correct mutationFn', () => {
+      setupMutationMock();
+      mockUseMutation.mockImplementation((opts: unknown) => opts);
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useReorderHabits();
+      expect(mockUseMutation).toHaveBeenCalled();
+    });
+
+    it('should call supabase.update for each habit', async () => {
+      setupMutationMock();
+
+      let capturedMutationFn: (updates: {id: string; sort_order: number}[]) => Promise<void>;
+      mockUseMutation.mockImplementation((opts: {mutationFn: typeof capturedMutationFn}) => {
+        capturedMutationFn = opts.mutationFn;
+        return opts;
+      });
+
+      const mockEq = jest.fn<(...args: unknown[]) => Promise<{error: null}>>()
+        .mockResolvedValue({error: null});
+      const mockUpdate = jest.fn().mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({update: mockUpdate});
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useReorderHabits();
+
+      await capturedMutationFn!([
+        {id: 'h1', sort_order: 0},
+        {id: 'h2', sort_order: 1},
+      ]);
+
+      expect(mockFrom).toHaveBeenCalledWith('habits');
+      expect(mockUpdate).toHaveBeenCalledWith({sort_order: 0});
+      expect(mockUpdate).toHaveBeenCalledWith({sort_order: 1});
+      expect(mockEq).toHaveBeenCalledWith('id', 'h1');
+      expect(mockEq).toHaveBeenCalledWith('id', 'h2');
+    });
+
+    it('should throw when supabase returns an error', async () => {
+      setupMutationMock();
+
+      let capturedMutationFn: (updates: {id: string; sort_order: number}[]) => Promise<void>;
+      mockUseMutation.mockImplementation((opts: {mutationFn: typeof capturedMutationFn}) => {
+        capturedMutationFn = opts.mutationFn;
+        return opts;
+      });
+
+      const dbError = {message: 'Update failed', code: '500'};
+      const mockEq = jest.fn<(...args: unknown[]) => Promise<{error: typeof dbError}>>()
+        .mockResolvedValue({error: dbError});
+      const mockUpdate = jest.fn().mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({update: mockUpdate});
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useReorderHabits();
+
+      await expect(
+        capturedMutationFn!([{id: 'h1', sort_order: 0}]),
+      ).rejects.toEqual(dbError);
+    });
+
+    it('should invalidate habit queries on success', () => {
+      const {mockInvalidateQueries} = setupMutationMock();
+
+      let capturedOnSuccess: () => void;
+      mockUseMutation.mockImplementation((opts: {onSuccess: () => void}) => {
+        capturedOnSuccess = opts.onSuccess;
+        return opts;
+      });
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useReorderHabits();
+      capturedOnSuccess!();
+
+      expect(mockInvalidateQueries).toHaveBeenCalledWith({
+        queryKey: habitKeys.all,
       });
     });
   });
