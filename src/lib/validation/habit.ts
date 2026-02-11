@@ -3,10 +3,9 @@
  */
 
 import type {
-  TrackingType,
-  GoalPeriod,
   TimeOfDay,
 } from '@/types/database';
+import type {RecurrenceType} from '@/lib/recurrence';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -16,14 +15,13 @@ export interface ValidationResult {
 export interface HabitFormData {
   name: string;
   description?: string | null;
-  tracking_type: TrackingType;
-  goal_value: number;
-  goal_unit: string;
-  goal_period: GoalPeriod;
+  recurrence_type: RecurrenceType;
+  recurrence_weekdays: number[];
+  recurrence_monthdays: number[];
+  recurrence_interval: number;
   time_of_day: TimeOfDay[];
   start_date: string;
   category_id?: string | null;
-  recurrence_rule?: string | null;
   reminder_times?: string[] | null;
   reminder_enabled?: boolean;
   status?: 'active' | 'paused' | 'archived';
@@ -85,120 +83,48 @@ export function validateDescription(description: string | null | undefined): Val
 }
 
 /**
- * トラッキングタイプのバリデーション
+ * 繰り返し設定のバリデーション
  */
-export function validateTrackingType(trackingType: string): ValidationResult {
-  const validTypes: TrackingType[] = ['boolean', 'numeric', 'duration'];
-
-  if (!validTypes.includes(trackingType as TrackingType)) {
-    return {
-      isValid: false,
-      error: '有効なトラッキング方法を選択してください',
-    };
-  }
-
-  return {
-    isValid: true,
-    error: null,
-  };
-}
-
-/**
- * 目標値のバリデーション（数値/時間タイプの場合）
- */
-export function validateGoalValue(
-  goalValue: number,
-  trackingType: TrackingType
+export function validateRecurrence(
+  type: RecurrenceType,
+  weekdays: number[],
+  monthdays: number[],
+  interval: number,
 ): ValidationResult {
-  // booleanタイプの場合は常に1なのでスキップ
-  if (trackingType === 'boolean') {
-    return {
-      isValid: true,
-      error: null,
-    };
+  switch (type) {
+    case 'weekly':
+      if (!weekdays || weekdays.length === 0) {
+        return {
+          isValid: false,
+          error: '曜日を1つ以上選択してください',
+        };
+      }
+      return {isValid: true, error: null};
+
+    case 'monthly':
+      if (!monthdays || monthdays.length === 0) {
+        return {
+          isValid: false,
+          error: '日付を1つ以上選択してください',
+        };
+      }
+      return {isValid: true, error: null};
+
+    case 'interval':
+      if (!Number.isInteger(interval) || interval < 1) {
+        return {
+          isValid: false,
+          error: '間隔は1以上の整数を入力してください',
+        };
+      }
+      return {isValid: true, error: null};
+
+    default:
+      return {
+        isValid: false,
+        error: '有効な繰り返しタイプを選択してください',
+      };
   }
-
-  if (goalValue <= 0) {
-    return {
-      isValid: false,
-      error: '目標値は0より大きい値を入力してください',
-    };
-  }
-
-  if (!Number.isFinite(goalValue)) {
-    return {
-      isValid: false,
-      error: '有効な数値を入力してください',
-    };
-  }
-
-  return {
-    isValid: true,
-    error: null,
-  };
-}
-
-/**
- * 目標単位のバリデーション（数値/時間タイプの場合）
- */
-export function validateGoalUnit(
-  goalUnit: string,
-  trackingType: TrackingType
-): ValidationResult {
-  // booleanタイプの場合は単位不要
-  if (trackingType === 'boolean') {
-    return {
-      isValid: true,
-      error: null,
-    };
-  }
-
-  // durationタイプの場合は自動的に「分」
-  if (trackingType === 'duration') {
-    return {
-      isValid: true,
-      error: null,
-    };
-  }
-
-  const trimmed = goalUnit.trim();
-  if (!trimmed) {
-    return {
-      isValid: false,
-      error: '単位を入力してください',
-    };
-  }
-
-  if (trimmed.length > 20) {
-    return {
-      isValid: false,
-      error: '単位は20文字以内で入力してください',
-    };
-  }
-
-  return {
-    isValid: true,
-    error: null,
-  };
-}
-
-/**
- * 目標期間のバリデーション
- */
-export function validateGoalPeriod(goalPeriod: string): ValidationResult {
-  const validPeriods: GoalPeriod[] = ['daily', 'weekly', 'monthly'];
-
-  if (!validPeriods.includes(goalPeriod as GoalPeriod)) {
-    return {
-      isValid: false,
-      error: '有効な目標期間を選択してください',
-    };
-  }
-
-  return {
-    isValid: true,
-    error: null,
-  };
 }
 
 /**
@@ -283,28 +209,15 @@ export function validateHabitForm(data: HabitFormData): ValidationResult {
     return descriptionResult;
   }
 
-  // トラッキングタイプ
-  const trackingTypeResult = validateTrackingType(data.tracking_type);
-  if (!trackingTypeResult.isValid) {
-    return trackingTypeResult;
-  }
-
-  // 目標値
-  const goalValueResult = validateGoalValue(data.goal_value, data.tracking_type);
-  if (!goalValueResult.isValid) {
-    return goalValueResult;
-  }
-
-  // 目標単位
-  const goalUnitResult = validateGoalUnit(data.goal_unit, data.tracking_type);
-  if (!goalUnitResult.isValid) {
-    return goalUnitResult;
-  }
-
-  // 目標期間
-  const goalPeriodResult = validateGoalPeriod(data.goal_period);
-  if (!goalPeriodResult.isValid) {
-    return goalPeriodResult;
+  // 繰り返し
+  const recurrenceResult = validateRecurrence(
+    data.recurrence_type,
+    data.recurrence_weekdays,
+    data.recurrence_monthdays,
+    data.recurrence_interval,
+  );
+  if (!recurrenceResult.isValid) {
+    return recurrenceResult;
   }
 
   // 時間帯
@@ -332,10 +245,12 @@ export function validateHabitFormFields(data: HabitFormData): Record<string, str
   return {
     name: validateHabitName(data.name).error,
     description: validateDescription(data.description).error,
-    tracking_type: validateTrackingType(data.tracking_type).error,
-    goal_value: validateGoalValue(data.goal_value, data.tracking_type).error,
-    goal_unit: validateGoalUnit(data.goal_unit, data.tracking_type).error,
-    goal_period: validateGoalPeriod(data.goal_period).error,
+    recurrence: validateRecurrence(
+      data.recurrence_type,
+      data.recurrence_weekdays,
+      data.recurrence_monthdays,
+      data.recurrence_interval,
+    ).error,
     time_of_day: validateTimeOfDay(data.time_of_day).error,
     start_date: validateStartDate(data.start_date).error,
   };
@@ -350,14 +265,13 @@ export function getDefaultHabitFormData(): HabitFormData {
   return {
     name: '',
     description: null,
-    tracking_type: 'boolean',
-    goal_value: 1,
-    goal_unit: '回',
-    goal_period: 'daily',
+    recurrence_type: 'interval',
+    recurrence_weekdays: [],
+    recurrence_monthdays: [],
+    recurrence_interval: 1,
     time_of_day: ['anytime'],
     start_date: today,
     category_id: null,
-    recurrence_rule: null,
     reminder_times: null,
     reminder_enabled: false,
     status: 'active',

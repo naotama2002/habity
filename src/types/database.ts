@@ -7,6 +7,7 @@ export type HabitStatus = 'active' | 'paused' | 'archived';
 export type GoalPeriod = 'daily' | 'weekly' | 'monthly';
 export type TimeOfDay = 'anytime' | 'morning' | 'afternoon' | 'evening' | 'night';
 export type LogStatus = 'completed' | 'skipped';
+export type RecurrenceType = 'weekly' | 'monthly' | 'interval';
 
 export interface Category {
   id: string;

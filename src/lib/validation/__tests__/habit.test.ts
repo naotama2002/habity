@@ -2,10 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import {
   validateHabitName,
   validateDescription,
-  validateTrackingType,
-  validateGoalValue,
-  validateGoalUnit,
-  validateGoalPeriod,
+  validateRecurrence,
   validateTimeOfDay,
   validateStartDate,
   validateHabitForm,
@@ -80,118 +77,81 @@ describe('habit validation', () => {
     });
   });
 
-  describe('validateTrackingType', () => {
-    const validTypes = ['boolean', 'numeric', 'duration'];
-
-    it.each(validTypes)('should accept valid type: %s', (type) => {
-      const result = validateTrackingType(type);
-      expect(result.isValid).toBe(true);
-      expect(result.error).toBeNull();
-    });
-
-    const invalidTypes = ['invalid', '', 'count', 'time'];
-
-    it.each(invalidTypes)('should reject invalid type: %s', (type) => {
-      const result = validateTrackingType(type);
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe('有効なトラッキング方法を選択してください');
-    });
-  });
-
-  describe('validateGoalValue', () => {
-    it('should skip validation for boolean type', () => {
-      const result = validateGoalValue(0, 'boolean');
-      expect(result.isValid).toBe(true);
-    });
-
-    const validValues: Array<[number, 'numeric' | 'duration']> = [
-      [1, 'numeric'],
-      [10, 'numeric'],
-      [0.5, 'numeric'],
-      [30, 'duration'],
-      [60, 'duration'],
-    ];
-
-    it.each(validValues)(
-      'should accept valid goal value %d for type %s',
-      (value, type) => {
-        const result = validateGoalValue(value, type);
+  describe('validateRecurrence', () => {
+    describe('weekly', () => {
+      it('should accept valid weekdays', () => {
+        const result = validateRecurrence('weekly', [0, 2, 4], [], 1);
         expect(result.isValid).toBe(true);
         expect(result.error).toBeNull();
-      }
-    );
+      });
 
-    const invalidValues: Array<[number, 'numeric' | 'duration', string]> = [
-      [0, 'numeric', '目標値は0より大きい値を入力してください'],
-      [-1, 'numeric', '目標値は0より大きい値を入力してください'],
-      [0, 'duration', '目標値は0より大きい値を入力してください'],
-      [Infinity, 'numeric', '有効な数値を入力してください'],
-      [NaN, 'numeric', '有効な数値を入力してください'],
-    ];
+      it('should accept single weekday', () => {
+        const result = validateRecurrence('weekly', [3], [], 1);
+        expect(result.isValid).toBe(true);
+      });
 
-    it.each(invalidValues)(
-      'should reject invalid goal value %d for type %s',
-      (value, type, expectedError) => {
-        const result = validateGoalValue(value, type);
+      it('should reject empty weekdays', () => {
+        const result = validateRecurrence('weekly', [], [], 1);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe(expectedError);
-      }
-    );
-  });
-
-  describe('validateGoalUnit', () => {
-    it('should skip validation for boolean type', () => {
-      const result = validateGoalUnit('', 'boolean');
-      expect(result.isValid).toBe(true);
+        expect(result.error).toBe('曜日を1つ以上選択してください');
+      });
     });
 
-    it('should skip validation for duration type', () => {
-      const result = validateGoalUnit('', 'duration');
-      expect(result.isValid).toBe(true);
+    describe('monthly', () => {
+      it('should accept valid monthdays', () => {
+        const result = validateRecurrence('monthly', [], [1, 15], 1);
+        expect(result.isValid).toBe(true);
+        expect(result.error).toBeNull();
+      });
+
+      it('should accept single monthday', () => {
+        const result = validateRecurrence('monthly', [], [28], 1);
+        expect(result.isValid).toBe(true);
+      });
+
+      it('should reject empty monthdays', () => {
+        const result = validateRecurrence('monthly', [], [], 1);
+        expect(result.isValid).toBe(false);
+        expect(result.error).toBe('日付を1つ以上選択してください');
+      });
     });
 
-    const validUnits = ['回', '分', 'km', 'ページ', 'ml'];
+    describe('interval', () => {
+      it('should accept valid interval', () => {
+        const result = validateRecurrence('interval', [], [], 3);
+        expect(result.isValid).toBe(true);
+        expect(result.error).toBeNull();
+      });
 
-    it.each(validUnits)('should accept valid unit: %s', (unit) => {
-      const result = validateGoalUnit(unit, 'numeric');
-      expect(result.isValid).toBe(true);
-      expect(result.error).toBeNull();
+      it('should accept interval of 1 (every day)', () => {
+        const result = validateRecurrence('interval', [], [], 1);
+        expect(result.isValid).toBe(true);
+      });
+
+      it('should reject interval of 0', () => {
+        const result = validateRecurrence('interval', [], [], 0);
+        expect(result.isValid).toBe(false);
+        expect(result.error).toBe('間隔は1以上の整数を入力してください');
+      });
+
+      it('should reject negative interval', () => {
+        const result = validateRecurrence('interval', [], [], -1);
+        expect(result.isValid).toBe(false);
+        expect(result.error).toBe('間隔は1以上の整数を入力してください');
+      });
+
+      it('should reject non-integer interval', () => {
+        const result = validateRecurrence('interval', [], [], 1.5);
+        expect(result.isValid).toBe(false);
+        expect(result.error).toBe('間隔は1以上の整数を入力してください');
+      });
     });
 
-    it('should reject empty unit for numeric type', () => {
-      const result = validateGoalUnit('', 'numeric');
+    it('should reject invalid type', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = validateRecurrence('invalid' as any, [], [], 1);
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('単位を入力してください');
-    });
-
-    it('should reject whitespace-only unit for numeric type', () => {
-      const result = validateGoalUnit('   ', 'numeric');
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe('単位を入力してください');
-    });
-
-    it('should reject unit over 20 characters', () => {
-      const result = validateGoalUnit('a'.repeat(21), 'numeric');
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe('単位は20文字以内で入力してください');
-    });
-  });
-
-  describe('validateGoalPeriod', () => {
-    const validPeriods = ['daily', 'weekly', 'monthly'];
-
-    it.each(validPeriods)('should accept valid period: %s', (period) => {
-      const result = validateGoalPeriod(period);
-      expect(result.isValid).toBe(true);
-      expect(result.error).toBeNull();
-    });
-
-    const invalidPeriods = ['invalid', '', 'yearly', 'quarterly'];
-
-    it.each(invalidPeriods)('should reject invalid period: %s', (period) => {
-      const result = validateGoalPeriod(period);
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe('有効な目標期間を選択してください');
+      expect(result.error).toBe('有効な繰り返しタイプを選択してください');
     });
   });
 
@@ -265,8 +225,6 @@ describe('habit validation', () => {
     });
 
     it('should reject invalid date value', () => {
-      // 2024-02-31 はJSで自動補正されるため、形式チェックで弾く必要がある
-      // 代わりに月が13などの明らかに無効な値をテスト
       const result = validateStartDate('2024-13-01');
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('有効な日付を入力してください');
@@ -277,10 +235,10 @@ describe('habit validation', () => {
     const validFormData: HabitFormData = {
       name: '読書',
       description: '毎日30分読む',
-      tracking_type: 'boolean',
-      goal_value: 1,
-      goal_unit: '回',
-      goal_period: 'daily',
+      recurrence_type: 'interval',
+      recurrence_weekdays: [],
+      recurrence_monthdays: [],
+      recurrence_interval: 1,
       time_of_day: ['morning'],
       start_date: '2024-01-01',
     };
@@ -295,42 +253,37 @@ describe('habit validation', () => {
       const result = validateHabitForm({
         ...validFormData,
         name: '',
-        goal_value: 0,
       });
       expect(result.error).toBe('習慣名を入力してください');
     });
 
-    it('should validate tracking type dependent fields', () => {
-      // numeric type requires valid goal_unit
+    it('should validate recurrence for weekly with no days', () => {
       const result = validateHabitForm({
         ...validFormData,
-        tracking_type: 'numeric',
-        goal_value: 10,
-        goal_unit: '',
+        recurrence_type: 'weekly',
+        recurrence_weekdays: [],
       });
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('単位を入力してください');
+      expect(result.error).toBe('曜日を1つ以上選択してください');
     });
 
-    it('should validate goal_value for numeric type', () => {
+    it('should accept weekly with weekdays selected', () => {
       const result = validateHabitForm({
         ...validFormData,
-        tracking_type: 'numeric',
-        goal_value: 0,
-        goal_unit: 'km',
-      });
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe('目標値は0より大きい値を入力してください');
-    });
-
-    it('should skip goal validation for boolean type', () => {
-      const result = validateHabitForm({
-        ...validFormData,
-        tracking_type: 'boolean',
-        goal_value: 1,
-        goal_unit: '',
+        recurrence_type: 'weekly',
+        recurrence_weekdays: [0, 2, 4],
       });
       expect(result.isValid).toBe(true);
+    });
+
+    it('should validate recurrence for monthly with no days', () => {
+      const result = validateHabitForm({
+        ...validFormData,
+        recurrence_type: 'monthly',
+        recurrence_monthdays: [],
+      });
+      expect(result.isValid).toBe(false);
+      expect(result.error).toBe('日付を1つ以上選択してください');
     });
   });
 
@@ -339,10 +292,10 @@ describe('habit validation', () => {
       const validFormData: HabitFormData = {
         name: '読書',
         description: '毎日30分読む',
-        tracking_type: 'boolean',
-        goal_value: 1,
-        goal_unit: '回',
-        goal_period: 'daily',
+        recurrence_type: 'interval',
+        recurrence_weekdays: [],
+        recurrence_monthdays: [],
+        recurrence_interval: 1,
         time_of_day: ['morning'],
         start_date: '2024-01-01',
       };
@@ -350,10 +303,7 @@ describe('habit validation', () => {
       const errors = validateHabitFormFields(validFormData);
       expect(errors.name).toBeNull();
       expect(errors.description).toBeNull();
-      expect(errors.tracking_type).toBeNull();
-      expect(errors.goal_value).toBeNull();
-      expect(errors.goal_unit).toBeNull();
-      expect(errors.goal_period).toBeNull();
+      expect(errors.recurrence).toBeNull();
       expect(errors.time_of_day).toBeNull();
       expect(errors.start_date).toBeNull();
     });
@@ -362,10 +312,10 @@ describe('habit validation', () => {
       const invalidFormData: HabitFormData = {
         name: '',
         description: 'a'.repeat(501),
-        tracking_type: 'numeric',
-        goal_value: 0,
-        goal_unit: '',
-        goal_period: 'daily',
+        recurrence_type: 'weekly',
+        recurrence_weekdays: [],
+        recurrence_monthdays: [],
+        recurrence_interval: 1,
         time_of_day: [],
         start_date: '',
       };
@@ -373,8 +323,7 @@ describe('habit validation', () => {
       const errors = validateHabitFormFields(invalidFormData);
       expect(errors.name).toBe('習慣名を入力してください');
       expect(errors.description).toBe('説明は500文字以内で入力してください');
-      expect(errors.goal_value).toBe('目標値は0より大きい値を入力してください');
-      expect(errors.goal_unit).toBe('単位を入力してください');
+      expect(errors.recurrence).toBe('曜日を1つ以上選択してください');
       expect(errors.time_of_day).toBe('実行する時間帯を選択してください');
       expect(errors.start_date).toBe('開始日を入力してください');
     });
@@ -398,9 +347,10 @@ describe('habit validation', () => {
     it('should have expected default values', () => {
       const defaultData = getDefaultHabitFormData();
       expect(defaultData.name).toBe('');
-      expect(defaultData.tracking_type).toBe('boolean');
-      expect(defaultData.goal_value).toBe(1);
-      expect(defaultData.goal_period).toBe('daily');
+      expect(defaultData.recurrence_type).toBe('interval');
+      expect(defaultData.recurrence_weekdays).toEqual([]);
+      expect(defaultData.recurrence_monthdays).toEqual([]);
+      expect(defaultData.recurrence_interval).toBe(1);
       expect(defaultData.time_of_day).toEqual(['anytime']);
       expect(defaultData.status).toBe('active');
     });

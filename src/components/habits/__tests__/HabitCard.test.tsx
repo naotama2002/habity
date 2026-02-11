@@ -78,6 +78,17 @@ describe('HabitCard', () => {
     expect(screen.getByText('Skipped')).toBeTruthy();
   });
 
+  it('should not show goal text for boolean tracking type', () => {
+    const habit = createMockHabitWithLog({
+      tracking_type: 'boolean',
+      goal_value: 1,
+      goal_unit: 'times',
+    });
+    render(<HabitCard habit={habit} />);
+    // No goal progress text should be visible
+    expect(screen.queryByText(/\/.*times/)).toBeNull();
+  });
+
   it('should call onToggle when checkbox is pressed for non-skipped habit', async () => {
     const habit = createMockHabitWithLog();
     const onToggle = jest.fn();
@@ -98,20 +109,8 @@ describe('HabitCard', () => {
     render(<HabitCard habit={habit} onToggle={onToggle} />);
 
     fireEvent.press(screen.getByTestId('habit-checkbox'));
-    // Wait for async handler to complete
     await waitFor(() => {
       expect(onToggle).not.toHaveBeenCalled();
     });
-  });
-
-  it('should show goal text for numeric tracking type', () => {
-    const habit = createMockHabitWithLog({
-      tracking_type: 'numeric',
-      goal_value: 10,
-      goal_unit: 'km',
-      log_value: 5,
-    });
-    render(<HabitCard habit={habit} />);
-    expect(screen.getByText('5/10 km')).toBeTruthy();
   });
 });

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing, borderRadius, shadows } from '@/lib/spacing';
+import { parseRRule } from '@/lib/recurrence';
 import { StreakBadge } from './StreakBadge';
 import type { Habit } from '@/types/database';
 
@@ -28,10 +29,31 @@ export function HabitListItem({ habit, streak = 0, onPress }: HabitListItemProps
     onPress?.(habit);
   };
 
+  const weekdayLabels = [
+    _(msg`Mon`), _(msg`Tue`), _(msg`Wed`), _(msg`Thu`),
+    _(msg`Fri`), _(msg`Sat`), _(msg`Sun`),
+  ];
+
   // 頻度の表示テキストを生成
   const getFrequencyText = () => {
-    // TODO: recurrence_rule をパースして表示
-    return _(msg`Daily`);
+    if (!habit.recurrence_rule) {
+      return _(msg`Daily`);
+    }
+    const parsed = parseRRule(habit.recurrence_rule);
+    switch (parsed.type) {
+      case 'weekly': {
+        const days = parsed.weekdays.map(d => weekdayLabels[d]).join(',');
+        return `${_(msg`Weekly`)} ${days}`;
+      }
+      case 'monthly': {
+        const days = parsed.monthdays.join(',');
+        return `${_(msg`Monthly`)} ${days}`;
+      }
+      case 'interval': {
+        if (parsed.interval === 1) return _(msg`Daily`);
+        return `${parsed.interval}${_(msg`days`)}`;
+      }
+    }
   };
 
   return (
@@ -46,9 +68,6 @@ export function HabitListItem({ habit, streak = 0, onPress }: HabitListItemProps
           </Text>
           <Text style={styles.meta}>
             {getFrequencyText()}
-            {habit.tracking_type !== 'boolean' && (
-              <Text> • {habit.goal_value} {habit.goal_unit}</Text>
-            )}
           </Text>
         </View>
 

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { isDateMatchingRRule } from '@/lib/recurrence';
 import type {
   Habit,
   HabitWithLog,
@@ -67,10 +68,21 @@ export function useHabitsWithLog(date?: string) {
 
       if (logsError) throw logsError;
 
+      // 繰り返しルールに基づいてフィルタリング
+      const targetDateObj = new Date(targetDate);
+      const filteredHabits = habits.filter(h => {
+        if (!h.recurrence_rule) return true;
+        return isDateMatchingRRule(
+          h.recurrence_rule,
+          targetDateObj,
+          new Date(h.start_date),
+        );
+      });
+
       // クライアント側で結合
       const logMap = new Map(logs?.map(l => [l.habit_id, l]) ?? []);
 
-      return habits.map(h => {
+      return filteredHabits.map(h => {
         const log = logMap.get(h.id) ?? null;
         const logStatus: LogStatus | null = (log?.status as LogStatus) ?? null;
         return {
@@ -80,7 +92,7 @@ export function useHabitsWithLog(date?: string) {
           log_completed_at: log?.completed_at ?? null,
           log_note: log?.note ?? null,
           log_status: logStatus,
-          is_completed: log !== null && logStatus === 'completed' && log.value >= h.goal_value,
+          is_completed: log !== null && logStatus === 'completed',
           is_skipped: logStatus === 'skipped',
         } as HabitWithLog;
       });
