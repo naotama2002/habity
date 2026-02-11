@@ -4,6 +4,7 @@ import { useLingui } from '@lingui/react';
 import { useRouter, useLocalSearchParams, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
+import { config } from '@/lib/config';
 
 /**
  * ウェルカム画面
@@ -79,12 +80,14 @@ export default function WelcomeScreen() {
           </Pressable>
 
           {/* 新規登録 */}
-          <Pressable style={styles.signUpLink} onPress={handleSignUp}>
-            <Text style={styles.signUpText}>
-              {_(msg`Don't have an account?`)}
-              <Text style={styles.signUpLinkText}> {_(msg`Sign Up`)}</Text>
-            </Text>
-          </Pressable>
+          {config.enableSignup && (
+            <Pressable style={styles.signUpLink} onPress={handleSignUp}>
+              <Text style={styles.signUpText}>
+                {_(msg`Don't have an account?`)}
+                <Text style={styles.signUpLinkText}> {_(msg`Sign Up`)}</Text>
+              </Text>
+            </Pressable>
+          )}
         </View>
       </View>
     </SafeAreaView>

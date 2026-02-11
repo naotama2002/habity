@@ -20,6 +20,11 @@ if [ -n "$BACKEND_URL" ]; then
     -exec sed -i "s|__HABITY_BACKEND_URL__|${BACKEND_URL}|g" {} +
 fi
 
+if [ -n "$ENABLE_SIGNUP" ]; then
+  find "$HTML_DIR" -type f \( -name "*.js" -o -name "*.html" \) \
+    -exec sed -i "s|__HABITY_ENABLE_SIGNUP__|${ENABLE_SIGNUP}|g" {} +
+fi
+
 echo "Environment variables injected into static files"
 
 # Start nginx

@@ -34,4 +34,5 @@ services:
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
       BACKEND_URL: ${BACKEND_URL:-http://localhost:3000}
+      ENABLE_SIGNUP: ${ENABLE_SIGNUP:-false}
     restart: unless-stopped
