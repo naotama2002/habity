@@ -33,16 +33,18 @@ Cloudflare Pages:  Web フロントエンド (SPA)
 
 ### 1-2. ビルド設定
 
-| 項目 | 値 |
-|------|-----|
-| Production branch | `main` |
-| Build command | `pnpm install && pnpm intl:compile && pnpm exec expo export --platform web` |
-| Build output directory | `dist` |
-| Root directory | `/`（デフォルト） |
+Cloudflare Pages ダッシュボードの **Build settings** に以下を入力:
+
+| 項目 | 値 | 備考 |
+|------|-----|------|
+| Production branch | `main` | |
+| Build command | `pnpm install && pnpm intl:compile && pnpm exec expo export --platform web` | |
+| Build output directory | `dist` | `expo export` のデフォルト出力先 |
+| Root directory | `/` | デフォルト |
 
 ### 1-3. 環境変数
 
-**Settings → Environment variables** で以下を設定:
+**Settings → Environment variables** で以下を **Production 環境のビルド時環境変数**（Build environment variables）として設定:
 
 | 変数 | 値 | 説明 |
 |------|-----|------|
@@ -52,7 +54,7 @@ Cloudflare Pages:  Web フロントエンド (SPA)
 | `NODE_VERSION` | `24` | Node.js バージョン |
 | `PNPM_VERSION` | `10.28.0` | pnpm バージョン |
 
-> `EXPO_PUBLIC_*` 環境変数はビルド時に静的ファイルに埋め込まれる。
+> `EXPO_PUBLIC_*` 環境変数は `expo export` のビルド時に JS バンドルへ静的に埋め込まれる。変更した場合は再デプロイが必要。
 
 ---
 
