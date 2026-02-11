@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { useRouter, useLocalSearchParams, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 import { validateSignupForm } from '@/lib/validation/auth';
+import { config } from '@/lib/config';
 
 /**
  * サインアップ画面
@@ -32,6 +33,12 @@ export default function SignupScreen() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!config.enableSignup) {
+      router.replace('/(auth)/welcome' as Href);
+    }
+  }, [router]);
 
   const handleSignup = async () => {
     setError(null);
