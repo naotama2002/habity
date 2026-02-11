@@ -257,25 +257,6 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- ===========================================
--- Views
--- ===========================================
-
--- View: Habits with today's log status
-CREATE OR REPLACE VIEW habits_with_today_log AS
-SELECT
-  h.*,
-  l.id AS log_id,
-  l.value AS log_value,
-  l.completed_at AS log_completed_at,
-  l.note AS log_note,
-  CASE
-    WHEN l.id IS NOT NULL AND l.value >= h.goal_value THEN true
-    ELSE false
-  END AS is_completed_today
-FROM habits h
-LEFT JOIN habit_logs l ON h.id = l.habit_id AND l.target_date = CURRENT_DATE;
-
--- ===========================================
 -- Functions
 -- ===========================================
 

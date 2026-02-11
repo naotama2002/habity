@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import * as Linking from 'expo-linking';
 import { supabase } from '@/lib/supabase';
+import { queryClient } from '@/lib/react-query';
 import type { Session, AuthChangeEvent } from '@supabase/supabase-js';
 import {
   SessionState,
@@ -72,6 +73,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
         console.log('Auth state changed:', event);
+
+        // ユーザー切り替え時にキャッシュをクリア（他ユーザーのデータが残らないように）
+        if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
+          queryClient.clear();
+        }
+
         updateState(session);
       }
     );

@@ -432,10 +432,11 @@ cd habity
 mise install
 ```
 
-`.tool-versions` で以下が管理されています:
+`.mise.toml` で以下が管理されています:
 - Node.js 24.13.0 (Active LTS)
 - pnpm 10.28.0
 - Go 1.25.6
+- Supabase CLI 2.75.0
 
 ### 3. 環境変数設定
 
@@ -483,11 +484,18 @@ pnpm android
 
 ### 7. DB マイグレーション
 
+マイグレーションは初回起動時に `docker-entrypoint-initdb.d` 経由で自動実行されます。
+追加マイグレーションの適用には Supabase CLI を使用します。
+
 ```bash
-# マイグレーションは初回起動時に自動実行されます
-# 手動実行する場合:
-docker compose exec db psql -U postgres -d postgres -f /docker-entrypoint-initdb.d/migrations/20240101000000_init.sql
+# 追加マイグレーションの適用
+supabase db push --db-url "postgresql://postgres:postgres@localhost:5432/postgres"
+
+# マイグレーション状態の確認
+supabase migration list --db-url "postgresql://postgres:postgres@localhost:5432/postgres"
 ```
+
+詳細は [06-migration.md](./06-migration.md) を参照してください。
 
 ---
 

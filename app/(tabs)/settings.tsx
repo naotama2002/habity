@@ -2,14 +2,21 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-nati
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { Ionicons } from '@expo/vector-icons';
-import { supabase } from '@/lib/supabase';
+import { useSession, useSessionApi } from '@/state/session';
 import { i18n } from '@/locale/i18n';
 
 export default function SettingsScreen() {
   const { _ } = useLingui();
+  const { user } = useSession();
+  const { signOut } = useSessionApi();
+
+  const displayName = user?.user_metadata?.full_name
+    ?? user?.email?.split('@')[0]
+    ?? _(msg`Guest User`);
+  const displayEmail = user?.email ?? _(msg`Please sign in`);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await signOut();
   };
 
   const currentLanguage = i18n.locale === 'ja' ? _(msg`Japanese`) : _(msg`English`);
@@ -23,8 +30,8 @@ export default function SettingsScreen() {
             <Ionicons name="person" size={32} color="#6b7280" />
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>{_(msg`Guest User`)}</Text>
-            <Text style={styles.userEmail}>{_(msg`Please sign in`)}</Text>
+            <Text style={styles.userName}>{displayName}</Text>
+            <Text style={styles.userEmail}>{displayEmail}</Text>
           </View>
         </View>
 

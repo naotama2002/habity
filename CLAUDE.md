@@ -65,6 +65,8 @@ Bluesky と同じアプローチ。1つのコードベースで全プラット�
 - `docs/03-data-model.md` - データモデル
 - `docs/04-ui-design.md` - UI/UX 設計
 - `docs/05-development-environment.md` - 開発環境
+- `docs/06-migration.md` - マイグレーション運用ガイド
+- `docs/07-supabase-cloud-setup.md` - Supabase Cloud 移行ガイド
 - `docs/TODO.md` - 実装タスクリスト
 
 ## Git 操作ルール
@@ -88,6 +90,11 @@ docker compose up -d
 # 開発サーバー
 pnpm web       # Web
 pnpm ios       # iOS
+
+# マイグレーション
+supabase migration new <name>                                                    # 新規作成
+supabase db push --db-url "postgresql://postgres:postgres@localhost:5432/postgres" # ローカル適用
+supabase migration list --db-url "postgresql://postgres:postgres@localhost:5432/postgres" # 状態確認
 
 # 品質チェック
 pnpm lint

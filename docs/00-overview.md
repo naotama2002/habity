@@ -83,6 +83,8 @@ Bluesky と同じアプローチを採用。1つのコードベースで全プ�
 | [03-data-model.md](./03-data-model.md) | データモデル設計（PostgreSQL）|
 | [04-ui-design.md](./04-ui-design.md) | UI/UX 設計・ワイヤーフレーム |
 | [05-development-environment.md](./05-development-environment.md) | 開発環境・Docker 構成 |
+| [06-migration.md](./06-migration.md) | マイグレーション運用ガイド |
+| [07-supabase-cloud-setup.md](./07-supabase-cloud-setup.md) | Supabase Cloud 移行ガイド |
 | [TODO.md](./TODO.md) | **実装タスクリスト** |
 
 ---
