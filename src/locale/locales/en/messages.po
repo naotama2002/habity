@@ -26,7 +26,7 @@ msgstr "← Back"
 msgid "6 or more characters"
 msgstr "6 or more characters"
 
-#: app/(tabs)/settings.tsx:73
+#: app/(tabs)/settings.tsx:75
 msgid "About This App"
 msgstr "About This App"
 
@@ -57,7 +57,7 @@ msgstr "Already have an account?"
 msgid "Anytime"
 msgstr "Anytime"
 
-#: app/(tabs)/settings.tsx:44
+#: app/(tabs)/settings.tsx:46
 msgid "Appearance"
 msgstr "Appearance"
 
@@ -84,6 +84,10 @@ msgstr "Charts coming soon"
 #: app/(auth)/signup.tsx:85
 msgid "Click the link in the email to activate your account."
 msgstr "Click the link in the email to activate your account."
+
+#: app/import/habitify.tsx:256
+msgid "Close"
+msgstr "Close"
 
 #: app/(tabs)/index.tsx:128
 msgid "completed"
@@ -115,7 +119,7 @@ msgstr "Create Account"
 msgid "Daily"
 msgstr "Daily"
 
-#: app/(tabs)/settings.tsx:55
+#: app/(tabs)/settings.tsx:57
 msgid "Data"
 msgstr "Data"
 
@@ -169,13 +173,17 @@ msgstr "Email"
 msgid "Email or password is incorrect"
 msgstr "Email or password is incorrect"
 
-#: app/(tabs)/settings.tsx:22
+#: app/(tabs)/settings.tsx:24
 msgid "English"
 msgstr "English"
 
 #: app/(auth)/login.tsx:83
 msgid "Enter your email and password"
 msgstr "Enter your email and password"
+
+#: app/import/habitify.tsx:97
+msgid "Enter your Habitify API key"
+msgstr "Enter your Habitify API key"
 
 #: src/components/forms/HabitForm.tsx:162
 msgid "Error"
@@ -186,7 +194,7 @@ msgstr "Error"
 msgid "Evening"
 msgstr "Evening"
 
-#: app/(tabs)/settings.tsx:61
+#: app/(tabs)/settings.tsx:63
 msgid "Export Data"
 msgstr "Export Data"
 
@@ -199,11 +207,11 @@ msgstr "Failed to load habits"
 msgid "Failed to save. Please try again."
 msgstr "Failed to save. Please try again."
 
-#: app/(tabs)/settings.tsx:70
+#: app/(tabs)/settings.tsx:72
 msgid "Feedback"
 msgstr "Feedback"
 
-#: app/(tabs)/settings.tsx:40
+#: app/(tabs)/settings.tsx:42
 msgid "General"
 msgstr "General"
 
@@ -219,7 +227,7 @@ msgstr "Goal Period"
 msgid "Goal Value"
 msgstr "Goal Value"
 
-#: app/(tabs)/settings.tsx:15
+#: app/(tabs)/settings.tsx:17
 msgid "Guest User"
 msgstr "Guest User"
 
@@ -231,27 +239,64 @@ msgstr "Habit Name"
 msgid "Habit not found"
 msgstr "Habit not found"
 
+#: app/import/habitify.tsx:91
+msgid "Habitify API Key"
+msgstr "Habitify API Key"
+
 #: app/(tabs)/stats.tsx:23
 msgid "Habits"
 msgstr "Habits"
 
-#: app/(tabs)/settings.tsx:69
+#: app/import/habitify.tsx:232
+msgid "Habits imported"
+msgstr "Habits imported"
+
+#: app/(tabs)/settings.tsx:71
 msgid "Help"
 msgstr "Help"
 
-#: app/(tabs)/settings.tsx:59
+#: app/import/habitify.tsx:106
+msgid "How to get your API key: Open Habitify app → Settings → API Credential → Copy"
+msgstr "How to get your API key: Open Habitify app → Settings → API Credential → Copy"
+
+#: app/import/habitify.tsx:202
+msgid "Import"
+msgstr "Import"
+
+#: app/import/habitify.tsx:228
+msgid "Import Complete"
+msgstr "Import Complete"
+
+#: app/(tabs)/settings.tsx:61
+#: app/import/habitify.tsx:75
 msgid "Import from Habitify"
 msgstr "Import from Habitify"
+
+#: app/import/habitify.tsx:124
+msgid "Import Habits"
+msgstr "Import Habits"
+
+#: app/import/habitify.tsx:150
+msgid "Import Logs"
+msgstr "Import Logs"
+
+#: app/import/habitify.tsx:113
+msgid "Import Options"
+msgstr "Import Options"
+
+#: app/import/habitify.tsx:197
+msgid "Importing..."
+msgstr "Importing..."
 
 #: src/components/forms/HabitForm.tsx:143
 msgid "Input Error"
 msgstr "Input Error"
 
-#: app/(tabs)/settings.tsx:22
+#: app/(tabs)/settings.tsx:24
 msgid "Japanese"
 msgstr "Japanese"
 
-#: app/(tabs)/settings.tsx:48
+#: app/(tabs)/settings.tsx:50
 msgid "Language"
 msgstr "Language"
 
@@ -263,6 +308,10 @@ msgstr "Let's create a new account"
 msgid "Login failed. Please try again."
 msgstr "Login failed. Please try again."
 
+#: app/import/habitify.tsx:237
+msgid "Logs imported"
+msgstr "Logs imported"
+
 #: app/(tabs)/stats.tsx:27
 msgid "Longest Streak"
 msgstr "Longest Streak"
@@ -271,7 +320,7 @@ msgstr "Longest Streak"
 msgid "Make habits simpler"
 msgstr "Make habits simpler"
 
-#: app/(tabs)/settings.tsx:57
+#: app/(tabs)/settings.tsx:59
 msgid "Manage Categories"
 msgstr "Manage Categories"
 
@@ -279,7 +328,7 @@ msgstr "Manage Categories"
 msgid "min"
 msgstr "min"
 
-#: app/(tabs)/settings.tsx:49
+#: app/(tabs)/settings.tsx:51
 msgid "Monday"
 msgstr "Monday"
 
@@ -314,15 +363,11 @@ msgstr "No habits yet"
 msgid "No search results"
 msgstr "No search results"
 
-#: app/(tabs)/settings.tsx:58
-msgid "Not Implemented"
-msgstr "Not Implemented"
-
 #: src/components/forms/HabitForm.tsx:223
 msgid "Note the purpose or rules of the habit"
 msgstr "Note the purpose or rules of the habit"
 
-#: app/(tabs)/settings.tsx:47
+#: app/(tabs)/settings.tsx:49
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -340,7 +385,7 @@ msgstr "Optional"
 msgid "Password"
 msgstr "Password"
 
-#: app/(tabs)/settings.tsx:16
+#: app/(tabs)/settings.tsx:18
 msgid "Please sign in"
 msgstr "Please sign in"
 
@@ -394,7 +439,7 @@ msgstr "Sign in with Email"
 msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
-#: app/(tabs)/settings.tsx:81
+#: app/(tabs)/settings.tsx:83
 msgid "Sign Out"
 msgstr "Sign Out"
 
@@ -410,6 +455,10 @@ msgstr "Skip for today"
 msgid "Skipped"
 msgstr "Skipped"
 
+#: app/import/habitify.tsx:245
+msgid "Some items could not be imported"
+msgstr "Some items could not be imported"
+
 #: src/components/forms/HabitForm.tsx:327
 msgid "Start Date"
 msgstr "Start Date"
@@ -422,11 +471,11 @@ msgstr "Statistics coming soon"
 msgid "Streak will not be broken"
 msgstr "Streak will not be broken"
 
-#: app/(tabs)/settings.tsx:67
+#: app/(tabs)/settings.tsx:69
 msgid "Support"
 msgstr "Support"
 
-#: app/(tabs)/settings.tsx:45
+#: app/(tabs)/settings.tsx:47
 msgid "System"
 msgstr "System"
 
@@ -437,10 +486,6 @@ msgstr "There are errors in the input. Please check the fields highlighted in re
 #: app/(auth)/signup.tsx:54
 msgid "This email is already registered"
 msgstr "This email is already registered"
-
-#: app/(tabs)/settings.tsx:58
-msgid "This feature is coming soon"
-msgstr "This feature is coming soon"
 
 #: src/components/forms/HabitForm.tsx:313
 msgid "Time of Day"
@@ -479,7 +524,7 @@ msgstr "Unit"
 msgid "We sent you a confirmation email."
 msgstr "We sent you a confirmation email."
 
-#: app/(tabs)/settings.tsx:49
+#: app/(tabs)/settings.tsx:51
 msgid "Week Starts On"
 msgstr "Week Starts On"
 

@@ -15,6 +15,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/naotama2002/habity/backend/internal/config"
+	"github.com/naotama2002/habity/backend/internal/db"
 	"github.com/naotama2002/habity/backend/internal/handler"
 )
 
@@ -24,6 +25,15 @@ func main() {
 
 	// Load configuration
 	cfg := config.Load()
+
+	// Initialize DB pool
+	ctx := context.Background()
+	pool, err := db.NewPool(ctx, cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer pool.Close()
+	log.Println("Database connection pool initialized")
 
 	// Setup router
 	r := chi.NewRouter()
@@ -57,8 +67,7 @@ func main() {
 		// Import routes
 		r.Route("/import", func(r chi.Router) {
 			r.Use(handler.AuthMiddleware(cfg.JWTSecret))
-			r.Post("/habitify", handler.ImportHabitify(cfg))
-			r.Get("/habitify/status/{jobId}", handler.GetImportStatus())
+			r.Post("/habitify", handler.ImportHabitify(pool))
 		})
 	})
 
@@ -67,7 +76,7 @@ func main() {
 		Addr:         ":" + cfg.Port,
 		Handler:      r,
 		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
+		WriteTimeout: 60 * time.Second,
 		IdleTimeout:  60 * time.Second,
 	}
 
@@ -86,10 +95,10 @@ func main() {
 
 	log.Println("Shutting down server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Fatalf("Server forced to shutdown: %v", err)
 	}
 
