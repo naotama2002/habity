@@ -424,7 +424,7 @@ export function useCreateHabit() {
 
 ## 認証フロー
 
-Supabase Auth + Google OAuth を使用。
+Supabase Auth + GitHub OAuth を使用。
 
 ```typescript
 // src/state/session/index.tsx
@@ -435,7 +435,7 @@ import { supabase } from '@/lib/api/supabase';
 interface SessionContextType {
   session: Session | null;
   isLoading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGitHub: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -462,9 +462,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGitHub = async () => {
     await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: 'github',
       options: {
         redirectTo: 'habity://auth/callback',
       },
@@ -476,7 +476,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SessionContext.Provider value={{ session, isLoading, signInWithGoogle, signOut }}>
+    <SessionContext.Provider value={{ session, isLoading, signInWithGitHub, signOut }}>
       {children}
     </SessionContext.Provider>
   );

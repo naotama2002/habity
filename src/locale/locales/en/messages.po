@@ -467,8 +467,8 @@ msgid "Sign in with Email"
 msgstr "Sign in with Email"
 
 #: app/(auth)/welcome.tsx:70
-msgid "Sign in with Google"
-msgstr "Sign in with Google"
+msgid "Sign in with GitHub"
+msgstr "Sign in with GitHub"
 
 #: app/(tabs)/settings.tsx:83
 msgid "Sign Out"

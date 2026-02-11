@@ -20,8 +20,8 @@ export interface SessionState {
  * セッション操作APIの型定義
  */
 export interface SessionApi {
-  /** Google でサインイン */
-  signInWithGoogle: () => Promise<void>;
+  /** GitHub でサインイン */
+  signInWithGitHub: () => Promise<void>;
   /** メール/パスワードでサインイン */
   signInWithEmail: (email: string, password: string) => Promise<void>;
   /** メール/パスワードでサインアップ */
