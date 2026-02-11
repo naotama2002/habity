@@ -1,5 +1,5 @@
 import {describe, expect, it} from '@jest/globals';
-import {calculateProgress} from '../progress';
+import {calculateProgress, sortByCompletion} from '../progress';
 import type {HabitWithLog} from '@/types/database';
 
 function createHabit(
@@ -99,5 +99,61 @@ describe('calculateProgress', () => {
     expect(result.completedCount).toBe(2);
     expect(result.effectiveTotal).toBe(2);
     expect(result.percentage).toBe(100);
+  });
+});
+
+describe('sortByCompletion', () => {
+  it('should place incomplete habits before completed ones', () => {
+    const habits = [
+      createHabit({id: '1', is_completed: true, sort_order: 0}),
+      createHabit({id: '2', is_completed: false, sort_order: 1}),
+      createHabit({id: '3', is_completed: false, sort_order: 2}),
+    ];
+    const sorted = sortByCompletion(habits);
+    expect(sorted.map(h => h.id)).toEqual(['2', '3', '1']);
+  });
+
+  it('should place incomplete habits before skipped ones', () => {
+    const habits = [
+      createHabit({id: '1', is_skipped: true, sort_order: 0}),
+      createHabit({id: '2', is_completed: false, sort_order: 1}),
+    ];
+    const sorted = sortByCompletion(habits);
+    expect(sorted.map(h => h.id)).toEqual(['2', '1']);
+  });
+
+  it('should preserve sort_order within incomplete group', () => {
+    const habits = [
+      createHabit({id: '1', is_completed: false, sort_order: 0}),
+      createHabit({id: '2', is_completed: false, sort_order: 1}),
+      createHabit({id: '3', is_completed: false, sort_order: 2}),
+    ];
+    const sorted = sortByCompletion(habits);
+    expect(sorted.map(h => h.id)).toEqual(['1', '2', '3']);
+  });
+
+  it('should preserve sort_order within completed group', () => {
+    const habits = [
+      createHabit({id: '1', is_completed: true, sort_order: 0}),
+      createHabit({id: '2', is_skipped: true, sort_order: 1}),
+      createHabit({id: '3', is_completed: true, sort_order: 2}),
+    ];
+    const sorted = sortByCompletion(habits);
+    expect(sorted.map(h => h.id)).toEqual(['1', '2', '3']);
+  });
+
+  it('should handle mixed completed and skipped in done group', () => {
+    const habits = [
+      createHabit({id: '1', is_completed: true, sort_order: 0}),
+      createHabit({id: '2', is_completed: false, sort_order: 1}),
+      createHabit({id: '3', is_skipped: true, sort_order: 2}),
+      createHabit({id: '4', is_completed: false, sort_order: 3}),
+    ];
+    const sorted = sortByCompletion(habits);
+    expect(sorted.map(h => h.id)).toEqual(['2', '4', '1', '3']);
+  });
+
+  it('should return empty array for empty input', () => {
+    expect(sortByCompletion([])).toEqual([]);
   });
 });

@@ -30,11 +30,11 @@ msgstr "6 or more characters"
 msgid "About This App"
 msgstr "About This App"
 
-#: app/(tabs)/habits.tsx:41
+#: app/(tabs)/habits.tsx:45
 msgid "Active"
 msgstr "Active"
 
-#: app/(tabs)/habits.tsx:163
+#: app/(tabs)/habits.tsx:208
 #: app/(tabs)/index.tsx:148
 msgid "Add a new habit to get started"
 msgstr "Add a new habit to get started"
@@ -44,7 +44,7 @@ msgstr "Add a new habit to get started"
 msgid "Afternoon"
 msgstr "Afternoon"
 
-#: app/(tabs)/habits.tsx:40
+#: app/(tabs)/habits.tsx:44
 msgid "All"
 msgstr "All"
 
@@ -61,7 +61,7 @@ msgstr "Anytime"
 msgid "Appearance"
 msgstr "Appearance"
 
-#: app/(tabs)/habits.tsx:42
+#: app/(tabs)/habits.tsx:46
 msgid "Archived"
 msgstr "Archived"
 
@@ -73,7 +73,7 @@ msgstr "Back"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: app/(tabs)/habits.tsx:195
+#: app/(tabs)/habits.tsx:255
 msgid "Category"
 msgstr "Category"
 
@@ -119,7 +119,8 @@ msgstr "Continue Editing"
 msgid "Create Account"
 msgstr "Create Account"
 
-#: src/components/habits/HabitListItem.tsx:34
+#: src/components/habits/HabitListItem.tsx:60
+#: src/components/habits/HabitListItem.tsx:73
 msgid "Daily"
 msgstr "Daily"
 
@@ -128,6 +129,7 @@ msgid "Data"
 msgstr "Data"
 
 #: src/components/forms/RecurrencePicker.tsx:180
+#: src/components/habits/HabitListItem.tsx:74
 msgid "days"
 msgstr "days"
 
@@ -147,9 +149,17 @@ msgstr "Discard Changes"
 msgid "Don't have an account?"
 msgstr "Don't have an account?"
 
+#: app/(tabs)/habits.tsx:157
+msgid "Done"
+msgstr "Done"
+
 #: src/components/forms/HabitForm.tsx:264
 msgid "e.g., Reading, Exercise, Meditation"
 msgstr "e.g., Reading, Exercise, Meditation"
+
+#: app/(tabs)/habits.tsx:157
+msgid "Edit"
+msgstr "Edit"
 
 #: app/habit/[id]/edit.tsx:81
 #: app/habit/[id]/edit.tsx:115
@@ -190,7 +200,7 @@ msgstr "Evening"
 msgid "Export Data"
 msgstr "Export Data"
 
-#: app/(tabs)/habits.tsx:109
+#: app/(tabs)/habits.tsx:141
 #: app/(tabs)/index.tsx:98
 msgid "Failed to load habits"
 msgstr "Failed to load habits"
@@ -204,6 +214,7 @@ msgid "Feedback"
 msgstr "Feedback"
 
 #: src/components/forms/RecurrencePicker.tsx:46
+#: src/components/habits/HabitListItem.tsx:54
 msgid "Fri"
 msgstr "Fri"
 
@@ -317,6 +328,7 @@ msgid "Manage Categories"
 msgstr "Manage Categories"
 
 #: src/components/forms/RecurrencePicker.tsx:42
+#: src/components/habits/HabitListItem.tsx:53
 msgid "Mon"
 msgstr "Mon"
 
@@ -325,6 +337,7 @@ msgid "Monday"
 msgstr "Monday"
 
 #: src/components/forms/RecurrencePicker.tsx:37
+#: src/components/habits/HabitListItem.tsx:70
 msgid "Monthly"
 msgstr "Monthly"
 
@@ -332,6 +345,14 @@ msgstr "Monthly"
 #: src/components/habits/TimeOfDaySection.tsx:30
 msgid "Morning"
 msgstr "Morning"
+
+#: src/components/habits/HabitListItem.tsx:113
+msgid "Move down"
+msgstr "Move down"
+
+#: src/components/habits/HabitListItem.tsx:100
+msgid "Move up"
+msgstr "Move up"
 
 #: src/components/forms/HabitForm.tsx:323
 msgid "Multiple selection allowed"
@@ -346,12 +367,12 @@ msgstr "New Habit"
 msgid "Night"
 msgstr "Night"
 
-#: app/(tabs)/habits.tsx:158
+#: app/(tabs)/habits.tsx:203
 #: app/(tabs)/index.tsx:146
 msgid "No habits yet"
 msgstr "No habits yet"
 
-#: app/(tabs)/habits.tsx:158
+#: app/(tabs)/habits.tsx:203
 msgid "No search results"
 msgstr "No search results"
 
@@ -402,6 +423,7 @@ msgid "Remove skip"
 msgstr "Remove skip"
 
 #: src/components/forms/RecurrencePicker.tsx:47
+#: src/components/habits/HabitListItem.tsx:54
 msgid "Sat"
 msgstr "Sat"
 
@@ -481,6 +503,7 @@ msgid "Streak will not be broken"
 msgstr "Streak will not be broken"
 
 #: src/components/forms/RecurrencePicker.tsx:48
+#: src/components/habits/HabitListItem.tsx:54
 msgid "Sun"
 msgstr "Sun"
 
@@ -501,6 +524,7 @@ msgid "This email is already registered"
 msgstr "This email is already registered"
 
 #: src/components/forms/RecurrencePicker.tsx:45
+#: src/components/habits/HabitListItem.tsx:53
 msgid "Thu"
 msgstr "Thu"
 
@@ -521,15 +545,16 @@ msgstr "Tomorrow"
 msgid "Track your daily habits and become a better you"
 msgstr "Track your daily habits and become a better you"
 
-#: app/(tabs)/habits.tsx:162
+#: app/(tabs)/habits.tsx:207
 msgid "Try searching with different keywords"
 msgstr "Try searching with different keywords"
 
 #: src/components/forms/RecurrencePicker.tsx:43
+#: src/components/habits/HabitListItem.tsx:53
 msgid "Tue"
 msgstr "Tue"
 
-#: app/(tabs)/habits.tsx:173
+#: app/(tabs)/habits.tsx:233
 msgid "Uncategorized"
 msgstr "Uncategorized"
 
@@ -538,6 +563,7 @@ msgid "We sent you a confirmation email."
 msgstr "We sent you a confirmation email."
 
 #: src/components/forms/RecurrencePicker.tsx:44
+#: src/components/habits/HabitListItem.tsx:53
 msgid "Wed"
 msgstr "Wed"
 
@@ -546,6 +572,7 @@ msgid "Week Starts On"
 msgstr "Week Starts On"
 
 #: src/components/forms/RecurrencePicker.tsx:36
+#: src/components/habits/HabitListItem.tsx:66
 msgid "Weekly"
 msgstr "Weekly"
 
