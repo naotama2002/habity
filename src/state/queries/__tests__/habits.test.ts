@@ -22,15 +22,15 @@ jest.mock('@tanstack/react-query', () => ({
 }));
 
 import {useQuery} from '@tanstack/react-query';
-import {habitKeys, useHabitsWithTodayLog} from '../habits';
+import {habitKeys, useHabitsWithLog} from '../habits';
 import type {Habit} from '@/types/database';
 
 const mockedUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
 
 // テスト用ヘルパー: useQuery に渡された queryFn を取得して実行
-function getQueryFn() {
+function getQueryFn(date?: string) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  useHabitsWithTodayLog();
+  useHabitsWithLog(date);
   const call = mockedUseQuery.mock.calls[mockedUseQuery.mock.calls.length - 1];
   const opts = call[0] as unknown as {queryFn: () => Promise<unknown>};
   return opts.queryFn;
@@ -75,7 +75,7 @@ describe('habits queries', () => {
   describe('habitKeys', () => {
     it('should generate correct query keys', () => {
       expect(habitKeys.all).toEqual(['habits']);
-      expect(habitKeys.today()).toEqual(['habits', 'today']);
+      expect(habitKeys.byDate('2024-01-01')).toEqual(['habits', 'byDate', '2024-01-01']);
       expect(habitKeys.lists()).toEqual(['habits', 'list']);
       expect(habitKeys.list({status: 'active'})).toEqual([
         'habits',
@@ -87,7 +87,7 @@ describe('habits queries', () => {
     });
   });
 
-  describe('useHabitsWithTodayLog', () => {
+  describe('useHabitsWithLog', () => {
     function setupMockChain(habitsResponse: unknown, logsResponse?: unknown) {
       mockFrom.mockImplementation((...args: unknown[]) => {
         const table = args[0] as string;
@@ -139,8 +139,8 @@ describe('habits queries', () => {
           log_completed_at: null,
           log_note: null,
           log_status: null,
-          is_completed_today: false,
-          is_skipped_today: false,
+          is_completed: false,
+          is_skipped: false,
         }),
       ]);
     });
@@ -168,8 +168,8 @@ describe('habits queries', () => {
           log_completed_at: '2024-01-01T10:00:00Z',
           log_note: 'Done!',
           log_status: 'completed',
-          is_completed_today: true,
-          is_skipped_today: false,
+          is_completed: true,
+          is_skipped: false,
         }),
       ]);
     });
@@ -193,8 +193,8 @@ describe('habits queries', () => {
         expect.objectContaining({
           id: 'habit-1',
           log_value: 3,
-          is_completed_today: false,
-          is_skipped_today: false,
+          is_completed: false,
+          is_skipped: false,
         }),
       ]);
     });
@@ -227,18 +227,18 @@ describe('habits queries', () => {
 
       const result = (await executeQueryFn()) as Array<{
         id: string;
-        is_completed_today: boolean;
-        is_skipped_today: boolean;
+        is_completed: boolean;
+        is_skipped: boolean;
         log_id: string | null;
       }>;
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe('habit-1');
-      expect(result[0].is_completed_today).toBe(true);
-      expect(result[0].is_skipped_today).toBe(false);
+      expect(result[0].is_completed).toBe(true);
+      expect(result[0].is_skipped).toBe(false);
       expect(result[0].log_id).toBe('log-1');
       expect(result[1].id).toBe('habit-2');
-      expect(result[1].is_completed_today).toBe(false);
-      expect(result[1].is_skipped_today).toBe(false);
+      expect(result[1].is_completed).toBe(false);
+      expect(result[1].is_skipped).toBe(false);
       expect(result[1].log_id).toBeNull();
     });
 
@@ -258,12 +258,12 @@ describe('habits queries', () => {
 
       const result = (await executeQueryFn()) as Array<{
         id: string;
-        is_completed_today: boolean;
-        is_skipped_today: boolean;
+        is_completed: boolean;
+        is_skipped: boolean;
         log_status: string | null;
       }>;
-      expect(result[0].is_completed_today).toBe(false);
-      expect(result[0].is_skipped_today).toBe(true);
+      expect(result[0].is_completed).toBe(false);
+      expect(result[0].is_skipped).toBe(true);
       expect(result[0].log_status).toBe('skipped');
     });
 

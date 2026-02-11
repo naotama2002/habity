@@ -1,10 +1,10 @@
-import type {HabitWithTodayLog} from '@/types/database';
+import type {HabitWithLog} from '@/types/database';
 
 /**
- * 今日の進捗を計算する
+ * 進捗を計算する
  * スキップした習慣は分母から除外
  */
-export function calculateTodayProgress(habits: HabitWithTodayLog[]): {
+export function calculateProgress(habits: HabitWithLog[]): {
   completedCount: number;
   skippedCount: number;
   totalCount: number;
@@ -12,8 +12,8 @@ export function calculateTodayProgress(habits: HabitWithTodayLog[]): {
   percentage: number;
 } {
   const totalCount = habits.length;
-  const completedCount = habits.filter(h => h.is_completed_today).length;
-  const skippedCount = habits.filter(h => h.is_skipped_today).length;
+  const completedCount = habits.filter(h => h.is_completed).length;
+  const skippedCount = habits.filter(h => h.is_skipped).length;
   const effectiveTotal = totalCount - skippedCount;
   const percentage = effectiveTotal > 0 ? (completedCount / effectiveTotal) * 100 : 0;
 
@@ -25,3 +25,6 @@ export function calculateTodayProgress(habits: HabitWithTodayLog[]): {
     percentage,
   };
 }
+
+/** @deprecated Use calculateProgress */
+export const calculateTodayProgress = calculateProgress;

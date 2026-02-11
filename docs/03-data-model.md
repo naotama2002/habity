@@ -320,19 +320,19 @@ CREATE TRIGGER on_auth_user_created
 
 ## 計算型（クライアント側結合）
 
-### 習慣と今日のログ
+### 習慣と指定日のログ
 
-`HabitWithTodayLog` は DB ビューではなく、クライアント側で `habits` と `habit_logs` を個別にクエリし結合して生成する。
-実装は `src/state/queries/habits.ts` の `useHabitsWithTodayLog` を参照。
+`HabitWithLog` は DB ビューではなく、クライアント側で `habits` と `habit_logs` を個別にクエリし結合して生成する。
+実装は `src/state/queries/habits.ts` の `useHabitsWithLog(date?)` を参照。
 
 ```typescript
 // habits テーブルを直接クエリ（RLS が効く）
 const habits = await supabase.from('habits').select('*').eq('status', 'active');
 
-// 今日のログを取得（RLS が効く）
-const logs = await supabase.from('habit_logs').select('*').in('habit_id', habitIds).eq('target_date', today);
+// 指定日のログを取得（RLS が効く）
+const logs = await supabase.from('habit_logs').select('*').in('habit_id', habitIds).eq('target_date', targetDate);
 
-// クライアント側で結合し HabitWithTodayLog を生成
+// クライアント側で結合し HabitWithLog を生成
 ```
 
 ### ストリーク計算
@@ -435,12 +435,15 @@ export interface UserSettings {
   updated_at: string;
 }
 
-// 拡張型（ビュー用）
-export interface HabitWithTodayLog extends Habit {
+// 拡張型（クライアント側結合）
+export interface HabitWithLog extends Habit {
   log_id: string | null;
   log_value: number | null;
   log_completed_at: string | null;
-  is_completed_today: boolean;
+  log_note: string | null;
+  log_status: LogStatus | null;
+  is_completed: boolean;
+  is_skipped: boolean;
 }
 ```
 

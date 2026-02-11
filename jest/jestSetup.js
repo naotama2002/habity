@@ -87,6 +87,17 @@ jest.mock('@lingui/react', () => ({
   I18nProvider: jest.fn().mockImplementation(({ children }) => children),
 }));
 
+// @/locale/i18n - i18n 初期化モジュール
+jest.mock('@/locale/i18n', () => ({
+  i18n: {
+    locale: 'en',
+    activate: jest.fn(),
+    load: jest.fn(),
+  },
+  activateLanguage: jest.fn(),
+  initI18n: jest.fn(),
+}));
+
 // @lingui/macro - i18n マクロ
 jest.mock('@lingui/macro', () => ({
   msg: jest.fn().mockImplementation((strings, ...values) => {

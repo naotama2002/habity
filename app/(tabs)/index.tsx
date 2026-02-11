@@ -1,71 +1,82 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
-import { msg } from '@lingui/macro';
-import { useLingui } from '@lingui/react';
-import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { format } from 'date-fns';
-import { ja, enUS } from 'date-fns/locale';
-import { useHabitsWithTodayLog } from '@/state/queries/habits';
-import { useToggleHabitLog, useSkipHabitLog, useUnskipHabitLog } from '@/state/queries/habit-logs';
-import { calculateTodayProgress } from '@/lib/progress';
-import { HabitCard, HabitCardActions, TimeOfDaySection } from '@/components/habits';
-import { colors, lightTheme } from '@/lib/colors';
-import { typography } from '@/lib/typography';
-import { spacing, borderRadius } from '@/lib/spacing';
-import { i18n } from '@/locale/i18n';
-import type { HabitWithTodayLog, TimeOfDay } from '@/types/database';
+import {useState} from 'react';
+import {View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator} from 'react-native';
+import {msg} from '@lingui/macro';
+import {useLingui} from '@lingui/react';
+import {useRouter} from 'expo-router';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {format, parseISO, isToday as dateIsToday} from 'date-fns';
+import {ja, enUS} from 'date-fns/locale';
+import {useHabitsWithLog} from '@/state/queries/habits';
+import {useToggleHabitLog, useSkipHabitLog, useUnskipHabitLog} from '@/state/queries/habit-logs';
+import {calculateProgress} from '@/lib/progress';
+import {HabitCard, HabitCardActions, TimeOfDaySection} from '@/components/habits';
+import {DateStrip} from '@/components/date/DateStrip';
+import {colors, lightTheme} from '@/lib/colors';
+import {typography} from '@/lib/typography';
+import {spacing, borderRadius} from '@/lib/spacing';
+import {i18n} from '@/locale/i18n';
+import type {HabitWithLog, TimeOfDay} from '@/types/database';
 
 /**
  * Today 画面
- * 今日実行すべき習慣を時間帯別に表示
+ * 習慣を時間帯別に表示、日付切り替え対応
  * docs/04-ui-design.md「1. Today 画面」を参照
  */
 export default function TodayScreen() {
-  const { _ } = useLingui();
+  const {_} = useLingui();
   const router = useRouter();
-  const { data: habits, isLoading, error } = useHabitsWithTodayLog();
+  const dateLocale = i18n.locale === 'ja' ? ja : enUS;
+
+  const [selectedDate, setSelectedDate] = useState(() =>
+    format(new Date(), 'yyyy-MM-dd'),
+  );
+
+  const {data: habits, isLoading, error} = useHabitsWithLog(selectedDate);
   const toggleLog = useToggleHabitLog();
   const skipLog = useSkipHabitLog();
   const unskipLog = useUnskipHabitLog();
-  const dateLocale = i18n.locale === 'ja' ? ja : enUS;
 
-  const today = new Date();
-  const dateStr = format(today, 'yyyy-MM-dd');
+  const isSelectedToday = dateIsToday(parseISO(selectedDate));
+
+  // ヘッダータイトル
+  const headerTitle = isSelectedToday
+    ? _(msg`Today`)
+    : format(parseISO(selectedDate), 'M/d (EEE)', {locale: dateLocale});
 
   // 習慣をチェックイン
-  const handleToggle = (habit: HabitWithTodayLog) => {
+  const handleToggle = (habit: HabitWithLog) => {
     toggleLog.mutate({
       habitId: habit.id,
-      targetDate: dateStr,
+      targetDate: selectedDate,
       currentLogId: habit.log_id,
       value: habit.goal_value,
     });
   };
 
   // 習慣をスキップ
-  const handleSkip = (habit: HabitWithTodayLog) => {
+  const handleSkip = (habit: HabitWithLog) => {
     skipLog.mutate({
       habitId: habit.id,
-      targetDate: dateStr,
+      targetDate: selectedDate,
       currentLogId: habit.log_id,
     });
   };
 
   // スキップを解除
-  const handleUnskip = (habit: HabitWithTodayLog) => {
+  const handleUnskip = (habit: HabitWithLog) => {
     if (habit.log_id) {
       unskipLog.mutate(habit.log_id);
     }
   };
 
   // 習慣詳細へ遷移
-  const handlePressHabit = (habit: HabitWithTodayLog) => {
+  const handlePressHabit = (habit: HabitWithLog) => {
     // TODO: 習慣詳細画面へ遷移
     console.log('Navigate to habit detail:', habit.id);
   };
 
   // 進捗計算（スキップを分母から除外）
-  const { completedCount, effectiveTotal, percentage: progress } = calculateTodayProgress(habits ?? []);
+  const {completedCount, effectiveTotal, percentage: progress} = calculateProgress(habits ?? []);
 
   // 時間帯ごとに習慣をグループ化
   const groupedHabits = groupHabitsByTimeOfDay(habits ?? []);
@@ -96,7 +107,7 @@ export default function TodayScreen() {
       {/* ヘッダー */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.title}>Today</Text>
+          <Text style={styles.title}>{headerTitle}</Text>
           <Pressable
             style={styles.addButton}
             onPress={() => router.navigate('/habit/new')}
@@ -105,16 +116,19 @@ export default function TodayScreen() {
           </Pressable>
         </View>
 
-        {/* 日付 & 進捗 */}
-        <Text style={styles.dateText}>
-          {format(today, 'PPP (EEEE)', { locale: dateLocale })}
-        </Text>
+        {/* 日付ストリップ */}
+        <DateStrip
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+        />
+
+        {/* 進捗 */}
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>
             {completedCount}/{effectiveTotal} {_(msg`completed`)}
           </Text>
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress}%` }]} />
+            <View style={[styles.progressFill, {width: `${progress}%`}]} />
           </View>
           <Text style={styles.progressPercent}>{Math.round(progress)}%</Text>
         </View>
@@ -147,7 +161,7 @@ export default function TodayScreen() {
                   {habitsInSection.map((habit) => (
                     <HabitCardActions
                       key={habit.id}
-                      isSkipped={habit.is_skipped_today}
+                      isSkipped={habit.is_skipped}
                       onSkip={() => handleSkip(habit)}
                       onUnskip={() => handleUnskip(habit)}
                     >
@@ -184,9 +198,9 @@ const TIME_OF_DAY_ORDER: TimeOfDay[] = [
  * 習慣を時間帯ごとにグループ化
  */
 function groupHabitsByTimeOfDay(
-  habits: HabitWithTodayLog[]
-): Record<TimeOfDay, HabitWithTodayLog[]> {
-  const grouped: Record<TimeOfDay, HabitWithTodayLog[]> = {
+  habits: HabitWithLog[],
+): Record<TimeOfDay, HabitWithLog[]> {
+  const grouped: Record<TimeOfDay, HabitWithLog[]> = {
     morning: [],
     afternoon: [],
     evening: [],
@@ -231,7 +245,8 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: lightTheme.background,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: lightTheme.border,
   },
@@ -239,7 +254,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   title: {
     ...typography.h2,
@@ -257,11 +272,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: colors.white,
     lineHeight: 28,
-  },
-  dateText: {
-    ...typography.bodySmall,
-    color: lightTheme.textSecondary,
-    marginBottom: spacing.md,
   },
   progressContainer: {
     flexDirection: 'row',

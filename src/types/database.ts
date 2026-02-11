@@ -72,15 +72,18 @@ export interface UserSettings {
 // Extended Types (Computed)
 // ===========================================
 
-export interface HabitWithTodayLog extends Habit {
+export interface HabitWithLog extends Habit {
   log_id: string | null;
   log_value: number | null;
   log_completed_at: string | null;
   log_note: string | null;
   log_status: LogStatus | null;
-  is_completed_today: boolean;
-  is_skipped_today: boolean;
+  is_completed: boolean;
+  is_skipped: boolean;
 }
+
+/** @deprecated Use HabitWithLog */
+export type HabitWithTodayLog = HabitWithLog;
 
 export interface HabitStats {
   total_days: number;

@@ -138,7 +138,7 @@
 - [x] src/components/habits/StreakBadge.tsx - ストリークバッジ
 - [ ] src/components/habits/GoalProgress.tsx - 目標進捗
 - [x] チェックイン機能（タップでトグル）
-- [ ] 日付選択機能
+- [x] 日付選択機能（DateStrip: 過去7日+今日+明日）
 - [x] Haptics フィードバック
 
 ### 1.4 Habits 画面（習慣一覧）

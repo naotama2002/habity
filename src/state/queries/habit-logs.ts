@@ -95,7 +95,7 @@ export function useCreateHabitLog() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(data.target_date) });
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
     },
   });
 }
@@ -126,7 +126,7 @@ export function useUpdateHabitLog() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(data.target_date) });
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
     },
   });
 }
@@ -157,7 +157,7 @@ export function useDeleteHabitLog() {
       if (targetDate) {
         queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(targetDate) });
       }
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
     },
   });
 }
@@ -217,7 +217,7 @@ export function useToggleHabitLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
     },
   });
 }
@@ -276,7 +276,7 @@ export function useSkipHabitLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
     },
   });
 }
@@ -295,7 +295,7 @@ export function useUnskipHabitLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
     },
   });
 }
