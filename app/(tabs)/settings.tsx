@@ -1,12 +1,14 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useSession, useSessionApi } from '@/state/session';
 import { i18n } from '@/locale/i18n';
 
 export default function SettingsScreen() {
   const { _ } = useLingui();
+  const router = useRouter();
   const { user } = useSession();
   const { signOut } = useSessionApi();
 
@@ -55,7 +57,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>{_(msg`Data`)}</Text>
           <View style={styles.menuGroup}>
             <MenuItem icon="folder-outline" label={_(msg`Manage Categories`)} />
-            <Pressable onPress={() => Alert.alert(_(msg`Not Implemented`), _(msg`This feature is coming soon`))}>
+            <Pressable onPress={() => router.push('/import/habitify')}>
               <MenuItem icon="download-outline" label={_(msg`Import from Habitify`)} />
             </Pressable>
             <MenuItem icon="share-outline" label={_(msg`Export Data`)} />

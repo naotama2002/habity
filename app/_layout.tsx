@@ -83,6 +83,13 @@ function MainLayout() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="import/habitify"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </NavigationController>

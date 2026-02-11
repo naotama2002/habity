@@ -26,7 +26,7 @@ msgstr "← 戻る"
 msgid "6 or more characters"
 msgstr "6文字以上"
 
-#: app/(tabs)/settings.tsx:73
+#: app/(tabs)/settings.tsx:75
 msgid "About This App"
 msgstr "このアプリについて"
 
@@ -57,7 +57,7 @@ msgstr "既にアカウントをお持ちの方は"
 msgid "Anytime"
 msgstr "いつでも"
 
-#: app/(tabs)/settings.tsx:44
+#: app/(tabs)/settings.tsx:46
 msgid "Appearance"
 msgstr "外観"
 
@@ -84,6 +84,10 @@ msgstr "グラフは今後実装予定です"
 #: app/(auth)/signup.tsx:85
 msgid "Click the link in the email to activate your account."
 msgstr "メール内のリンクをクリックしてアカウントを有効化してください。"
+
+#: app/import/habitify.tsx:256
+msgid "Close"
+msgstr "閉じる"
 
 #: app/(tabs)/index.tsx:128
 msgid "completed"
@@ -115,7 +119,7 @@ msgstr "アカウント作成"
 msgid "Daily"
 msgstr "毎日"
 
-#: app/(tabs)/settings.tsx:55
+#: app/(tabs)/settings.tsx:57
 msgid "Data"
 msgstr "データ"
 
@@ -169,13 +173,17 @@ msgstr "メールアドレス"
 msgid "Email or password is incorrect"
 msgstr "メールアドレスまたはパスワードが間違っています"
 
-#: app/(tabs)/settings.tsx:22
+#: app/(tabs)/settings.tsx:24
 msgid "English"
 msgstr "英語"
 
 #: app/(auth)/login.tsx:83
 msgid "Enter your email and password"
 msgstr "メールアドレスとパスワードを入力してください"
+
+#: app/import/habitify.tsx:97
+msgid "Enter your Habitify API key"
+msgstr "Habitify の API キーを入力"
 
 #: src/components/forms/HabitForm.tsx:162
 msgid "Error"
@@ -186,7 +194,7 @@ msgstr "エラー"
 msgid "Evening"
 msgstr "夕方"
 
-#: app/(tabs)/settings.tsx:61
+#: app/(tabs)/settings.tsx:63
 msgid "Export Data"
 msgstr "データエクスポート"
 
@@ -199,11 +207,11 @@ msgstr "習慣の読み込みに失敗しました"
 msgid "Failed to save. Please try again."
 msgstr "保存に失敗しました。もう一度お試しください。"
 
-#: app/(tabs)/settings.tsx:70
+#: app/(tabs)/settings.tsx:72
 msgid "Feedback"
 msgstr "フィードバック"
 
-#: app/(tabs)/settings.tsx:40
+#: app/(tabs)/settings.tsx:42
 msgid "General"
 msgstr "一般"
 
@@ -219,7 +227,7 @@ msgstr "目標期間"
 msgid "Goal Value"
 msgstr "目標値"
 
-#: app/(tabs)/settings.tsx:15
+#: app/(tabs)/settings.tsx:17
 msgid "Guest User"
 msgstr "ゲストユーザー"
 
@@ -231,27 +239,64 @@ msgstr "習慣名"
 msgid "Habit not found"
 msgstr "習慣が見つかりません"
 
+#: app/import/habitify.tsx:91
+msgid "Habitify API Key"
+msgstr "Habitify API キー"
+
 #: app/(tabs)/stats.tsx:23
 msgid "Habits"
 msgstr "習慣数"
 
-#: app/(tabs)/settings.tsx:69
+#: app/import/habitify.tsx:232
+msgid "Habits imported"
+msgstr "インポートした習慣"
+
+#: app/(tabs)/settings.tsx:71
 msgid "Help"
 msgstr "ヘルプ"
 
-#: app/(tabs)/settings.tsx:59
+#: app/import/habitify.tsx:106
+msgid "How to get your API key: Open Habitify app → Settings → API Credential → Copy"
+msgstr "API キーの取得方法: Habitify アプリ → 設定 → API Credential → コピー"
+
+#: app/import/habitify.tsx:202
+msgid "Import"
+msgstr "インポート"
+
+#: app/import/habitify.tsx:228
+msgid "Import Complete"
+msgstr "インポート完了"
+
+#: app/(tabs)/settings.tsx:61
+#: app/import/habitify.tsx:75
 msgid "Import from Habitify"
 msgstr "Habitify からインポート"
+
+#: app/import/habitify.tsx:124
+msgid "Import Habits"
+msgstr "習慣をインポート"
+
+#: app/import/habitify.tsx:150
+msgid "Import Logs"
+msgstr "ログをインポート"
+
+#: app/import/habitify.tsx:113
+msgid "Import Options"
+msgstr "インポートオプション"
+
+#: app/import/habitify.tsx:197
+msgid "Importing..."
+msgstr "インポート中..."
 
 #: src/components/forms/HabitForm.tsx:143
 msgid "Input Error"
 msgstr "入力エラー"
 
-#: app/(tabs)/settings.tsx:22
+#: app/(tabs)/settings.tsx:24
 msgid "Japanese"
 msgstr "日本語"
 
-#: app/(tabs)/settings.tsx:48
+#: app/(tabs)/settings.tsx:50
 msgid "Language"
 msgstr "言語"
 
@@ -263,6 +308,10 @@ msgstr "新しいアカウントを作成しましょう"
 msgid "Login failed. Please try again."
 msgstr "ログインに失敗しました。もう一度お試しください"
 
+#: app/import/habitify.tsx:237
+msgid "Logs imported"
+msgstr "インポートしたログ"
+
 #: app/(tabs)/stats.tsx:27
 msgid "Longest Streak"
 msgstr "最長連続"
@@ -271,7 +320,7 @@ msgstr "最長連続"
 msgid "Make habits simpler"
 msgstr "習慣を、もっとシンプルに"
 
-#: app/(tabs)/settings.tsx:57
+#: app/(tabs)/settings.tsx:59
 msgid "Manage Categories"
 msgstr "カテゴリ管理"
 
@@ -279,7 +328,7 @@ msgstr "カテゴリ管理"
 msgid "min"
 msgstr "分"
 
-#: app/(tabs)/settings.tsx:49
+#: app/(tabs)/settings.tsx:51
 msgid "Monday"
 msgstr "月曜"
 
@@ -314,15 +363,11 @@ msgstr "習慣がありません"
 msgid "No search results"
 msgstr "検索結果がありません"
 
-#: app/(tabs)/settings.tsx:58
-msgid "Not Implemented"
-msgstr "未実装"
-
 #: src/components/forms/HabitForm.tsx:223
 msgid "Note the purpose or rules of the habit"
 msgstr "習慣の目的やルールをメモ"
 
-#: app/(tabs)/settings.tsx:47
+#: app/(tabs)/settings.tsx:49
 msgid "Notifications"
 msgstr "通知"
 
@@ -340,7 +385,7 @@ msgstr "任意"
 msgid "Password"
 msgstr "パスワード"
 
-#: app/(tabs)/settings.tsx:16
+#: app/(tabs)/settings.tsx:18
 msgid "Please sign in"
 msgstr "ログインしてください"
 
@@ -394,7 +439,7 @@ msgstr "メールでサインイン"
 msgid "Sign in with Google"
 msgstr "Google でサインイン"
 
-#: app/(tabs)/settings.tsx:81
+#: app/(tabs)/settings.tsx:83
 msgid "Sign Out"
 msgstr "ログアウト"
 
@@ -410,6 +455,10 @@ msgstr "今日はスキップ"
 msgid "Skipped"
 msgstr "スキップ済み"
 
+#: app/import/habitify.tsx:245
+msgid "Some items could not be imported"
+msgstr "一部のデータをインポートできませんでした"
+
 #: src/components/forms/HabitForm.tsx:327
 msgid "Start Date"
 msgstr "開始日"
@@ -422,11 +471,11 @@ msgstr "統計情報は今後実装予定です"
 msgid "Streak will not be broken"
 msgstr "ストリークは途切れません"
 
-#: app/(tabs)/settings.tsx:67
+#: app/(tabs)/settings.tsx:69
 msgid "Support"
 msgstr "サポート"
 
-#: app/(tabs)/settings.tsx:45
+#: app/(tabs)/settings.tsx:47
 msgid "System"
 msgstr "システム"
 
@@ -437,10 +486,6 @@ msgstr "入力内容に誤りがあります。赤色で表示されているエ
 #: app/(auth)/signup.tsx:54
 msgid "This email is already registered"
 msgstr "このメールアドレスは既に登録されています"
-
-#: app/(tabs)/settings.tsx:58
-msgid "This feature is coming soon"
-msgstr "この機能は準備中です"
 
 #: src/components/forms/HabitForm.tsx:313
 msgid "Time of Day"
@@ -479,7 +524,7 @@ msgstr "単位"
 msgid "We sent you a confirmation email."
 msgstr "確認メールを送信しました。"
 
-#: app/(tabs)/settings.tsx:49
+#: app/(tabs)/settings.tsx:51
 msgid "Week Starts On"
 msgstr "週の開始日"
 
