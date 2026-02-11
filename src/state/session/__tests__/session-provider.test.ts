@@ -13,7 +13,9 @@ jest.mock('@/lib/react-query', () => ({
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
-      getSession: jest.fn().mockResolvedValue({ data: { session: null } }),
+      getSession: jest
+        .fn<() => Promise<{ data: { session: null } }>>()
+        .mockResolvedValue({ data: { session: null } }),
       onAuthStateChange: jest.fn((callback: AuthCallback) => {
         capturedAuthCallback = callback;
         return { data: { subscription: { unsubscribe: jest.fn() } } };
