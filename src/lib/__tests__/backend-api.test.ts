@@ -1,7 +1,7 @@
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 
 // Supabase モック
-const mockGetSession = jest.fn();
+const mockGetSession = jest.fn<() => Promise<unknown>>();
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {

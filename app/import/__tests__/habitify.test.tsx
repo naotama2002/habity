@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react-nativ
 import { useRouter } from 'expo-router';
 
 // backend-api モック
-const mockImportFromHabitify = jest.fn();
+const mockImportFromHabitify = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 jest.mock('@/lib/backend-api', () => ({
   importFromHabitify: (...args: unknown[]) => mockImportFromHabitify(...args),
 }));
