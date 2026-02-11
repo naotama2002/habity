@@ -51,11 +51,11 @@
     "react-native-screens": "~4.1.0",
     "react-native-svg": "15.8.0",
     "react-native-web": "~0.19.13",
+    "rrule": "^2.8.1",
     "zod": "^3.23.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
-    "babel-plugin-macros": "^3.1.0",
     "@jest/globals": "^30.2.0",
     "@lingui/babel-plugin-lingui-macro": "^5.9.0",
     "@lingui/cli": "^5.9.0",
@@ -66,6 +66,7 @@
     "@types/react": "~18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
+    "babel-plugin-macros": "^3.1.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.0",

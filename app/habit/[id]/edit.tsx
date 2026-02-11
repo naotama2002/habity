@@ -9,7 +9,7 @@ import { useHabit, useUpdateHabit } from '@/state/queries/habits';
 import { colors, lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing } from '@/lib/spacing';
-import type { HabitFormData } from '@/lib/validation/habit';
+import type { HabitSubmitData } from '@/components/forms/HabitForm';
 import type { UpdateHabitInput } from '@/types/database';
 
 /**
@@ -23,22 +23,22 @@ export default function EditHabitScreen() {
   const { data: habit, isLoading, error } = useHabit(id ?? '');
   const updateHabit = useUpdateHabit();
 
-  const handleSubmit = async (data: HabitFormData) => {
+  const handleSubmit = async (data: HabitSubmitData) => {
     if (!id) return;
 
     const input: UpdateHabitInput = {
-      name: data.name.trim(),
-      description: data.description?.trim() || null,
+      name: data.name,
+      description: data.description,
       tracking_type: data.tracking_type,
       goal_value: data.goal_value,
       goal_unit: data.goal_unit,
       goal_period: data.goal_period,
       time_of_day: data.time_of_day,
       start_date: data.start_date,
-      category_id: data.category_id || null,
-      recurrence_rule: data.recurrence_rule || null,
-      reminder_times: data.reminder_times || null,
-      reminder_enabled: data.reminder_enabled ?? false,
+      category_id: data.category_id,
+      recurrence_rule: data.recurrence_rule,
+      reminder_times: data.reminder_times,
+      reminder_enabled: data.reminder_enabled,
     };
 
     await updateHabit.mutateAsync({ id, ...input });
@@ -91,14 +91,10 @@ export default function EditHabitScreen() {
     );
   }
 
-  // 初期値を作成
-  const initialValues: Partial<HabitFormData> = {
+  // 初期値を作成（recurrence_rule を渡して parseRRule で分解する）
+  const initialValues = {
     name: habit.name,
     description: habit.description,
-    tracking_type: habit.tracking_type,
-    goal_value: habit.goal_value,
-    goal_unit: habit.goal_unit,
-    goal_period: habit.goal_period,
     time_of_day: habit.time_of_day,
     start_date: habit.start_date,
     category_id: habit.category_id,

@@ -2,13 +2,13 @@ import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import { HabitForm } from '../HabitForm';
-import type { HabitFormData } from '@/lib/validation/habit';
+import type { HabitSubmitData } from '../HabitForm';
 
 // Alert をモック
 jest.spyOn(Alert, 'alert');
 
 describe('HabitForm', () => {
-  const mockOnSubmit = jest.fn<(data: HabitFormData) => Promise<void>>();
+  const mockOnSubmit = jest.fn<(data: HabitSubmitData) => Promise<void>>();
   const mockOnCancel = jest.fn();
 
   beforeEach(() => {
@@ -27,10 +27,22 @@ describe('HabitForm', () => {
       // i18n mock returns English message IDs
       expect(screen.getByText('Habit Name')).toBeTruthy();
       expect(screen.getByText('Description')).toBeTruthy();
-      expect(screen.getByText('Tracking Method')).toBeTruthy();
-      expect(screen.getByText('Goal Period')).toBeTruthy();
+      expect(screen.getByText('Recurrence')).toBeTruthy();
       expect(screen.getByText('Time of Day')).toBeTruthy();
       expect(screen.getByText('Start Date')).toBeTruthy();
+    });
+
+    it('should not render removed tracking/goal fields', () => {
+      render(
+        <HabitForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      expect(screen.queryByText('Tracking Method')).toBeNull();
+      expect(screen.queryByText('Goal Period')).toBeNull();
+      expect(screen.queryByText('Goal Value')).toBeNull();
     });
 
     it('should render submit and cancel buttons', () => {
@@ -45,7 +57,7 @@ describe('HabitForm', () => {
       expect(screen.getByText('Cancel')).toBeTruthy();
     });
 
-    it('should show required markers for required fields', () => {
+    it('should render recurrence picker with default interval type', () => {
       render(
         <HabitForm
           onSubmit={mockOnSubmit}
@@ -53,22 +65,21 @@ describe('HabitForm', () => {
         />
       );
 
-      // Required fields have * marker
-      const requiredMarkers = screen.getAllByText('*');
-      expect(requiredMarkers.length).toBeGreaterThan(0);
+      // Default type segments should be visible
+      expect(screen.getByText('Weekly')).toBeTruthy();
+      expect(screen.getByText('Monthly')).toBeTruthy();
+      expect(screen.getByText('Interval')).toBeTruthy();
     });
   });
 
   describe('initial values', () => {
     it('should populate form with initial values', () => {
-      const initialValues: Partial<HabitFormData> = {
-        name: 'Test Habit',
-        description: 'Test Description',
-      };
-
       render(
         <HabitForm
-          initialValues={initialValues}
+          initialValues={{
+            name: 'Test Habit',
+            description: 'Test Description',
+          }}
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
         />
@@ -78,59 +89,20 @@ describe('HabitForm', () => {
       expect(screen.getByDisplayValue('Test Description')).toBeTruthy();
     });
 
-    it('should use default values when no initial values provided', () => {
+    it('should parse recurrence_rule for editing', () => {
       render(
         <HabitForm
+          initialValues={{
+            name: 'Test Habit',
+            recurrence_rule: 'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR',
+          }}
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
         />
       );
 
-      // Default tracking type is 'boolean' (Did it)
-      expect(screen.getByText('Did it')).toBeTruthy();
-      // Default goal period is 'daily' (Daily)
-      expect(screen.getByText('Daily')).toBeTruthy();
-    });
-  });
-
-  describe('conditional fields', () => {
-    it('should not show goal value input for boolean tracking type', () => {
-      render(
-        <HabitForm
-          initialValues={{ tracking_type: 'boolean' }}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />
-      );
-
-      // Goal value field should not be present
-      expect(screen.queryByText('Goal Value')).toBeNull();
-    });
-
-    it('should show goal value and unit inputs for numeric tracking type', () => {
-      render(
-        <HabitForm
-          initialValues={{ tracking_type: 'numeric' }}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />
-      );
-
-      expect(screen.getByText('Goal Value')).toBeTruthy();
-      expect(screen.getByText('Unit')).toBeTruthy();
-    });
-
-    it('should show goal value input and min label for duration tracking type', () => {
-      render(
-        <HabitForm
-          initialValues={{ tracking_type: 'duration' }}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />
-      );
-
-      expect(screen.getByText('Goal Value')).toBeTruthy();
-      expect(screen.getByText('min')).toBeTruthy();
+      // Weekly type should be selected and weekday buttons visible
+      expect(screen.getByText('Select days of the week')).toBeTruthy();
     });
   });
 
@@ -169,7 +141,7 @@ describe('HabitForm', () => {
   });
 
   describe('form submission', () => {
-    it('should call onSubmit with form data when valid', async () => {
+    it('should call onSubmit with correct data when valid', async () => {
       mockOnSubmit.mockResolvedValue(undefined);
 
       render(
@@ -192,6 +164,11 @@ describe('HabitForm', () => {
 
       const submittedData = mockOnSubmit.mock.calls[0][0];
       expect(submittedData.name).toBe('Test Habit');
+      expect(submittedData.tracking_type).toBe('boolean');
+      expect(submittedData.goal_value).toBe(1);
+      expect(submittedData.goal_unit).toBe('times');
+      expect(submittedData.goal_period).toBe('daily');
+      expect(submittedData.recurrence_rule).toContain('FREQ=DAILY');
     });
 
     it('should show loading state when submitting', () => {
@@ -244,7 +221,6 @@ describe('HabitForm', () => {
       fireEvent.press(screen.getByText('Cancel'));
 
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
-      // Dialog should not be shown
       expect(screen.queryByText('Discard Changes')).toBeNull();
     });
 
@@ -262,11 +238,8 @@ describe('HabitForm', () => {
 
       fireEvent.press(screen.getByText('Cancel'));
 
-      // ConfirmDialog should be shown
       expect(screen.getByText('Discard Changes')).toBeTruthy();
       expect(screen.getByText('Your input will not be saved. Are you sure?')).toBeTruthy();
-      expect(screen.getByText('Discard')).toBeTruthy();
-      expect(screen.getByText('Continue Editing')).toBeTruthy();
     });
 
     it('should call onCancel when confirm button is pressed in dialog', () => {
@@ -277,14 +250,10 @@ describe('HabitForm', () => {
         />
       );
 
-      // Make form dirty
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
       fireEvent.changeText(nameInput, 'Changed Value');
 
-      // Open dialog
       fireEvent.press(screen.getByText('Cancel'));
-
-      // Press confirm button
       fireEvent.press(screen.getByText('Discard'));
 
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
@@ -298,25 +267,19 @@ describe('HabitForm', () => {
         />
       );
 
-      // Make form dirty
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
       fireEvent.changeText(nameInput, 'Changed Value');
 
-      // Open dialog
       fireEvent.press(screen.getByText('Cancel'));
-
-      // Press cancel button in dialog
       fireEvent.press(screen.getByText('Continue Editing'));
 
-      // Dialog should be closed (title should not be visible)
       expect(screen.queryByText('Discard Changes')).toBeNull();
-      // onCancel should not have been called
       expect(mockOnCancel).not.toHaveBeenCalled();
     });
   });
 
-  describe('field updates', () => {
-    it('should update tracking type when segment is pressed', () => {
+  describe('recurrence picker integration', () => {
+    it('should switch to weekly mode when Weekly is pressed', () => {
       render(
         <HabitForm
           onSubmit={mockOnSubmit}
@@ -324,11 +287,9 @@ describe('HabitForm', () => {
         />
       );
 
-      // Change to numeric
-      fireEvent.press(screen.getByText('Numeric'));
+      fireEvent.press(screen.getByText('Weekly'));
 
-      // Goal value field should appear
-      expect(screen.getByText('Goal Value')).toBeTruthy();
+      expect(screen.getByText('Select days of the week')).toBeTruthy();
     });
 
     it('should update time of day when chip is pressed', () => {
@@ -339,10 +300,8 @@ describe('HabitForm', () => {
         />
       );
 
-      // Default is 'anytime', add 'morning'
       fireEvent.press(screen.getByText('Morning'));
 
-      // Both should be selected now
       const morningChip = screen.getByLabelText('Morning');
       expect(morningChip.props.accessibilityState.checked).toBe(true);
     });

@@ -9,7 +9,7 @@ import { useCreateHabit } from '@/state/queries/habits';
 import { lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing } from '@/lib/spacing';
-import type { HabitFormData } from '@/lib/validation/habit';
+import type { HabitSubmitData } from '@/components/forms/HabitForm';
 import type { CreateHabitInput } from '@/types/database';
 
 /**
@@ -21,20 +21,20 @@ export default function NewHabitScreen() {
   const router = useRouter();
   const createHabit = useCreateHabit();
 
-  const handleSubmit = async (data: HabitFormData) => {
+  const handleSubmit = async (data: HabitSubmitData) => {
     const input: CreateHabitInput = {
-      name: data.name.trim(),
-      description: data.description?.trim() || null,
+      name: data.name,
+      description: data.description,
       tracking_type: data.tracking_type,
       goal_value: data.goal_value,
       goal_unit: data.goal_unit,
       goal_period: data.goal_period,
       time_of_day: data.time_of_day,
       start_date: data.start_date,
-      category_id: data.category_id || null,
-      recurrence_rule: data.recurrence_rule || null,
-      reminder_times: data.reminder_times || null,
-      reminder_enabled: data.reminder_enabled ?? false,
+      category_id: data.category_id,
+      recurrence_rule: data.recurrence_rule,
+      reminder_times: data.reminder_times,
+      reminder_enabled: data.reminder_enabled,
       status: 'active',
       sort_order: 0,
     };

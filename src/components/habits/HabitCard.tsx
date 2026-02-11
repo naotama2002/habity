@@ -46,17 +46,6 @@ export function HabitCard({
     onPress?.(habit);
   };
 
-  // 目標表示テキストを生成
-  const getGoalText = () => {
-    if (habit.tracking_type === 'boolean') {
-      return null;
-    }
-    const current = habit.log_value ?? 0;
-    return `${current}/${habit.goal_value} ${habit.goal_unit}`;
-  };
-
-  const goalText = getGoalText();
-
   // コンテナスタイルの決定
   const containerStyle = [
     styles.container,
@@ -101,15 +90,8 @@ export function HabitCard({
             <Text style={nameStyle} numberOfLines={1}>
               {habit.name}
             </Text>
-            {isSkipped ? (
+            {isSkipped && (
               <Text style={styles.skipLabel}>{_(msg`Skipped`)}</Text>
-            ) : (
-              goalText && (
-                <Text style={styles.goal}>
-                  {goalText}
-                  {isCompleted && ' ✓'}
-                </Text>
-              )
             )}
           </View>
 
@@ -190,10 +172,6 @@ const styles = StyleSheet.create({
   nameSkipped: {
     color: lightTheme.textTertiary,
     textDecorationLine: 'line-through',
-  },
-  goal: {
-    ...typography.bodySmall,
-    color: lightTheme.textSecondary,
   },
   skipLabel: {
     ...typography.bodySmall,
