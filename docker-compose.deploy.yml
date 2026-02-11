@@ -1,21 +1,5 @@
 services:
   # ===========================================
-  # Go Backend
-  # ===========================================
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: habity-backend
-    environment:
-      PORT: 8088
-      DATABASE_URL: ${DATABASE_URL}
-      SUPABASE_URL: ${SUPABASE_URL}
-      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
-      JWT_SECRET: ${JWT_SECRET}
-    restart: unless-stopped
-
-  # ===========================================
   # Web Frontend (Expo Web + nginx)
   # ===========================================
   web:
@@ -25,14 +9,10 @@ services:
       args:
         NGINX_CONF: nginx/deploy.conf
     container_name: habity-web
-    depends_on:
-      backend:
-        condition: service_started
     ports:
       - "${WEB_PORT:-3000}:80"
     environment:
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
-      BACKEND_URL: ${BACKEND_URL:-http://localhost:3000}
       ENABLE_SIGNUP: ${ENABLE_SIGNUP:-false}
     restart: unless-stopped

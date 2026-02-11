@@ -57,7 +57,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>{_(msg`Data`)}</Text>
           <View style={styles.menuGroup}>
             <MenuItem icon="folder-outline" label={_(msg`Manage Categories`)} />
-            <Pressable onPress={() => router.push('/import/habitify')}>
+            <Pressable onPress={() => router.navigate('/import/habitify')}>
               <MenuItem icon="download-outline" label={_(msg`Import from Habitify`)} />
             </Pressable>
             <MenuItem icon="share-outline" label={_(msg`Export Data`)} />

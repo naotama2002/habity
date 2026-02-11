@@ -53,7 +53,7 @@ Bluesky と同じアプローチ。1つのコードベースで全プラット�
 
 - **アプリ名**: Habity（習慣トラッキングアプリ）
 - **対応プラットフォーム**: iOS, Web, macOS, Windows
-- **技術スタック**: React Native + Expo, Supabase, Go
+- **技術スタック**: React Native + Expo, Supabase
 
 ## ドキュメント
 
@@ -67,6 +67,7 @@ Bluesky と同じアプローチ。1つのコードベースで全プラット�
 - `docs/05-development-environment.md` - 開発環境
 - `docs/06-migration.md` - マイグレーション運用ガイド
 - `docs/07-supabase-cloud-setup.md` - Supabase Cloud 移行ガイド
+- `docs/08-cloudflare-pages-deploy.md` - Cloudflare Pages デプロイガイド
 - `docs/TODO.md` - 実装タスクリスト
 
 ## Git 操作ルール

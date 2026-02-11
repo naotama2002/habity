@@ -64,7 +64,6 @@
 
 ### Docker / インフラ
 - [x] docker-compose.yml (Supabase フルスタック)
-- [x] backend/Dockerfile
 - [x] supabase/kong.yml (API Gateway設定)
 
 ### データベース
@@ -86,11 +85,8 @@
 - [x] src/state/queries/habits.ts - 習慣クエリ
 - [x] src/state/queries/habit-logs.ts - ログクエリ
 
-### バックエンド基盤
-- [x] backend/cmd/server/main.go - サーバーエントリー
-- [x] backend/internal/config/config.go - 設定読み込み
-- [x] backend/internal/handler/auth.go - JWT 認証ミドルウェア
-- [~] backend/internal/handler/import.go - Habitify インポート（スタブのみ）
+### バックエンド基盤（削除済み）
+- Go Backend は全機能が TypeScript（Expo 側）に移植されたため削除
 
 ---
 
@@ -197,15 +193,16 @@
 
 ## Phase 2: 拡張機能
 
-### 2.1 Habitify インポート
+### 2.1 Habitify インポート（TypeScript 実装済み）
 参照: docs/02-habitify-import.md
 
+- [x] src/lib/habitify/client.ts - Habitify API クライアント
+- [x] src/lib/habitify/types.ts - 型定義
+- [x] src/lib/habitify/mapper.ts - データ変換
+- [x] src/lib/habitify/importer.ts - インポートサービス
+- [x] src/lib/habitify/validator.ts - API キーバリデーション
+- [x] src/lib/habitify/__tests__/client.test.ts - テスト
 - [ ] app/settings/import.tsx - インポート画面 UI
-- [ ] backend/internal/habitify/client.go - Habitify API クライアント
-- [ ] backend/internal/habitify/types.go - 型定義
-- [ ] backend/internal/service/import.go - インポートサービス
-- [ ] backend/internal/repository/import.go - データ保存
-- [ ] インポートジョブ管理
 - [ ] 進捗表示
 
 ### 2.2 リマインダー通知
@@ -279,3 +276,4 @@
 | [05-development-environment.md](./05-development-environment.md) | 開発環境 |
 | [06-migration.md](./06-migration.md) | マイグレーション運用ガイド |
 | [07-supabase-cloud-setup.md](./07-supabase-cloud-setup.md) | Supabase Cloud 移行ガイド |
+| [08-cloudflare-pages-deploy.md](./08-cloudflare-pages-deploy.md) | Cloudflare Pages デプロイガイド |

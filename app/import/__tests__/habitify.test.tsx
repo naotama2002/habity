@@ -2,6 +2,12 @@ import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 
+// React Query モック
+const mockInvalidateQueries = jest.fn();
+jest.mock('@tanstack/react-query', () => ({
+  useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries }),
+}));
+
 // backend-api モック
 const mockImportFromHabitify = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 jest.mock('@/lib/backend-api', () => ({
@@ -105,6 +111,8 @@ describe('HabitifyImportScreen', () => {
       expect(screen.getByText('5')).toBeTruthy();
       expect(screen.getByText('100')).toBeTruthy();
     });
+
+    expect(mockInvalidateQueries).toHaveBeenCalled();
   });
 
   it('should show error message on failure', async () => {

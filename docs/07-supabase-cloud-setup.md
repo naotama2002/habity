@@ -3,19 +3,20 @@
 ## 概要
 
 ローカル開発環境では docker-compose で Supabase の全サービス（PostgreSQL, Auth, REST, Realtime, Storage, Studio, Kong）を動かしている。
-本番環境や共有開発環境では、Supabase をクラウド（Supabase Cloud またはセルフホスト）に外だしし、docker-compose は Go バックエンドのみにする。
+本番環境や共有開発環境では、Supabase をクラウド（Supabase Cloud またはセルフホスト）に外だしする。
+Web フロントエンドは Cloudflare Pages にデプロイする（詳細は [08-cloudflare-pages-deploy.md](./08-cloudflare-pages-deploy.md)）。
 
 ### 構成の変化
 
 ```
 [ローカル開発 - 現在]
-docker-compose: DB + Auth + REST + Realtime + Storage + Kong + Studio + Go Backend
+docker-compose: DB + Auth + REST + Realtime + Storage + Kong + Studio
 React Native:   localhost を参照
 
-[Supabase 外だし後]
-Supabase Cloud:  DB + Auth + REST + Realtime + Storage (Supabase が管理)
-docker-compose:  Go Backend のみ (or コンテナサービスにデプロイ)
-React Native:    Supabase Cloud URL を参照
+[本番デプロイ]
+Supabase Cloud:    DB + Auth + REST + Realtime + Storage (Supabase が管理)
+Cloudflare Pages:  Web フロントエンド (SPA)
+React Native:      Supabase Cloud URL を参照
 ```
 
 ---
@@ -90,17 +91,19 @@ supabase migration list --db-url "$DB_URL"
 cp .env.deploy.example .env.deploy
 ```
 
+※ 参考 (drop)
+```bash
+ supabase db reset --db-url "$DB_URL"
+ ```
+
 ### 変数一覧
 
 | 変数 | 取得元 | 説明 |
 |------|--------|------|
-| `SUPABASE_URL` | Settings → API → Project URL | Web フロントエンド・バックエンド共通 |
+| `SUPABASE_URL` | Settings → API → Project URL | Web フロントエンドが使用 |
 | `SUPABASE_ANON_KEY` | Settings → API → anon public key | Web フロントエンドが使用 |
-| `SUPABASE_SERVICE_KEY` | Settings → API → service_role key | Go バックエンドが使用 |
-| `JWT_SECRET` | Settings → API → JWT Settings | Go バックエンドが使用 |
-| `DATABASE_URL` | Settings → Database → Connection string (Transaction mode) | Go バックエンドが使用。Pooler（port 6543）を指定 |
-| `WEB_PORT` | — | Web フロントエンドの公開ポート（デフォルト: 3000） |
-| `BACKEND_URL` | — | Web フロントエンドから見たバックエンドの URL |
+| `WEB_PORT` | — | Docker デプロイ時の公開ポート（デフォルト: 3000） |
+| `ENABLE_SIGNUP` | — | 新規登録の有効/無効（デフォルト: false） |
 
 ### ローカル開発との違い
 
@@ -114,10 +117,13 @@ cp .env.deploy.example .env.deploy
 
 ## 4. デプロイ
 
-`docker-compose.deploy.yml`（backend + web のみ）を使用する。ローカル開発は引き続き `docker-compose.yml` を使用。
+Web フロントエンドのデプロイは **Cloudflare Pages** を推奨。
+詳細は [08-cloudflare-pages-deploy.md](./08-cloudflare-pages-deploy.md) を参照。
+
+Docker でデプロイする場合は `docker-compose.deploy.yml`（web のみ）を使用:
 
 ```bash
-# デプロイ用で起動（.env.deploy を読み込む）
+# Docker デプロイ用で起動（.env.deploy を読み込む）
 docker compose -f docker-compose.deploy.yml --env-file .env.deploy up -d
 ```
 
@@ -188,7 +194,6 @@ Supabase Dashboard → Table Editor で各テーブルの RLS が有効になっ
 - [ ] フロントエンドから Supabase Cloud に接続できる
 - [ ] ユーザー登録・ログインが動作する
 - [ ] 習慣の CRUD が動作する
-- [ ] Go バックエンドから DB に接続できる
 
 ---
 
@@ -197,13 +202,7 @@ Supabase Dashboard → Table Editor で各テーブルの RLS が有効になっ
 ### CORS エラー
 
 Supabase Cloud はデフォルトで全オリジンを許可している。
-Go バックエンドに CORS 設定が必要な場合は、バックエンド側で対応する。
-
-### DB 接続タイムアウト
-
-- Supabase Cloud は接続プーラー（Supavisor）を提供している
-- 長時間接続が必要な場合はポート `5432`（直接接続）、短いクエリはポート `6543`（Pooler）を使い分ける
-- Go バックエンドからは Pooler（`6543`）を推奨
+Cloudflare Pages からのアクセスは問題なく動作する。
 
 ### マイグレーションエラー
 

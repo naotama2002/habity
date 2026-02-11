@@ -238,31 +238,6 @@ services:
     restart: unless-stopped
 
   # ===========================================
-  # Go Backend
-  # ===========================================
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: habity-backend
-    depends_on:
-      db:
-        condition: service_healthy
-      kong:
-        condition: service_started
-    ports:
-      - "8088:8088"
-    environment:
-      PORT: 8088
-      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/postgres?sslmode=disable
-      SUPABASE_URL: http://kong:8000
-      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU}
-      JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters}
-    # volumes:
-    #   - ./backend:/app  # 開発時のホットリロード用（現在は無効）
-    restart: unless-stopped
-
-  # ===========================================
   # Web Frontend (Expo Web + nginx)
   # ===========================================
   web:
@@ -275,14 +250,11 @@ services:
     depends_on:
       kong:
         condition: service_started
-      backend:
-        condition: service_started
     ports:
       - "${WEB_PORT:-3333}:80"
     environment:
       SUPABASE_URL: ${WEB_SUPABASE_URL:-http://localhost:${WEB_PORT:-3000}}
       SUPABASE_ANON_KEY: ${ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0}
-      BACKEND_URL: ${WEB_BACKEND_URL:-http://localhost:${WEB_PORT:-3000}}
     restart: unless-stopped
 
 volumes:

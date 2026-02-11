@@ -95,7 +95,7 @@ CREATE TABLE habits (
 CREATE INDEX idx_habits_user_id ON habits(user_id);
 CREATE INDEX idx_habits_user_status ON habits(user_id, status);
 CREATE INDEX idx_habits_category_id ON habits(category_id);
-CREATE UNIQUE INDEX idx_habits_user_external_id ON habits(user_id, external_id) WHERE external_id IS NOT NULL;
+ALTER TABLE habits ADD CONSTRAINT uq_habits_user_external_id UNIQUE (user_id, external_id);
 
 -- RLS for habits
 ALTER TABLE habits ENABLE ROW LEVEL SECURITY;
@@ -147,7 +147,6 @@ CREATE TABLE habit_logs (
 CREATE INDEX idx_habit_logs_user_id ON habit_logs(user_id);
 CREATE INDEX idx_habit_logs_habit_id ON habit_logs(habit_id);
 CREATE INDEX idx_habit_logs_target_date ON habit_logs(target_date);
-CREATE INDEX idx_habit_logs_habit_date ON habit_logs(habit_id, target_date);
 CREATE INDEX idx_habit_logs_user_date ON habit_logs(user_id, target_date);
 CREATE INDEX idx_habit_logs_status ON habit_logs(status);
 

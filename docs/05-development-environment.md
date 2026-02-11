@@ -15,14 +15,14 @@
 │  ┌──────────────────────────────────────────────────────────────┐   │
 │  │                    docker compose                             │   │
 │  │                                                               │   │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │   │
-│  │  │  PostgreSQL │  │   Supabase  │  │    Go Backend       │  │   │
-│  │  │   :5432     │  │   Studio    │  │      :8088          │  │   │
-│  │  │             │  │   :54323    │  │                     │  │   │
-│  │  └─────────────┘  └─────────────┘  └─────────────────────┘  │   │
-│  │         │                                    │               │   │
-│  │         │         ┌─────────────┐           │               │   │
-│  │         └────────▶│  Supabase   │◀──────────┘               │   │
+│  │  ┌─────────────┐  ┌─────────────┐                           │   │
+│  │  │  PostgreSQL │  │   Supabase  │                           │   │
+│  │  │   :5432     │  │   Studio    │                           │   │
+│  │  │             │  │   :54323    │                           │   │
+│  │  └─────────────┘  └─────────────┘                           │   │
+│  │         │                                                    │   │
+│  │         │         ┌─────────────┐                           │   │
+│  │         └────────▶│  Supabase   │                           │   │
 │  │                   │    API      │                           │   │
 │  │                   │   :54321    │                           │   │
 │  │                   └─────────────┘                           │   │
@@ -51,7 +51,6 @@
 | Supabase Realtime | 54321 | リアルタイム購読 |
 | Supabase Studio | 54323 | 管理 UI |
 | Supabase Inbucket | 54324 | メールテスト用 |
-| Go Backend | 8088 | カスタム API（Habitify インポート等）|
 | React Native Web | 8081 | フロントエンド開発サーバー |
 
 ---
@@ -68,20 +67,6 @@ habity/
 │   ├── kong.yml                 # API Gateway 設定
 │   └── migrations/              # DB マイグレーション
 │       └── 20240101000000_init.sql  # 全テーブル・RLS・関数定義
-│
-├── backend/                     # Go バックエンド
-│   ├── Dockerfile
-│   ├── cmd/
-│   │   └── server/
-│   │       └── main.go
-│   ├── internal/
-│   │   ├── config/
-│   │   ├── handler/
-│   │   ├── service/
-│   │   ├── repository/
-│   │   └── habitify/
-│   ├── go.mod
-│   └── go.sum
 │
 ├── src/                         # React Native
 ├── metro.config.js              # Metro bundler 設定（pnpm 対応）
@@ -333,31 +318,6 @@ services:
       - "2500:2500"   # SMTP
     restart: unless-stopped
 
-  # ===========================================
-  # Go Backend
-  # ===========================================
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: habity-backend
-    depends_on:
-      db:
-        condition: service_healthy
-      kong:
-        condition: service_started
-    ports:
-      - "8088:8088"
-    environment:
-      PORT: 8088
-      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/postgres?sslmode=disable
-      SUPABASE_URL: http://kong:8000
-      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU}
-      JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters}
-    # volumes:
-    #   - ./backend:/app  # 開発時のホットリロード用（現在は無効）
-    restart: unless-stopped
-
 volumes:
   habity-db-data:
   habity-storage-data:
@@ -404,7 +364,6 @@ ENABLE_EMAIL_AUTOCONFIRM=true
 # ===========================================
 EXPO_PUBLIC_SUPABASE_URL=http://localhost:54321
 EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-EXPO_PUBLIC_BACKEND_URL=http://localhost:8088
 ```
 
 ---
@@ -428,14 +387,13 @@ cd habity
 ### 2. 開発ツールのインストール
 
 ```bash
-# mise で Node.js, pnpm, Go をインストール
+# mise で Node.js, pnpm をインストール
 mise install
 ```
 
 `.mise.toml` で以下が管理されています:
 - Node.js 24.13.0 (Active LTS)
 - pnpm 10.28.0
-- Go 1.25.6
 - Supabase CLI 2.75.0
 
 ### 3. 環境変数設定
@@ -464,7 +422,6 @@ docker compose logs -f backend
 | Supabase API | http://localhost:54321 | REST API |
 | Supabase Studio | http://localhost:54323 | 管理 UI |
 | Inbucket | http://localhost:54324 | メールテスト |
-| Go Backend | http://localhost:8088 | カスタム API |
 
 ### 6. React Native セットアップ
 
@@ -514,14 +471,8 @@ docker compose down -v
 # 再ビルド
 docker compose build --no-cache
 
-# 特定サービスの再起動
-docker compose restart backend
-
 # DB シェル
 docker compose exec db psql -U postgres
-
-# Go バックエンドのログ
-docker compose logs -f backend
 ```
 
 ---
@@ -597,22 +548,8 @@ pnpm expo start --web --clear
 
 ## 本番環境への移行
 
-デプロイ先が決まったら、以下を検討:
+Web デプロイには **Cloudflare Pages**（無料）、バックエンドには **Supabase Cloud**（無料枠）を使用。
 
-1. **コンテナレジストリ**: GitHub Container Registry, AWS ECR など
-2. **オーケストレーション**: Kubernetes, AWS ECS, Cloud Run など
-3. **Supabase**: Supabase Cloud または Self-hosted
-4. **シークレット管理**: AWS Secrets Manager, HashiCorp Vault など
-5. **CI/CD**: GitHub Actions, CircleCI など
-
-```yaml
-# 本番用 docker-compose.prod.yml の例
-version: "3.8"
-services:
-  backend:
-    image: ghcr.io/naotama2002/habity-backend:latest
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - SUPABASE_URL=${SUPABASE_URL}
-    # ... production settings
-```
+詳細は以下を参照:
+- [07-supabase-cloud-setup.md](./07-supabase-cloud-setup.md) - Supabase Cloud 移行ガイド
+- [08-cloudflare-pages-deploy.md](./08-cloudflare-pages-deploy.md) - Cloudflare Pages デプロイガイド
