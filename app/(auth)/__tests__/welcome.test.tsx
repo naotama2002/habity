@@ -18,7 +18,7 @@ jest.mock('react-native-safe-area-context', () => {
 // Session モック
 jest.mock('@/state/session', () => ({
   useSessionApi: jest.fn(() => ({
-    signInWithGitHub: jest.fn(),
+    signInWithGoogle: jest.fn(),
   })),
 }));
 
@@ -53,7 +53,7 @@ describe('WelcomeScreen', () => {
   it('should always show sign in buttons regardless of signup setting', () => {
     mockEnableSignup = false;
     render(<WelcomeScreen />);
-    expect(screen.getByText('Sign in with GitHub')).toBeTruthy();
+    expect(screen.getByText('Sign in with Google')).toBeTruthy();
     expect(screen.getByText('Sign in with Email')).toBeTruthy();
   });
 });

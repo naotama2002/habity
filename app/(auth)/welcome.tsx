@@ -13,19 +13,19 @@ export default function WelcomeScreen() {
   const { _ } = useLingui();
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
-  const { signInWithGitHub } = useSessionApi();
+  const { signInWithGoogle } = useSessionApi();
 
-  const handleGitHubSignIn = async () => {
+  const handleGoogleSignIn = async () => {
     try {
-      await signInWithGitHub();
-      // GitHub認証成功後はonAuthStateChangeでセッションが更新される
+      await signInWithGoogle();
+      // Google認証成功後はonAuthStateChangeでセッションが更新される
       // NavigationControllerがリダイレクトを処理するが、
       // returnToがある場合はここで明示的に遷移
       if (returnTo) {
         router.replace(decodeURIComponent(returnTo) as Href);
       }
     } catch (error) {
-      console.error('GitHub sign in failed:', error);
+      console.error('Google sign in failed:', error);
     }
   };
 
@@ -63,12 +63,12 @@ export default function WelcomeScreen() {
 
         {/* ボタン */}
         <View style={styles.buttons}>
-          {/* GitHub サインイン */}
+          {/* Google サインイン */}
           <Pressable
-            style={[styles.button, styles.githubButton]}
-            onPress={handleGitHubSignIn}
+            style={[styles.button, styles.googleButton]}
+            onPress={handleGoogleSignIn}
           >
-            <Text style={styles.githubButtonText}>{_(msg`Sign in with GitHub`)}</Text>
+            <Text style={styles.googleButtonText}>{_(msg`Sign in with Google`)}</Text>
           </Pressable>
 
           {/* メールでサインイン */}
@@ -137,13 +137,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
   },
-  githubButton: {
-    backgroundColor: '#24292e',
+  googleButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
-  githubButtonText: {
+  googleButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: '#374151',
   },
   emailButton: {
     backgroundColor: '#6366f1',
