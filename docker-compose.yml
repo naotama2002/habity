@@ -261,6 +261,29 @@ services:
     #   - ./backend:/app  # 開発時のホットリロード用（現在は無効）
     restart: unless-stopped
 
+  # ===========================================
+  # Web Frontend (Expo Web + nginx)
+  # ===========================================
+  web:
+    profiles:
+      - web
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: habity-web
+    depends_on:
+      kong:
+        condition: service_started
+      backend:
+        condition: service_started
+    ports:
+      - "${WEB_PORT:-3000}:80"
+    environment:
+      SUPABASE_URL: ${WEB_SUPABASE_URL:-http://localhost:${WEB_PORT:-3000}}
+      SUPABASE_ANON_KEY: ${ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0}
+      BACKEND_URL: ${WEB_BACKEND_URL:-http://localhost:${WEB_PORT:-3000}}
+    restart: unless-stopped
+
 volumes:
   habity-db-data:
   habity-storage-data:
