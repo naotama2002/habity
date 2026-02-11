@@ -6,8 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
 import { ja, enUS } from 'date-fns/locale';
 import { useHabitsWithTodayLog } from '@/state/queries/habits';
-import { useToggleHabitLog } from '@/state/queries/habit-logs';
-import { HabitCard, TimeOfDaySection } from '@/components/habits';
+import { useToggleHabitLog, useSkipHabitLog, useUnskipHabitLog } from '@/state/queries/habit-logs';
+import { calculateTodayProgress } from '@/lib/progress';
+import { HabitCard, HabitCardActions, TimeOfDaySection } from '@/components/habits';
 import { colors, lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing, borderRadius } from '@/lib/spacing';
@@ -24,6 +25,8 @@ export default function TodayScreen() {
   const router = useRouter();
   const { data: habits, isLoading, error } = useHabitsWithTodayLog();
   const toggleLog = useToggleHabitLog();
+  const skipLog = useSkipHabitLog();
+  const unskipLog = useUnskipHabitLog();
   const dateLocale = i18n.locale === 'ja' ? ja : enUS;
 
   const today = new Date();
@@ -39,16 +42,30 @@ export default function TodayScreen() {
     });
   };
 
+  // 習慣をスキップ
+  const handleSkip = (habit: HabitWithTodayLog) => {
+    skipLog.mutate({
+      habitId: habit.id,
+      targetDate: dateStr,
+      currentLogId: habit.log_id,
+    });
+  };
+
+  // スキップを解除
+  const handleUnskip = (habit: HabitWithTodayLog) => {
+    if (habit.log_id) {
+      unskipLog.mutate(habit.log_id);
+    }
+  };
+
   // 習慣詳細へ遷移
   const handlePressHabit = (habit: HabitWithTodayLog) => {
     // TODO: 習慣詳細画面へ遷移
     console.log('Navigate to habit detail:', habit.id);
   };
 
-  // 進捗計算
-  const completedCount = habits?.filter((h) => h.is_completed_today).length ?? 0;
-  const totalCount = habits?.length ?? 0;
-  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+  // 進捗計算（スキップを分母から除外）
+  const { completedCount, effectiveTotal, percentage: progress } = calculateTodayProgress(habits ?? []);
 
   // 時間帯ごとに習慣をグループ化
   const groupedHabits = groupHabitsByTimeOfDay(habits ?? []);
@@ -94,7 +111,7 @@ export default function TodayScreen() {
         </Text>
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>
-            {completedCount}/{totalCount} {_(msg`completed`)}
+            {completedCount}/{effectiveTotal} {_(msg`completed`)}
           </Text>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${progress}%` }]} />
@@ -128,13 +145,19 @@ export default function TodayScreen() {
               return (
                 <TimeOfDaySection key={timeOfDay} timeOfDay={timeOfDay}>
                   {habitsInSection.map((habit) => (
-                    <HabitCard
+                    <HabitCardActions
                       key={habit.id}
-                      habit={habit}
-                      streak={0} // TODO: ストリーク計算を実装
-                      onToggle={handleToggle}
-                      onPress={handlePressHabit}
-                    />
+                      isSkipped={habit.is_skipped_today}
+                      onSkip={() => handleSkip(habit)}
+                      onUnskip={() => handleUnskip(habit)}
+                    >
+                      <HabitCard
+                        habit={habit}
+                        streak={0} // TODO: ストリーク計算を実装
+                        onToggle={handleToggle}
+                        onPress={handlePressHabit}
+                      />
+                    </HabitCardActions>
                   ))}
                 </TimeOfDaySection>
               );

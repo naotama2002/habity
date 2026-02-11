@@ -5,6 +5,7 @@ import type {
   HabitWithTodayLog,
   CreateHabitInput,
   UpdateHabitInput,
+  LogStatus,
 } from '@/types/database';
 
 // ===========================================
@@ -71,13 +72,16 @@ export function useHabitsWithTodayLog() {
 
       return habits.map(h => {
         const log = logMap.get(h.id) ?? null;
+        const logStatus: LogStatus | null = (log?.status as LogStatus) ?? null;
         return {
           ...h,
           log_id: log?.id ?? null,
           log_value: log?.value ?? null,
           log_completed_at: log?.completed_at ?? null,
           log_note: log?.note ?? null,
-          is_completed_today: log !== null && log.value >= h.goal_value,
+          log_status: logStatus,
+          is_completed_today: log !== null && logStatus === 'completed' && log.value >= h.goal_value,
+          is_skipped_today: logStatus === 'skipped',
         } as HabitWithTodayLog;
       });
     },

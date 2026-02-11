@@ -1,5 +1,4 @@
-[project]
-id = "habity-local"
+project_id = "habity-local"
 
 [db]
 port = 5432

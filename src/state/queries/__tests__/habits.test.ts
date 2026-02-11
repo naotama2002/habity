@@ -138,7 +138,9 @@ describe('habits queries', () => {
           log_value: null,
           log_completed_at: null,
           log_note: null,
+          log_status: null,
           is_completed_today: false,
+          is_skipped_today: false,
         }),
       ]);
     });
@@ -149,6 +151,7 @@ describe('habits queries', () => {
         id: 'log-1',
         habit_id: 'habit-1',
         value: 1,
+        status: 'completed',
         completed_at: '2024-01-01T10:00:00Z',
         note: 'Done!',
         target_date: '2024-01-01',
@@ -164,7 +167,9 @@ describe('habits queries', () => {
           log_value: 1,
           log_completed_at: '2024-01-01T10:00:00Z',
           log_note: 'Done!',
+          log_status: 'completed',
           is_completed_today: true,
+          is_skipped_today: false,
         }),
       ]);
     });
@@ -175,6 +180,7 @@ describe('habits queries', () => {
         id: 'log-1',
         habit_id: 'habit-1',
         value: 3,
+        status: 'completed',
         completed_at: '2024-01-01T10:00:00Z',
         note: null,
         target_date: '2024-01-01',
@@ -188,6 +194,7 @@ describe('habits queries', () => {
           id: 'habit-1',
           log_value: 3,
           is_completed_today: false,
+          is_skipped_today: false,
         }),
       ]);
     });
@@ -207,6 +214,7 @@ describe('habits queries', () => {
         id: 'log-1',
         habit_id: 'habit-1',
         value: 1,
+        status: 'completed',
         completed_at: '2024-01-01T10:00:00Z',
         note: null,
         target_date: '2024-01-01',
@@ -220,15 +228,43 @@ describe('habits queries', () => {
       const result = (await executeQueryFn()) as Array<{
         id: string;
         is_completed_today: boolean;
+        is_skipped_today: boolean;
         log_id: string | null;
       }>;
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe('habit-1');
       expect(result[0].is_completed_today).toBe(true);
+      expect(result[0].is_skipped_today).toBe(false);
       expect(result[0].log_id).toBe('log-1');
       expect(result[1].id).toBe('habit-2');
       expect(result[1].is_completed_today).toBe(false);
+      expect(result[1].is_skipped_today).toBe(false);
       expect(result[1].log_id).toBeNull();
+    });
+
+    it('should mark habit as skipped when log status is skipped', async () => {
+      const habit = createMockHabit({id: 'habit-1', goal_value: 1});
+      const log = {
+        id: 'log-1',
+        habit_id: 'habit-1',
+        value: 0,
+        status: 'skipped',
+        completed_at: '2024-01-01T10:00:00Z',
+        note: null,
+        target_date: '2024-01-01',
+      };
+
+      setupMockChain({data: [habit], error: null}, {data: [log], error: null});
+
+      const result = (await executeQueryFn()) as Array<{
+        id: string;
+        is_completed_today: boolean;
+        is_skipped_today: boolean;
+        log_status: string | null;
+      }>;
+      expect(result[0].is_completed_today).toBe(false);
+      expect(result[0].is_skipped_today).toBe(true);
+      expect(result[0].log_status).toBe('skipped');
     });
 
     it('should throw when habits query fails', async () => {

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { habitKeys } from './habits';
-import type { HabitLog, CreateHabitLogInput } from '@/types/database';
+import type { HabitLog, CreateHabitLogInput, LogStatus } from '@/types/database';
 
 // ===========================================
 // Query Keys
@@ -82,6 +82,7 @@ export function useCreateHabitLog() {
         .from('habit_logs')
         .insert({
           ...input,
+          status: input.status ?? 'completed',
           completed_at: input.completed_at || new Date().toISOString(),
           user_id: user.id,
         })
@@ -203,6 +204,7 @@ export function useToggleHabitLog() {
             habit_id: habitId,
             target_date: targetDate,
             value,
+            status: 'completed' as LogStatus,
             completed_at: new Date().toISOString(),
             user_id: user.id,
           })
@@ -212,6 +214,84 @@ export function useToggleHabitLog() {
         if (error) throw error;
         return data as HabitLog;
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+    },
+  });
+}
+
+// ===========================================
+// Skip / Unskip Habit
+// ===========================================
+
+export function useSkipHabitLog() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      habitId,
+      targetDate,
+      currentLogId,
+    }: {
+      habitId: string;
+      targetDate: string;
+      currentLogId?: string | null;
+    }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('認証が必要です');
+      }
+
+      if (currentLogId) {
+        // Update existing log to skipped
+        const { data, error } = await supabase
+          .from('habit_logs')
+          .update({ status: 'skipped' as LogStatus, value: 0 })
+          .eq('id', currentLogId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data as HabitLog;
+      } else {
+        // Create new skipped log
+        const { data, error } = await supabase
+          .from('habit_logs')
+          .insert({
+            habit_id: habitId,
+            target_date: targetDate,
+            value: 0,
+            status: 'skipped' as LogStatus,
+            completed_at: new Date().toISOString(),
+            user_id: user.id,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data as HabitLog;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.today() });
+    },
+  });
+}
+
+export function useUnskipHabitLog() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (logId: string) => {
+      const { error } = await supabase
+        .from('habit_logs')
+        .delete()
+        .eq('id', logId);
+
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
