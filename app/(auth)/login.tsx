@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -24,6 +24,8 @@ export default function LoginScreen() {
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { signInWithEmail } = useSessionApi();
+
+  const passwordRef = useRef<TextInput>(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -107,6 +109,9 @@ export default function LoginScreen() {
                 autoComplete="email"
                 autoCorrect={false}
                 editable={!isSubmitting}
+                returnKeyType="next"
+                onSubmitEditing={() => passwordRef.current?.focus()}
+                blurOnSubmit={false}
               />
             </View>
 
@@ -114,6 +119,7 @@ export default function LoginScreen() {
             <View style={styles.inputGroup}>
               <Text style={styles.label}>{_(msg`Password`)}</Text>
               <TextInput
+                ref={passwordRef}
                 style={styles.input}
                 placeholder={_(msg`Password`)}
                 placeholderTextColor="#9ca3af"
@@ -123,6 +129,8 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 autoComplete="password"
                 editable={!isSubmitting}
+                returnKeyType="done"
+                onSubmitEditing={handleLogin}
               />
             </View>
 
