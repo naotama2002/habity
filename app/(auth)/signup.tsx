@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -26,6 +26,9 @@ export default function SignupScreen() {
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { signUpWithEmail } = useSessionApi();
+
+  const passwordRef = useRef<TextInput>(null);
+  const confirmPasswordRef = useRef<TextInput>(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -144,6 +147,9 @@ export default function SignupScreen() {
                   autoComplete="email"
                   autoCorrect={false}
                   editable={!isSubmitting}
+                  returnKeyType="next"
+                  onSubmitEditing={() => passwordRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
               </View>
 
@@ -151,6 +157,7 @@ export default function SignupScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>{_(msg`Password`)}</Text>
                 <TextInput
+                  ref={passwordRef}
                   style={styles.input}
                   placeholder={_(msg`6 or more characters`)}
                   placeholderTextColor="#9ca3af"
@@ -160,6 +167,9 @@ export default function SignupScreen() {
                   autoCapitalize="none"
                   autoComplete="new-password"
                   editable={!isSubmitting}
+                  returnKeyType="next"
+                  onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+                  blurOnSubmit={false}
                 />
               </View>
 
@@ -167,6 +177,7 @@ export default function SignupScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>{_(msg`Confirm Password`)}</Text>
                 <TextInput
+                  ref={confirmPasswordRef}
                   style={styles.input}
                   placeholder={_(msg`Re-enter password`)}
                   placeholderTextColor="#9ca3af"
@@ -176,6 +187,8 @@ export default function SignupScreen() {
                   autoCapitalize="none"
                   autoComplete="new-password"
                   editable={!isSubmitting}
+                  returnKeyType="done"
+                  onSubmitEditing={handleSignup}
                 />
               </View>
 
