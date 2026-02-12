@@ -44,7 +44,7 @@ Cloudflare Pages ダッシュボードの **Build settings** に以下を入力:
 
 ### 1-3. 環境変数
 
-**Settings → Environment variables** で以下を **Production 環境のビルド時環境変数**（Build environment variables）として設定:
+**Settings → Environment variables** 
 
 | 変数 | 値 | 説明 |
 |------|-----|------|
@@ -58,24 +58,7 @@ Cloudflare Pages ダッシュボードの **Build settings** に以下を入力:
 
 ---
 
-## 2. SPA リダイレクト設定
-
-Expo Web は SPA（Single Page Application）のため、すべてのパスを `index.html` にリダイレクトする必要がある。
-
-### `public/_redirects` ファイル
-
-プロジェクトルートに `public/_redirects` ファイルを作成:
-
-```
-/*  /index.html  200
-```
-
-> Expo の `expo export` は `public/` ディレクトリの内容を `dist/` にコピーするため、
-> `public/_redirects` → `dist/_redirects` として配置される。
-
----
-
-## 3. カスタムドメイン設定（任意）
+## 2. カスタムドメイン設定（任意）
 
 ### 3-1. ドメイン追加
 
@@ -89,7 +72,7 @@ Cloudflare Pages は自動で SSL 証明書を発行。追加設定不要。
 
 ---
 
-## 4. GitHub 連携（自動デプロイ）
+## 3. GitHub 連携（自動デプロイ）
 
 Cloudflare Pages は GitHub と連携すると、以下が自動で行われる:
 
@@ -107,7 +90,7 @@ PR レビュー時に実際の動作を確認できる。
 
 ---
 
-## 5. 手動デプロイ（CLI）
+## 4. 手動デプロイ（CLI）
 
 GitHub 連携を使わず、手動でデプロイする場合:
 
@@ -128,13 +111,12 @@ pnpm exec wrangler pages deploy dist --project-name habity
 
 ---
 
-## 6. チェックリスト
+## 5. チェックリスト
 
 ### デプロイ前
 
 - [ ] Supabase Cloud の設定が完了している
 - [ ] 環境変数が正しく設定されている
-- [ ] `public/_redirects` ファイルが存在する
 
 ### デプロイ後
 
@@ -154,7 +136,15 @@ Cloudflare Pages のデフォルト Node.js バージョンが古い場合:
 
 ### 直接 URL アクセスで 404
 
-`_redirects` ファイルが正しく配置されているか確認:
+SPA ルーティングには `public/_redirects` ファイルが必要。
+`expo export` が `public/` の内容を `dist/` にコピーするため、`public/_redirects` → `dist/_redirects` として配置される。
+
+```
+# public/_redirects（設定済み）
+/*  /index.html  200
+```
+
+確認ポイント:
 - `public/_redirects` が存在すること
 - ビルド後に `dist/_redirects` にコピーされていること
 
