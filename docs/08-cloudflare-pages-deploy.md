@@ -38,7 +38,7 @@ Cloudflare Pages ダッシュボードの **Build settings** に以下を入力:
 | 項目 | 値 | 備考 |
 |------|-----|------|
 | Production branch | `main` | |
-| Build command | `pnpm install && pnpm intl:compile && pnpm exec expo export --platform web` | |
+| Build command | `pnpm install && pnpm intl:compile && pnpm exec expo export --platform web && bash scripts/fix-cloudflare-assets.sh` | |
 | Build output directory | `dist` | `expo export` のデフォルト出力先 |
 | Root directory | `/` | デフォルト |
 
@@ -102,6 +102,7 @@ EXPO_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co \
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key \
 EXPO_PUBLIC_ENABLE_SIGNUP=false \
 pnpm exec expo export --platform web
+bash scripts/fix-cloudflare-assets.sh
 
 # デプロイ（Wrangler CLI）
 pnpm exec wrangler pages deploy dist --project-name habity
