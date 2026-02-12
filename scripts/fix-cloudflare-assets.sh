@@ -1,8 +1,24 @@
 #!/bin/bash
-# Fix asset paths for Cloudflare Pages.
-# Cloudflare Pages cannot serve files under "node_modules/" paths.
+# ============================================================
+# Cloudflare Pages 専用ワークアラウンド
+# ============================================================
 #
-# Example: dist/assets/node_modules/@expo/... → dist/assets/vendor/expo/...
+# Cloudflare Pages は dist/ 内の "node_modules/" パスに含まれる
+# 静的ファイルを配信できない（アップロードされるが取得時に無視される）。
+#
+# expo export が生成するアセットパス:
+#   dist/assets/node_modules/@expo/vector-icons/.../Ionicons.xxx.ttf
+#   dist/assets/node_modules/@react-navigation/elements/.../back-icon.png
+#
+# このスクリプトで以下に変換:
+#   dist/assets/vendor/expo/vector-icons/.../Ionicons.xxx.ttf
+#   dist/assets/vendor/react-navigation/elements/.../back-icon.png
+#
+# 同時に JS バンドル内のパス参照も書き換える。
+#
+# ※ ローカル開発（expo start）や他のホスティングでは不要。
+# ※ Cloudflare Pages でのデプロイ時のみビルドコマンドに追加する。
+# ============================================================
 
 set -euo pipefail
 

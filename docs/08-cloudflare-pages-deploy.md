@@ -141,8 +141,17 @@ SPA ルーティングは `functions/[[path]].ts`（Cloudflare Pages Functions�
 静的ファイルがあればそれを返し、なければ `index.html` にフォールバックする。
 
 > **注意:** `_redirects` の `/* /index.html 200` は使用しない。
-> アセットパスに `@` を含むファイル（`@expo/vector-icons` のフォント等）が
-> 正しく配信されない問題がある。
+> 静的アセットのリクエストも横取りして `index.html` を返す問題がある。
+
+### アイコン・フォントが表示されない
+
+**Cloudflare Pages 固有の制約:** `node_modules/` を含むパスの静的ファイルは配信されない。
+`expo export` はフォントを `dist/assets/node_modules/@expo/...` に出力するため、
+そのままでは Cloudflare Pages でアイコンフォントが読み込めない。
+
+対策として `scripts/fix-cloudflare-assets.sh` をビルドコマンドに追加している。
+このスクリプトは `node_modules/` → `vendor/` へリネームし、JS バンドル内の参照も書き換える。
+ローカル開発や他のホスティングサービスでは不要。
 
 ### 環境変数が反映されない
 
