@@ -38,7 +38,7 @@ Cloudflare Pages ダッシュボードの **Build settings** に以下を入力:
 | 項目 | 値 | 備考 |
 |------|-----|------|
 | Production branch | `main` | |
-| Build command | `pnpm install && pnpm intl:compile && pnpm exec expo export --platform web` | |
+| Build command | `pnpm install && pnpm intl:compile && pnpm exec expo export --platform web && cp dist/index.html dist/404.html` | |
 | Build output directory | `dist` | `expo export` のデフォルト出力先 |
 | Root directory | `/` | デフォルト |
 
@@ -102,6 +102,7 @@ EXPO_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co \
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key \
 EXPO_PUBLIC_ENABLE_SIGNUP=false \
 pnpm exec expo export --platform web
+cp dist/index.html dist/404.html
 
 # デプロイ（Wrangler CLI）
 pnpm exec wrangler pages deploy dist --project-name habity
@@ -136,17 +137,13 @@ Cloudflare Pages のデフォルト Node.js バージョンが古い場合:
 
 ### 直接 URL アクセスで 404
 
-SPA ルーティングには `public/_redirects` ファイルが必要。
-`expo export` が `public/` の内容を `dist/` にコピーするため、`public/_redirects` → `dist/_redirects` として配置される。
+SPA ルーティングはビルドコマンドの `cp dist/index.html dist/404.html` で対応している。
+Cloudflare Pages はファイルが見つからないパスに対して `404.html` を返すため、
+SPA エントリポイントとして機能する。
 
-```
-# public/_redirects（設定済み）
-/*  /index.html  200
-```
-
-確認ポイント:
-- `public/_redirects` が存在すること
-- ビルド後に `dist/_redirects` にコピーされていること
+> **注意:** `_redirects` の `/* /index.html 200` は使用しない。
+> この設定はフォントや JS 等の静的アセットのリクエストも横取りし、
+> `index.html` を返してしまう問題がある。
 
 ### 環境変数が反映されない
 
