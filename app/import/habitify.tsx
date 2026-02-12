@@ -14,6 +14,7 @@ import {
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { lightTheme, colors } from '@/lib/colors';
@@ -29,6 +30,7 @@ type ScreenState = 'idle' | 'loading' | 'success' | 'error';
 export default function HabitifyImportScreen() {
   const { _ } = useLingui();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [apiKey, setApiKey] = useState('');
   const [importHabits, setImportHabits] = useState(true);
@@ -50,6 +52,7 @@ export default function HabitifyImportScreen() {
       });
       setResult(importResult);
       setScreenState('success');
+      queryClient.invalidateQueries();
     } catch (e) {
       setErrorMessage(e instanceof Error ? e.message : String(e));
       setScreenState('error');

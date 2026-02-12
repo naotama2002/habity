@@ -15,11 +15,6 @@ if [ -n "$SUPABASE_ANON_KEY" ]; then
     -exec sed -i "s|__HABITY_SUPABASE_ANON_KEY__|${SUPABASE_ANON_KEY}|g" {} +
 fi
 
-if [ -n "$BACKEND_URL" ]; then
-  find "$HTML_DIR" -type f \( -name "*.js" -o -name "*.html" \) \
-    -exec sed -i "s|__HABITY_BACKEND_URL__|${BACKEND_URL}|g" {} +
-fi
-
 if [ -n "$ENABLE_SIGNUP" ]; then
   find "$HTML_DIR" -type f \( -name "*.js" -o -name "*.html" \) \
     -exec sed -i "s|__HABITY_ENABLE_SIGNUP__|${ENABLE_SIGNUP}|g" {} +

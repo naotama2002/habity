@@ -139,71 +139,52 @@ Authorization: {API_KEY}
 
 ---
 
-## Go バックエンド実装
+## TypeScript 実装（Expo 側）
+
+Go バックエンドは廃止し、Habitify インポートは Expo（TypeScript）側で実装。
+Habitify API へのアクセスはクライアントサイドで直接行う。
+
+### ファイル構成
+
+```
+src/lib/habitify/
+├── client.ts           # Habitify API クライアント
+├── types.ts            # Habitify API 型定義
+├── mapper.ts           # Habitify → Habity データ変換
+├── importer.ts         # インポートサービス（Supabase 保存）
+├── validator.ts        # API キーバリデーション
+└── __tests__/
+    └── client.test.ts  # テスト
+```
 
 ### API クライアント
 
-```go
-package habitify
+```typescript
+// src/lib/habitify/client.ts
+export class HabitifyClient {
+  constructor(private apiKey: string) {}
 
-type Client struct {
-    baseURL    string
-    apiKey     string
-    httpClient *http.Client
-}
-
-func NewClient(apiKey string) *Client {
-    return &Client{
-        baseURL:    "https://api.habitify.me",
-        apiKey:     apiKey,
-        httpClient: &http.Client{Timeout: 30 * time.Second},
-    }
-}
-
-func (c *Client) GetHabits(ctx context.Context) ([]Habit, error) {
-    // GET /habits
-}
-
-func (c *Client) GetLogs(ctx context.Context, habitID string, from, to time.Time) ([]Log, error) {
-    // GET /logs/:habit_id?from=...&to=...
-}
-
-func (c *Client) GetAreas(ctx context.Context) ([]Area, error) {
-    // GET /areas
+  async getHabits(): Promise<HabitifyHabit[]> { /* GET /habits */ }
+  async getLogs(habitId: string): Promise<HabitifyLog[]> { /* GET /logs/:id */ }
+  async getAreas(): Promise<HabitifyArea[]> { /* GET /areas */ }
+  async validateApiKey(): Promise<boolean> { /* API キー検証 */ }
 }
 ```
 
 ### インポートサービス
 
-```go
-package service
-
-type ImportService struct {
-    habitifyClient *habitify.Client
-    habitRepo      repository.HabitRepository
-    logRepo        repository.LogRepository
-}
-
-func (s *ImportService) Import(ctx context.Context, userID string, options ImportOptions) (*ImportResult, error) {
-    // 1. Habitify から習慣取得
-    habits, err := s.habitifyClient.GetHabits(ctx)
-
-    // 2. エリア（カテゴリ）取得・変換
-    areas, err := s.habitifyClient.GetAreas(ctx)
-
-    // 3. 習慣データを変換・保存
-    for _, h := range habits {
-        habityHabit := convertHabit(h)
-        // 保存
-    }
-
-    // 4. ログデータ取得・変換・保存
-    for _, h := range habits {
-        logs, err := s.habitifyClient.GetLogs(ctx, h.ID, options.From, options.To)
-        // 変換・保存
-    }
-
-    return &ImportResult{...}, nil
+```typescript
+// src/lib/habitify/importer.ts
+export async function importFromHabitify(
+  client: HabitifyClient,
+  supabase: SupabaseClient,
+  userId: string,
+  onProgress?: (progress: ImportProgress) => void,
+): Promise<ImportResult> {
+  // 1. Habitify から習慣・エリア取得
+  // 2. データ変換（mapper.ts）
+  // 3. Supabase に保存
+  // 4. 進捗コールバック
 }
 ```
 
@@ -224,8 +205,8 @@ func (s *ImportService) Import(ctx context.Context, userID string, options Impor
 ## セキュリティ考慮
 
 1. **API キーの取り扱い**
-   - API キーはサーバーサイドで処理
-   - クライアントには保存しない
+   - API キーはインポート処理中のみメモリに保持
+   - 永続化しない
    - インポート完了後は即座に破棄
 
 2. **データ転送**

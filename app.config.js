@@ -46,7 +46,6 @@ export default {
     extra: {
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-      backendUrl: process.env.EXPO_PUBLIC_BACKEND_URL,
       enableSignup: process.env.EXPO_PUBLIC_ENABLE_SIGNUP,
     }
   }

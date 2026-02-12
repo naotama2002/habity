@@ -1,8 +1,5 @@
-import Constants from 'expo-constants';
 import { supabase } from './supabase';
-
-const BACKEND_URL =
-  Constants.expoConfig?.extra?.backendUrl || 'http://localhost:8080';
+import { runImport } from './habitify/import-service';
 
 export interface ImportHabitifyParams {
   api_key: string;
@@ -18,33 +15,28 @@ export interface ImportHabitifyResult {
   errors?: string[];
 }
 
-async function getAuthToken(): Promise<string> {
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
-  if (!token) {
-    throw new Error('Not authenticated');
-  }
-  return token;
-}
-
 export async function importFromHabitify(
   params: ImportHabitifyParams,
 ): Promise<ImportHabitifyResult> {
-  const token = await getAuthToken();
-
-  const res = await fetch(`${BACKEND_URL}/api/v1/import/habitify`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(params),
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(body?.error || `Import failed with status ${res.status}`);
+  const { data } = await supabase.auth.getSession();
+  const userId = data.session?.user?.id;
+  if (!userId) {
+    throw new Error('Not authenticated');
   }
 
-  return res.json();
+  const result = await runImport({
+    apiKey: params.api_key,
+    importHabits: params.import_habits,
+    importLogs: params.import_logs,
+    timezone: params.timezone,
+    userId,
+    supabase,
+  });
+
+  return {
+    status: 'completed',
+    habits_imported: result.habits_imported,
+    logs_imported: result.logs_imported,
+    errors: result.errors.length > 0 ? result.errors : undefined,
+  };
 }

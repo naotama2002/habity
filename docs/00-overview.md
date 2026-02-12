@@ -34,7 +34,6 @@ Bluesky と同じアプローチを採用。1つのコードベースで全プ�
 
 - **Supabase** - BaaS（Auth, Database, Realtime）
 - **PostgreSQL** - データベース
-- **Go** - カスタムバックエンドロジック（Habitify インポート等）
 
 ---
 
@@ -85,6 +84,7 @@ Bluesky と同じアプローチを採用。1つのコードベースで全プ�
 | [05-development-environment.md](./05-development-environment.md) | 開発環境・Docker 構成 |
 | [06-migration.md](./06-migration.md) | マイグレーション運用ガイド |
 | [07-supabase-cloud-setup.md](./07-supabase-cloud-setup.md) | Supabase Cloud 移行ガイド |
+| [08-cloudflare-pages-deploy.md](./08-cloudflare-pages-deploy.md) | Cloudflare Pages デプロイガイド |
 | [TODO.md](./TODO.md) | **実装タスクリスト** |
 
 ---
@@ -103,7 +103,6 @@ habity/
 │   ├── platform/           # プラットフォーム固有コード
 │   ├── locale/             # 多言語
 │   └── types/              # 型定義
-├── backend/                # Go バックエンド
 ├── supabase/               # Supabase 設定・マイグレーション
 ├── docs/                   # ドキュメント
 ├── package.json
@@ -138,7 +137,6 @@ pnpm ios      # iOS
 |---------|-----|
 | Supabase API | http://localhost:54321 |
 | Supabase Studio | http://localhost:54323 |
-| Go Backend | http://localhost:8088 |
 | Email (Inbucket) | http://localhost:54324 |
 
 ---
