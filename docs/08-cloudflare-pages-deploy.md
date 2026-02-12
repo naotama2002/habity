@@ -38,7 +38,7 @@ Cloudflare Pages ダッシュボードの **Build settings** に以下を入力:
 | 項目 | 値 | 備考 |
 |------|-----|------|
 | Production branch | `main` | |
-| Build command | `pnpm install && pnpm intl:compile && pnpm exec expo export --platform web && cp dist/index.html dist/404.html` | |
+| Build command | `pnpm install && pnpm intl:compile && pnpm exec expo export --platform web` | |
 | Build output directory | `dist` | `expo export` のデフォルト出力先 |
 | Root directory | `/` | デフォルト |
 
@@ -102,7 +102,6 @@ EXPO_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co \
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key \
 EXPO_PUBLIC_ENABLE_SIGNUP=false \
 pnpm exec expo export --platform web
-cp dist/index.html dist/404.html
 
 # デプロイ（Wrangler CLI）
 pnpm exec wrangler pages deploy dist --project-name habity
@@ -137,13 +136,12 @@ Cloudflare Pages のデフォルト Node.js バージョンが古い場合:
 
 ### 直接 URL アクセスで 404
 
-SPA ルーティングはビルドコマンドの `cp dist/index.html dist/404.html` で対応している。
-Cloudflare Pages はファイルが見つからないパスに対して `404.html` を返すため、
-SPA エントリポイントとして機能する。
+SPA ルーティングは `functions/[[path]].ts`（Cloudflare Pages Functions）で対応している。
+静的ファイルがあればそれを返し、なければ `index.html` にフォールバックする。
 
 > **注意:** `_redirects` の `/* /index.html 200` は使用しない。
-> この設定はフォントや JS 等の静的アセットのリクエストも横取りし、
-> `index.html` を返してしまう問題がある。
+> アセットパスに `@` を含むファイル（`@expo/vector-icons` のフォント等）が
+> 正しく配信されない問題がある。
 
 ### 環境変数が反映されない
 
