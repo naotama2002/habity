@@ -1,8 +1,8 @@
 #!/bin/bash
-# Fix @ scoped package names in asset paths for Cloudflare Pages.
-# Cloudflare Pages cannot serve files with @ in their path.
+# Fix asset paths for Cloudflare Pages.
+# Cloudflare Pages cannot serve files under "node_modules/" paths.
 #
-# Example: dist/assets/node_modules/@expo/... → dist/assets/node_modules/expo/...
+# Example: dist/assets/node_modules/@expo/... → dist/assets/vendor/expo/...
 
 set -euo pipefail
 
@@ -13,17 +13,18 @@ if [ ! -d "$ASSETS_DIR" ]; then
   exit 0
 fi
 
-# Rename @scope directories (e.g., @expo → expo, @react-navigation → react-navigation)
+# Move node_modules → vendor, stripping @ from scoped package names
+mkdir -p dist/assets/vendor
 cd "$ASSETS_DIR"
-for dir in @*/; do
-  [ -d "$dir" ] || continue
+for dir in */; do
   newname="${dir#@}"
-  echo "Renaming $dir → $newname"
-  mv "$dir" "$newname"
+  echo "Moving $dir → vendor/$newname"
+  mv "$dir" "../vendor/$newname"
 done
 cd ../../..
+rmdir "$ASSETS_DIR"
 
 # Update references in JS bundle
-sed -i 's|node_modules/@|node_modules/|g' dist/_expo/static/js/web/*.js
+sed -i 's|assets/node_modules/@\?|assets/vendor/|g' dist/_expo/static/js/web/*.js
 
 echo "Done: fixed asset paths for Cloudflare Pages."
