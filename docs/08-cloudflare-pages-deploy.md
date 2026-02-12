@@ -88,6 +88,17 @@ PR に対して自動で Preview URL が生成される:
 
 PR レビュー時に実際の動作を確認できる。
 
+### Preview デプロイのアクセス制限
+
+Preview URL は公開されるため、Cloudflare Access でアクセスを制限する。
+
+1. [Zero Trust Dashboard](https://one.dash.cloudflare.com/) にアクセス
+2. **Access** → **Applications** → **Add an application** → **Self-hosted**
+3. ドメインに `*.habity.pages.dev` を設定（Preview URL をカバー）
+4. ポリシーで **Emails** に自分のメールアドレスのみ許可
+
+> Cloudflare Zero Trust の無料プランで 50 ユーザーまで対応。
+
 ---
 
 ## 4. 手動デプロイ（CLI）
