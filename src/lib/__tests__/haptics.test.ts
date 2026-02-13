@@ -2,9 +2,9 @@ import {describe, expect, it, jest, beforeEach} from '@jest/globals';
 import {renderHook} from '@testing-library/react-native';
 
 // expo-haptics モック
-const mockImpactAsync = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
+const mockImpactAsync = jest.fn<(style: string) => Promise<void>>().mockResolvedValue(undefined);
 jest.mock('expo-haptics', () => ({
-  impactAsync: (...args: unknown[]) => mockImpactAsync(...args),
+  impactAsync: (style: string) => mockImpactAsync(style),
   ImpactFeedbackStyle: {Light: 'light', Medium: 'medium', Heavy: 'heavy'},
 }));
 
@@ -25,6 +25,8 @@ jest.mock('@/lib/platform', () => ({
 
 import {useHaptics} from '../haptics';
 
+type PlayHaptic = (strength?: 'Light' | 'Medium' | 'Heavy') => void;
+
 describe('useHaptics', () => {
   beforeEach(() => {
     mockImpactAsync.mockClear();
@@ -39,28 +41,28 @@ describe('useHaptics', () => {
 
   it('should call impactAsync with Medium on iOS by default', () => {
     mockIsIOS = true;
-    const {result} = renderHook(() => useHaptics());
+    const {result} = renderHook<PlayHaptic, void>(() => useHaptics());
     result.current();
     expect(mockImpactAsync).toHaveBeenCalledWith('medium');
   });
 
   it('should call impactAsync with requested strength on iOS', () => {
     mockIsIOS = true;
-    const {result} = renderHook(() => useHaptics());
+    const {result} = renderHook<PlayHaptic, void>(() => useHaptics());
     result.current('Heavy');
     expect(mockImpactAsync).toHaveBeenCalledWith('heavy');
   });
 
   it('should call impactAsync with Light on Android regardless of strength', () => {
     mockIsIOS = false;
-    const {result} = renderHook(() => useHaptics());
+    const {result} = renderHook<PlayHaptic, void>(() => useHaptics());
     result.current('Heavy');
     expect(mockImpactAsync).toHaveBeenCalledWith('light');
   });
 
   it('should not call impactAsync on Web', () => {
     mockIsWeb = true;
-    const {result} = renderHook(() => useHaptics());
+    const {result} = renderHook<PlayHaptic, void>(() => useHaptics());
     result.current();
     expect(mockImpactAsync).not.toHaveBeenCalled();
   });
