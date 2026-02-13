@@ -83,60 +83,26 @@ export default function TodayScreen() {
   // 時間帯ごとに習慣をグループ化
   const groupedHabits = groupHabitsByTimeOfDay(habits ?? []);
 
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+  // コンテンツ部分の描画（ヘッダーは常に表示、ここだけ切り替え）
+  const renderContent = () => {
+    if (isLoading && !habits) {
+      return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
         </View>
-      </SafeAreaView>
-    );
-  }
+      );
+    }
 
-  if (error) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+    if (error && !habits) {
+      return (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{_(msg`Failed to load habits`)}</Text>
           <Text style={styles.errorSubtext}>{_(msg`Please try again`)}</Text>
         </View>
-      </SafeAreaView>
-    );
-  }
+      );
+    }
 
-  return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* ヘッダー */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text style={styles.title}>{headerTitle}</Text>
-          <Pressable
-            style={styles.addButton}
-            onPress={() => router.navigate('/habit/new')}
-          >
-            <Text style={styles.addButtonText}>+</Text>
-          </Pressable>
-        </View>
-
-        {/* 日付ストリップ */}
-        <DateStrip
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-        />
-
-        {/* 進捗 */}
-        <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>
-            {completedCount}/{effectiveTotal} {_(msg`completed`)}
-          </Text>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, {width: `${progress}%`}]} />
-          </View>
-          <Text style={styles.progressPercent}>{Math.round(progress)}%</Text>
-        </View>
-      </View>
-
-      {/* 習慣リスト */}
+    return (
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -194,6 +160,43 @@ export default function TodayScreen() {
           </>
         )}
       </ScrollView>
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {/* ヘッダー（常に表示） */}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <Text style={styles.title}>{headerTitle}</Text>
+          <Pressable
+            style={styles.addButton}
+            onPress={() => router.navigate('/habit/new')}
+          >
+            <Text style={styles.addButtonText}>+</Text>
+          </Pressable>
+        </View>
+
+        {/* 日付ストリップ */}
+        <DateStrip
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+        />
+
+        {/* 進捗 */}
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressText}>
+            {completedCount}/{effectiveTotal} {_(msg`completed`)}
+          </Text>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, {width: `${progress}%`}]} />
+          </View>
+          <Text style={styles.progressPercent}>{Math.round(progress)}%</Text>
+        </View>
+      </View>
+
+      {/* 習慣リスト */}
+      {renderContent()}
     </SafeAreaView>
   );
 }

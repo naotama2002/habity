@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { isDateMatchingRRule } from '@/lib/recurrence';
 import type {
@@ -99,6 +99,7 @@ export function useHabitsWithLog(date?: string) {
         } as HabitWithLog;
       });
     },
+    placeholderData: keepPreviousData,
   });
 }
 
