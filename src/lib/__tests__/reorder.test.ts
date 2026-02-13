@@ -1,70 +1,36 @@
 import {describe, expect, it} from '@jest/globals';
-import {moveUp, moveDown, buildSortOrderUpdates} from '../reorder';
+import {reorder, buildSortOrderUpdates} from '../reorder';
 
 describe('reorder utilities', () => {
-  describe('moveUp', () => {
-    it('should not change array when index is 0 (first element)', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveUp(items, 0)).toEqual(['a', 'b', 'c']);
+  describe('reorder', () => {
+    it('should move item forward', () => {
+      expect(reorder(['a', 'b', 'c', 'd'], 0, 2)).toEqual(['b', 'c', 'a', 'd']);
     });
 
-    it('should move item one position up', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveUp(items, 1)).toEqual(['b', 'a', 'c']);
+    it('should move item backward', () => {
+      expect(reorder(['a', 'b', 'c', 'd'], 3, 1)).toEqual(['a', 'd', 'b', 'c']);
     });
 
-    it('should move last item one position up', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveUp(items, 2)).toEqual(['a', 'c', 'b']);
+    it('should return same order when from equals to', () => {
+      expect(reorder(['a', 'b', 'c'], 1, 1)).toEqual(['a', 'b', 'c']);
     });
 
     it('should not mutate the original array', () => {
       const items = ['a', 'b', 'c'];
-      moveUp(items, 1);
+      reorder(items, 0, 2);
       expect(items).toEqual(['a', 'b', 'c']);
     });
 
-    it('should handle negative index', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveUp(items, -1)).toEqual(['a', 'b', 'c']);
+    it('should handle moving to first position', () => {
+      expect(reorder(['a', 'b', 'c'], 2, 0)).toEqual(['c', 'a', 'b']);
     });
 
-    it('should handle out-of-bounds index', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveUp(items, 5)).toEqual(['a', 'b', 'c']);
-    });
-  });
-
-  describe('moveDown', () => {
-    it('should not change array when index is last element', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveDown(items, 2)).toEqual(['a', 'b', 'c']);
+    it('should handle moving to last position', () => {
+      expect(reorder(['a', 'b', 'c'], 0, 2)).toEqual(['b', 'c', 'a']);
     });
 
-    it('should move item one position down', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveDown(items, 1)).toEqual(['a', 'c', 'b']);
-    });
-
-    it('should move first item one position down', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveDown(items, 0)).toEqual(['b', 'a', 'c']);
-    });
-
-    it('should not mutate the original array', () => {
-      const items = ['a', 'b', 'c'];
-      moveDown(items, 0);
-      expect(items).toEqual(['a', 'b', 'c']);
-    });
-
-    it('should handle negative index', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveDown(items, -1)).toEqual(['a', 'b', 'c']);
-    });
-
-    it('should handle out-of-bounds index', () => {
-      const items = ['a', 'b', 'c'];
-      expect(moveDown(items, 5)).toEqual(['a', 'b', 'c']);
+    it('should handle single item array', () => {
+      expect(reorder(['a'], 0, 0)).toEqual(['a']);
     });
   });
 

@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
-import { Ionicons } from '@expo/vector-icons';
 import { lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing, borderRadius, shadows } from '@/lib/spacing';
@@ -18,14 +17,6 @@ interface HabitListItemProps {
   onPress?: (habit: Habit) => void;
   /** 編集モード */
   editMode?: boolean;
-  /** 先頭アイテム（上矢印を無効化） */
-  isFirst?: boolean;
-  /** 末尾アイテム（下矢印を無効化） */
-  isLast?: boolean;
-  /** 上に移動 */
-  onMoveUp?: () => void;
-  /** 下に移動 */
-  onMoveDown?: () => void;
 }
 
 /**
@@ -37,10 +28,6 @@ export function HabitListItem({
   streak = 0,
   onPress,
   editMode = false,
-  isFirst = false,
-  isLast = false,
-  onMoveUp,
-  onMoveDown,
 }: HabitListItemProps) {
   const { _ } = useLingui();
 
@@ -91,42 +78,11 @@ export function HabitListItem({
           </Text>
         </View>
 
-        <View style={styles.right}>
-          {editMode ? (
-            <View style={styles.arrowButtons}>
-              <Pressable
-                onPress={onMoveUp}
-                disabled={isFirst}
-                accessibilityLabel={_(msg`Move up`)}
-                accessibilityRole="button"
-                style={[styles.arrowButton, isFirst && styles.arrowButtonDisabled]}
-              >
-                <Ionicons
-                  name="chevron-up"
-                  size={22}
-                  color={isFirst ? lightTheme.textTertiary : lightTheme.text}
-                />
-              </Pressable>
-              <Pressable
-                onPress={onMoveDown}
-                disabled={isLast}
-                accessibilityLabel={_(msg`Move down`)}
-                accessibilityRole="button"
-                style={[styles.arrowButton, isLast && styles.arrowButtonDisabled]}
-              >
-                <Ionicons
-                  name="chevron-down"
-                  size={22}
-                  color={isLast ? lightTheme.textTertiary : lightTheme.text}
-                />
-              </Pressable>
-            </View>
-          ) : (
-            <>
-              {streak > 0 && <StreakBadge streak={streak} />}
-            </>
-          )}
-        </View>
+        {!editMode && (
+          <View style={styles.right}>
+            {streak > 0 && <StreakBadge streak={streak} />}
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -164,16 +120,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-  },
-  arrowButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  arrowButton: {
-    padding: spacing.xs,
-  },
-  arrowButtonDisabled: {
-    opacity: 0.4,
   },
 });

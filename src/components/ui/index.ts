@@ -4,3 +4,4 @@ export { Select } from './Select';
 export { MultiSelect, timeOfDayOptions, weekdayOptions } from './MultiSelect';
 export { FormField } from './FormField';
 export { ConfirmDialog } from './ConfirmDialog';
+export { SortableList } from './SortableList';
