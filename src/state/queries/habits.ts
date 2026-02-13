@@ -68,9 +68,11 @@ export function useHabitsWithLog(date?: string) {
 
       if (logsError) throw logsError;
 
-      // 繰り返しルールに基づいてフィルタリング
+      // 開始日・繰り返しルールに基づいてフィルタリング
       const targetDateObj = new Date(targetDate);
       const filteredHabits = habits.filter(h => {
+        // 開始日より前の日付では表示しない
+        if (targetDate < h.start_date) return false;
         if (!h.recurrence_rule) return true;
         return isDateMatchingRRule(
           h.recurrence_rule,
