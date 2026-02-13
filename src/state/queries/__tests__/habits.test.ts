@@ -309,6 +309,59 @@ describe('habits queries', () => {
       expect(mockFrom).not.toHaveBeenCalledWith('habits_with_today_log');
     });
 
+    describe('start_date filtering', () => {
+      it('should exclude habits whose start_date is after the target date', async () => {
+        const habit = createMockHabit({
+          id: 'habit-future',
+          start_date: '2024-06-01',
+          recurrence_rule: null,
+        });
+        setupMockChain({data: [habit], error: null}, {data: [], error: null});
+
+        // 2024-01-01 is before start_date 2024-06-01
+        const result = (await executeQueryFn('2024-01-01')) as Array<{id: string}>;
+        expect(result).toHaveLength(0);
+      });
+
+      it('should include habits on their start_date', async () => {
+        const habit = createMockHabit({
+          id: 'habit-today',
+          start_date: '2024-06-01',
+          recurrence_rule: null,
+        });
+        setupMockChain({data: [habit], error: null}, {data: [], error: null});
+
+        const result = (await executeQueryFn('2024-06-01')) as Array<{id: string}>;
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe('habit-today');
+      });
+
+      it('should include habits after their start_date', async () => {
+        const habit = createMockHabit({
+          id: 'habit-past',
+          start_date: '2024-01-01',
+          recurrence_rule: null,
+        });
+        setupMockChain({data: [habit], error: null}, {data: [], error: null});
+
+        const result = (await executeQueryFn('2024-06-01')) as Array<{id: string}>;
+        expect(result).toHaveLength(1);
+      });
+
+      it('should exclude habits with recurrence_rule before start_date', async () => {
+        const habit = createMockHabit({
+          id: 'habit-rrule-future',
+          start_date: '2024-06-01',
+          recurrence_rule: 'RRULE:FREQ=WEEKLY;BYDAY=MO',
+        });
+        setupMockChain({data: [habit], error: null}, {data: [], error: null});
+
+        // Monday 2024-01-01 matches MO, but is before start_date
+        const result = (await executeQueryFn('2024-01-01')) as Array<{id: string}>;
+        expect(result).toHaveLength(0);
+      });
+    });
+
     describe('recurrence filtering', () => {
       it('should include habits without recurrence rule', async () => {
         const habit = createMockHabit({recurrence_rule: null});
