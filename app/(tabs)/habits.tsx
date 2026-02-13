@@ -14,11 +14,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useHabits, useReorderHabits } from '@/state/queries/habits';
 import { HabitListItem } from '@/components/habits';
-import { SearchInput, SegmentedControl } from '@/components/ui';
+import { SearchInput, SegmentedControl, SortableList } from '@/components/ui';
 import { colors, lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
 import { spacing, borderRadius } from '@/lib/spacing';
-import { moveUp, moveDown, buildSortOrderUpdates } from '@/lib/reorder';
+import { buildSortOrderUpdates } from '@/lib/reorder';
 import type { Habit, HabitStatus } from '@/types/database';
 
 /**
@@ -111,19 +111,6 @@ export default function HabitsScreen() {
     setEditMode(false);
   }, [localHabits, reorderMutation]);
 
-  // 上に移動
-  const handleMoveUp = useCallback((index: number) => {
-    setLocalHabits(prev => moveUp(prev, index));
-  }, []);
-
-  // 下に移動
-  const handleMoveDown = useCallback((index: number) => {
-    setLocalHabits(prev => moveDown(prev, index));
-  }, []);
-
-  // 表示するリスト（editMode 中は localHabits）
-  const displayHabits = editMode ? localHabits : filteredHabits;
-
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -187,94 +174,106 @@ export default function HabitsScreen() {
       </View>
 
       {/* 習慣リスト */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {displayHabits.length === 0 ? (
+      {editMode ? (
+        localHabits.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Ionicons
               name="list-outline"
               size={48}
               color={lightTheme.textTertiary}
             />
-            <Text style={styles.emptyText}>
-              {searchQuery ? _(msg`No search results`) : _(msg`No habits yet`)}
-            </Text>
+            <Text style={styles.emptyText}>{_(msg`No habits yet`)}</Text>
             <Text style={styles.emptySubtext}>
-              {searchQuery
-                ? _(msg`Try searching with different keywords`)
-                : _(msg`Add a new habit to get started`)}
+              {_(msg`Add a new habit to get started`)}
             </Text>
-          </View>
-        ) : editMode ? (
-          /* 編集モード: フラットリスト */
-          <View style={styles.sectionContent}>
-            {displayHabits.map((habit, index) => (
-              <HabitListItem
-                key={habit.id}
-                habit={habit}
-                editMode
-                isFirst={index === 0}
-                isLast={index === displayHabits.length - 1}
-                onMoveUp={() => handleMoveUp(index)}
-                onMoveDown={() => handleMoveDown(index)}
-              />
-            ))}
           </View>
         ) : (
-          <>
-            {/* 未分類の習慣 */}
-            {groupedHabits.uncategorized.length > 0 && (
-              <View style={styles.section}>
-                <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>
-                    {_(msg`Uncategorized`)} ({groupedHabits.uncategorized.length})
-                  </Text>
-                </View>
-                <View style={styles.sectionContent}>
-                  {groupedHabits.uncategorized.map((habit) => (
-                    <HabitListItem
-                      key={habit.id}
-                      habit={habit}
-                      streak={0} // TODO: ストリーク計算
-                      onPress={handlePressHabit}
-                    />
-                  ))}
-                </View>
-              </View>
+          <SortableList
+            data={localHabits}
+            keyExtractor={(h) => h.id}
+            renderItem={(habit) => (
+              <HabitListItem habit={habit} editMode />
             )}
+            onReorder={setLocalHabits}
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+          />
+        )
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {filteredHabits.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons
+                name="list-outline"
+                size={48}
+                color={lightTheme.textTertiary}
+              />
+              <Text style={styles.emptyText}>
+                {searchQuery ? _(msg`No search results`) : _(msg`No habits yet`)}
+              </Text>
+              <Text style={styles.emptySubtext}>
+                {searchQuery
+                  ? _(msg`Try searching with different keywords`)
+                  : _(msg`Add a new habit to get started`)}
+              </Text>
+            </View>
+          ) : (
+            <>
+              {/* 未分類の習慣 */}
+              {groupedHabits.uncategorized.length > 0 && (
+                <View style={styles.section}>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>
+                      {_(msg`Uncategorized`)} ({groupedHabits.uncategorized.length})
+                    </Text>
+                  </View>
+                  <View style={styles.sectionContent}>
+                    {groupedHabits.uncategorized.map((habit) => (
+                      <HabitListItem
+                        key={habit.id}
+                        habit={habit}
+                        streak={0} // TODO: ストリーク計算
+                        onPress={handlePressHabit}
+                      />
+                    ))}
+                  </View>
+                </View>
+              )}
 
-            {/* カテゴリ別の習慣 */}
-            {Object.entries(groupedHabits.groups).map(([categoryId, categoryHabits]) => (
-              <View key={categoryId} style={styles.section}>
-                <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>
-                    {/* TODO: カテゴリ名を表示 */}
-                    {_(msg`Category`)} ({categoryHabits.length})
-                  </Text>
-                  <Ionicons
-                    name="chevron-down"
-                    size={20}
-                    color={lightTheme.textSecondary}
-                  />
-                </View>
-                <View style={styles.sectionContent}>
-                  {categoryHabits.map((habit) => (
-                    <HabitListItem
-                      key={habit.id}
-                      habit={habit}
-                      streak={0}
-                      onPress={handlePressHabit}
+              {/* カテゴリ別の習慣 */}
+              {Object.entries(groupedHabits.groups).map(([categoryId, categoryHabits]) => (
+                <View key={categoryId} style={styles.section}>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>
+                      {/* TODO: カテゴリ名を表示 */}
+                      {_(msg`Category`)} ({categoryHabits.length})
+                    </Text>
+                    <Ionicons
+                      name="chevron-down"
+                      size={20}
+                      color={lightTheme.textSecondary}
                     />
-                  ))}
+                  </View>
+                  <View style={styles.sectionContent}>
+                    {categoryHabits.map((habit) => (
+                      <HabitListItem
+                        key={habit.id}
+                        habit={habit}
+                        streak={0}
+                        onPress={handlePressHabit}
+                      />
+                    ))}
+                  </View>
                 </View>
-              </View>
-            ))}
-          </>
-        )}
-      </ScrollView>
+              ))}
+            </>
+          )}
+        </ScrollView>
+      )}
 
       {/* FAB (編集モード中は非表示) */}
       {!editMode && (

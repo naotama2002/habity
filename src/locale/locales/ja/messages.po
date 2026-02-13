@@ -17,12 +17,12 @@ msgstr ""
 msgid "{streak} days"
 msgstr "{streak}日"
 
-#: app/(auth)/login.tsx:79
-#: app/(auth)/signup.tsx:109
+#: app/(auth)/login.tsx:81
+#: app/(auth)/signup.tsx:119
 msgid "← Back"
 msgstr "← 戻る"
 
-#: app/(auth)/signup.tsx:148
+#: app/(auth)/signup.tsx:162
 msgid "6 or more characters"
 msgstr "6文字以上"
 
@@ -34,8 +34,9 @@ msgstr "このアプリについて"
 msgid "Active"
 msgstr "アクティブ"
 
-#: app/(tabs)/habits.tsx:208
-#: app/(tabs)/index.tsx:148
+#: app/(tabs)/habits.tsx:192
+#: app/(tabs)/habits.tsx:225
+#: app/(tabs)/index.tsx:125
 msgid "Add a new habit to get started"
 msgstr "新しい習慣を追加して始めましょう"
 
@@ -48,7 +49,7 @@ msgstr "昼"
 msgid "All"
 msgstr "すべて"
 
-#: app/(auth)/signup.tsx:194
+#: app/(auth)/signup.tsx:214
 msgid "Already have an account?"
 msgstr "既にアカウントをお持ちの方は"
 
@@ -73,7 +74,7 @@ msgstr "戻る"
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: app/(tabs)/habits.tsx:255
+#: app/(tabs)/habits.tsx:257
 msgid "Category"
 msgstr "カテゴリ"
 
@@ -86,15 +87,15 @@ msgstr "グラフは今後実装予定です"
 msgid "Clear all"
 msgstr "全てクリア"
 
-#: app/(auth)/signup.tsx:85
+#: app/(auth)/signup.tsx:95
 msgid "Click the link in the email to activate your account."
 msgstr "メール内のリンクをクリックしてアカウントを有効化してください。"
 
-#: app/import/habitify.tsx:257
+#: app/import/habitify.tsx:260
 msgid "Close"
 msgstr "閉じる"
 
-#: app/(tabs)/index.tsx:128
+#: app/(tabs)/index.tsx:189
 msgid "completed"
 msgstr "完了"
 
@@ -106,7 +107,7 @@ msgstr "達成率"
 msgid "Completion Rate by Habit"
 msgstr "習慣別達成率"
 
-#: app/(auth)/signup.tsx:161
+#: app/(auth)/signup.tsx:178
 msgid "Confirm Password"
 msgstr "パスワード（確認）"
 
@@ -114,13 +115,13 @@ msgstr "パスワード（確認）"
 msgid "Continue Editing"
 msgstr "編集を続ける"
 
-#: app/(auth)/signup.tsx:111
-#: app/(auth)/signup.tsx:187
+#: app/(auth)/signup.tsx:121
+#: app/(auth)/signup.tsx:207
 msgid "Create Account"
 msgstr "アカウント作成"
 
+#: src/components/habits/HabitListItem.tsx:47
 #: src/components/habits/HabitListItem.tsx:60
-#: src/components/habits/HabitListItem.tsx:73
 msgid "Daily"
 msgstr "毎日"
 
@@ -129,7 +130,7 @@ msgid "Data"
 msgstr "データ"
 
 #: src/components/forms/RecurrencePicker.tsx:180
-#: src/components/habits/HabitListItem.tsx:74
+#: src/components/habits/HabitListItem.tsx:61
 msgid "days"
 msgstr "日ごと"
 
@@ -145,11 +146,11 @@ msgstr "破棄"
 msgid "Discard Changes"
 msgstr "変更を破棄"
 
-#: app/(auth)/welcome.tsx:84
+#: app/(auth)/welcome.tsx:86
 msgid "Don't have an account?"
 msgstr "アカウントをお持ちでない方は"
 
-#: app/(tabs)/habits.tsx:157
+#: app/(tabs)/habits.tsx:144
 msgid "Done"
 msgstr "完了"
 
@@ -157,7 +158,7 @@ msgstr "完了"
 msgid "e.g., Reading, Exercise, Meditation"
 msgstr "例: 読書、運動、瞑想"
 
-#: app/(tabs)/habits.tsx:157
+#: app/(tabs)/habits.tsx:144
 msgid "Edit"
 msgstr "編集"
 
@@ -166,12 +167,12 @@ msgstr "編集"
 msgid "Edit Habit"
 msgstr "習慣を編集"
 
-#: app/(auth)/login.tsx:98
-#: app/(auth)/signup.tsx:128
+#: app/(auth)/login.tsx:100
+#: app/(auth)/signup.tsx:138
 msgid "Email"
 msgstr "メールアドレス"
 
-#: app/(auth)/login.tsx:56
+#: app/(auth)/login.tsx:58
 msgid "Email or password is incorrect"
 msgstr "メールアドレスまたはパスワードが間違っています"
 
@@ -179,11 +180,11 @@ msgstr "メールアドレスまたはパスワードが間違っています"
 msgid "English"
 msgstr "英語"
 
-#: app/(auth)/login.tsx:83
+#: app/(auth)/login.tsx:85
 msgid "Enter your email and password"
 msgstr "メールアドレスとパスワードを入力してください"
 
-#: app/import/habitify.tsx:98
+#: app/import/habitify.tsx:101
 msgid "Enter your Habitify API key"
 msgstr "Habitify の API キーを入力"
 
@@ -200,8 +201,8 @@ msgstr "夕方"
 msgid "Export Data"
 msgstr "データエクスポート"
 
-#: app/(tabs)/habits.tsx:141
-#: app/(tabs)/index.tsx:98
+#: app/(tabs)/habits.tsx:128
+#: app/(tabs)/index.tsx:99
 msgid "Failed to load habits"
 msgstr "習慣の読み込みに失敗しました"
 
@@ -214,7 +215,7 @@ msgid "Feedback"
 msgstr "フィードバック"
 
 #: src/components/forms/RecurrencePicker.tsx:46
-#: src/components/habits/HabitListItem.tsx:54
+#: src/components/habits/HabitListItem.tsx:41
 msgid "Fri"
 msgstr "金"
 
@@ -222,7 +223,7 @@ msgstr "金"
 msgid "General"
 msgstr "一般"
 
-#: app/(auth)/signup.tsx:88
+#: app/(auth)/signup.tsx:98
 msgid "Go to Sign In"
 msgstr "サインインへ"
 
@@ -238,7 +239,7 @@ msgstr "習慣名"
 msgid "Habit not found"
 msgstr "習慣が見つかりません"
 
-#: app/import/habitify.tsx:92
+#: app/import/habitify.tsx:95
 msgid "Habitify API Key"
 msgstr "Habitify API キー"
 
@@ -246,7 +247,7 @@ msgstr "Habitify API キー"
 msgid "Habits"
 msgstr "習慣数"
 
-#: app/import/habitify.tsx:233
+#: app/import/habitify.tsx:236
 msgid "Habits imported"
 msgstr "インポートした習慣"
 
@@ -254,36 +255,36 @@ msgstr "インポートした習慣"
 msgid "Help"
 msgstr "ヘルプ"
 
-#: app/import/habitify.tsx:107
+#: app/import/habitify.tsx:110
 msgid "How to get your API key: Open Habitify app → Settings → API Credential → Copy"
 msgstr "API キーの取得方法: Habitify アプリ → 設定 → API Credential → コピー"
 
-#: app/import/habitify.tsx:203
+#: app/import/habitify.tsx:206
 msgid "Import"
 msgstr "インポート"
 
-#: app/import/habitify.tsx:229
+#: app/import/habitify.tsx:232
 msgid "Import Complete"
 msgstr "インポート完了"
 
 #: app/(tabs)/settings.tsx:61
-#: app/import/habitify.tsx:76
+#: app/import/habitify.tsx:79
 msgid "Import from Habitify"
 msgstr "Habitify からインポート"
 
-#: app/import/habitify.tsx:125
+#: app/import/habitify.tsx:128
 msgid "Import Habits"
 msgstr "習慣をインポート"
 
-#: app/import/habitify.tsx:151
+#: app/import/habitify.tsx:154
 msgid "Import Logs"
 msgstr "ログをインポート"
 
-#: app/import/habitify.tsx:114
+#: app/import/habitify.tsx:117
 msgid "Import Options"
 msgstr "インポートオプション"
 
-#: app/import/habitify.tsx:198
+#: app/import/habitify.tsx:201
 msgid "Importing..."
 msgstr "インポート中..."
 
@@ -303,15 +304,15 @@ msgstr "日本語"
 msgid "Language"
 msgstr "言語"
 
-#: app/(auth)/signup.tsx:113
+#: app/(auth)/signup.tsx:123
 msgid "Let's create a new account"
 msgstr "新しいアカウントを作成しましょう"
 
-#: app/(auth)/login.tsx:58
+#: app/(auth)/login.tsx:60
 msgid "Login failed. Please try again."
 msgstr "ログインに失敗しました。もう一度お試しください"
 
-#: app/import/habitify.tsx:238
+#: app/import/habitify.tsx:241
 msgid "Logs imported"
 msgstr "インポートしたログ"
 
@@ -319,7 +320,7 @@ msgstr "インポートしたログ"
 msgid "Longest Streak"
 msgstr "最長連続"
 
-#: app/(auth)/welcome.tsx:53
+#: app/(auth)/welcome.tsx:54
 msgid "Make habits simpler"
 msgstr "習慣を、もっとシンプルに"
 
@@ -328,7 +329,7 @@ msgid "Manage Categories"
 msgstr "カテゴリ管理"
 
 #: src/components/forms/RecurrencePicker.tsx:42
-#: src/components/habits/HabitListItem.tsx:53
+#: src/components/habits/HabitListItem.tsx:40
 msgid "Mon"
 msgstr "月"
 
@@ -337,7 +338,7 @@ msgid "Monday"
 msgstr "月曜"
 
 #: src/components/forms/RecurrencePicker.tsx:37
-#: src/components/habits/HabitListItem.tsx:70
+#: src/components/habits/HabitListItem.tsx:57
 msgid "Monthly"
 msgstr "毎月"
 
@@ -345,14 +346,6 @@ msgstr "毎月"
 #: src/components/habits/TimeOfDaySection.tsx:30
 msgid "Morning"
 msgstr "朝"
-
-#: src/components/habits/HabitListItem.tsx:113
-msgid "Move down"
-msgstr "下に移動"
-
-#: src/components/habits/HabitListItem.tsx:100
-msgid "Move up"
-msgstr "上に移動"
 
 #: src/components/forms/HabitForm.tsx:323
 msgid "Multiple selection allowed"
@@ -367,12 +360,13 @@ msgstr "新しい習慣"
 msgid "Night"
 msgstr "夜"
 
-#: app/(tabs)/habits.tsx:203
-#: app/(tabs)/index.tsx:146
+#: app/(tabs)/habits.tsx:190
+#: app/(tabs)/habits.tsx:220
+#: app/(tabs)/index.tsx:123
 msgid "No habits yet"
 msgstr "習慣がありません"
 
-#: app/(tabs)/habits.tsx:203
+#: app/(tabs)/habits.tsx:220
 msgid "No search results"
 msgstr "検索結果がありません"
 
@@ -388,9 +382,9 @@ msgstr "通知"
 msgid "Optional"
 msgstr "任意"
 
-#: app/(auth)/login.tsx:115
-#: app/(auth)/login.tsx:118
-#: app/(auth)/signup.tsx:145
+#: app/(auth)/login.tsx:120
+#: app/(auth)/login.tsx:124
+#: app/(auth)/signup.tsx:158
 msgid "Password"
 msgstr "パスワード"
 
@@ -398,11 +392,11 @@ msgstr "パスワード"
 msgid "Please sign in"
 msgstr "ログインしてください"
 
-#: app/(tabs)/index.tsx:99
+#: app/(tabs)/index.tsx:100
 msgid "Please try again"
 msgstr "もう一度お試しください"
 
-#: app/(auth)/signup.tsx:164
+#: app/(auth)/signup.tsx:182
 msgid "Re-enter password"
 msgstr "パスワードを再入力"
 
@@ -410,11 +404,11 @@ msgstr "パスワードを再入力"
 msgid "Recurrence"
 msgstr "繰り返し"
 
-#: app/(auth)/signup.tsx:81
+#: app/(auth)/signup.tsx:91
 msgid "Registration complete"
 msgstr "登録が完了しました"
 
-#: app/(auth)/signup.tsx:56
+#: app/(auth)/signup.tsx:66
 msgid "Registration failed. Please try again."
 msgstr "登録に失敗しました。もう一度お試しください"
 
@@ -423,7 +417,7 @@ msgid "Remove skip"
 msgstr "スキップを解除"
 
 #: src/components/forms/RecurrencePicker.tsx:47
-#: src/components/habits/HabitListItem.tsx:54
+#: src/components/habits/HabitListItem.tsx:41
 msgid "Sat"
 msgstr "土"
 
@@ -456,17 +450,17 @@ msgstr "日付を選択してください"
 msgid "Select days of the week"
 msgstr "曜日を選択してください"
 
-#: app/(auth)/login.tsx:81
-#: app/(auth)/login.tsx:141
-#: app/(auth)/signup.tsx:197
+#: app/(auth)/login.tsx:83
+#: app/(auth)/login.tsx:149
+#: app/(auth)/signup.tsx:217
 msgid "Sign In"
 msgstr "サインイン"
 
-#: app/(auth)/welcome.tsx:78
+#: app/(auth)/welcome.tsx:79
 msgid "Sign in with Email"
 msgstr "メールでサインイン"
 
-#: app/(auth)/welcome.tsx:70
+#: app/(auth)/welcome.tsx:71
 msgid "Sign in with GitHub"
 msgstr "GitHub でサインイン"
 
@@ -474,7 +468,7 @@ msgstr "GitHub でサインイン"
 msgid "Sign Out"
 msgstr "ログアウト"
 
-#: app/(auth)/welcome.tsx:85
+#: app/(auth)/welcome.tsx:87
 msgid "Sign Up"
 msgstr "新規登録"
 
@@ -482,11 +476,11 @@ msgstr "新規登録"
 msgid "Skip for today"
 msgstr "今日はスキップ"
 
-#: src/components/habits/HabitCard.tsx:94
+#: src/components/habits/HabitCard.tsx:117
 msgid "Skipped"
 msgstr "スキップ済み"
 
-#: app/import/habitify.tsx:246
+#: app/import/habitify.tsx:249
 msgid "Some items could not be imported"
 msgstr "一部のデータをインポートできませんでした"
 
@@ -503,7 +497,7 @@ msgid "Streak will not be broken"
 msgstr "ストリークは途切れません"
 
 #: src/components/forms/RecurrencePicker.tsx:48
-#: src/components/habits/HabitListItem.tsx:54
+#: src/components/habits/HabitListItem.tsx:41
 msgid "Sun"
 msgstr "日"
 
@@ -519,12 +513,12 @@ msgstr "システム"
 msgid "There are errors in the input. Please check the fields highlighted in red."
 msgstr "入力内容に誤りがあります。赤色で表示されているエラーを確認してください。"
 
-#: app/(auth)/signup.tsx:54
+#: app/(auth)/signup.tsx:64
 msgid "This email is already registered"
 msgstr "このメールアドレスは既に登録されています"
 
 #: src/components/forms/RecurrencePicker.tsx:45
-#: src/components/habits/HabitListItem.tsx:53
+#: src/components/habits/HabitListItem.tsx:40
 msgid "Thu"
 msgstr "木"
 
@@ -532,7 +526,7 @@ msgstr "木"
 msgid "Time of Day"
 msgstr "実行する時間帯"
 
-#: app/(tabs)/index.tsx:43
+#: app/(tabs)/index.tsx:45
 #: src/components/date/DateStrip.tsx:121
 msgid "Today"
 msgstr "今日"
@@ -541,29 +535,29 @@ msgstr "今日"
 msgid "Tomorrow"
 msgstr "明日"
 
-#: app/(auth)/welcome.tsx:59
+#: app/(auth)/welcome.tsx:60
 msgid "Track your daily habits and become a better you"
 msgstr "毎日の習慣を記録して、より良い自分を目指しましょう"
 
-#: app/(tabs)/habits.tsx:207
+#: app/(tabs)/habits.tsx:224
 msgid "Try searching with different keywords"
 msgstr "別のキーワードで検索してみてください"
 
 #: src/components/forms/RecurrencePicker.tsx:43
-#: src/components/habits/HabitListItem.tsx:53
+#: src/components/habits/HabitListItem.tsx:40
 msgid "Tue"
 msgstr "火"
 
-#: app/(tabs)/habits.tsx:233
+#: app/(tabs)/habits.tsx:235
 msgid "Uncategorized"
 msgstr "未分類"
 
-#: app/(auth)/signup.tsx:83
+#: app/(auth)/signup.tsx:93
 msgid "We sent you a confirmation email."
 msgstr "確認メールを送信しました。"
 
 #: src/components/forms/RecurrencePicker.tsx:44
-#: src/components/habits/HabitListItem.tsx:53
+#: src/components/habits/HabitListItem.tsx:40
 msgid "Wed"
 msgstr "水"
 
@@ -572,7 +566,7 @@ msgid "Week Starts On"
 msgstr "週の開始日"
 
 #: src/components/forms/RecurrencePicker.tsx:36
-#: src/components/habits/HabitListItem.tsx:66
+#: src/components/habits/HabitListItem.tsx:53
 msgid "Weekly"
 msgstr "毎週"
 

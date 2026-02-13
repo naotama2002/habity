@@ -145,7 +145,7 @@
 - [ ] src/components/habits/CategorySection.tsx - カテゴリセクション
 - [x] 検索機能
 - [x] フィルター（すべて/アクティブ/アーカイブ）
-- [ ] 並び替え機能
+- [x] 並び替え機能
 
 ### 1.5 習慣詳細画面
 参照: docs/04-ui-design.md「3. 習慣詳細画面」

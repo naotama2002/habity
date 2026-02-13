@@ -1,22 +1,10 @@
 /**
- * 配列内のアイテムを1つ上(前)に移動した新しい配列を返す。
- * index が 0 以下の場合は元の配列のコピーを返す。
+ * 配列内のアイテムを fromIndex から toIndex に移動した新しい配列を返す。
  */
-export function moveUp<T>(items: T[], index: number): T[] {
-  if (index <= 0 || index >= items.length) return [...items];
+export function reorder<T>(items: T[], fromIndex: number, toIndex: number): T[] {
   const result = [...items];
-  [result[index - 1], result[index]] = [result[index], result[index - 1]];
-  return result;
-}
-
-/**
- * 配列内のアイテムを1つ下(後)に移動した新しい配列を返す。
- * index が末尾以上の場合は元の配列のコピーを返す。
- */
-export function moveDown<T>(items: T[], index: number): T[] {
-  if (index < 0 || index >= items.length - 1) return [...items];
-  const result = [...items];
-  [result[index], result[index + 1]] = [result[index + 1], result[index]];
+  const [removed] = result.splice(fromIndex, 1);
+  result.splice(toIndex, 0, removed);
   return result;
 }
 
