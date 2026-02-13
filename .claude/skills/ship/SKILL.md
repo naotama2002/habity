@@ -34,14 +34,24 @@ allowed-tools: Bash, Read, Grep, Glob, Edit
 
 更新が必要な場合はここで修正してステージングに含める。
 
-## 4. コミット
+## 4. コードチェック
+
+次のコマンドでコードの整合性を確認する。
+エラーがある場合は修正する。
+
+- `pnpm test`
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm intl:check`
+
+## 5. コミット
 
 - 変更ファイルを `git add` でステージング（機密ファイルは除外）
 - 変更内容に基づいてコミットメッセージを作成（Conventional Commits 形式）
 - コミットメッセージの末尾に `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>` を付与
 - HEREDOC 形式でコミット
 
-## 5. プッシュ & PR 作成
+## 6. プッシュ & PR 作成
 
 - `git push -u origin <branch-name>`
 - `gh pr create` で PR 作成
