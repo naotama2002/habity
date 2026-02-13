@@ -1,9 +1,10 @@
 import {useState} from 'react';
-import {View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, RefreshControl} from 'react-native';
 import {msg} from '@lingui/macro';
 import {useLingui} from '@lingui/react';
 import {useRouter} from 'expo-router';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import Animated, {LinearTransition} from 'react-native-reanimated';
 import {format, parseISO, isToday as dateIsToday} from 'date-fns';
 import {ja, enUS} from 'date-fns/locale';
 import {useHabitsWithLog} from '@/state/queries/habits';
@@ -14,6 +15,7 @@ import {DateStrip} from '@/components/date/DateStrip';
 import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
 import {spacing, borderRadius} from '@/lib/spacing';
+import {IS_WEB} from '@/lib/platform';
 import {i18n} from '@/locale/i18n';
 import type {HabitWithLog, TimeOfDay} from '@/types/database';
 
@@ -31,7 +33,7 @@ export default function TodayScreen() {
     format(new Date(), 'yyyy-MM-dd'),
   );
 
-  const {data: habits, isLoading, error} = useHabitsWithLog(selectedDate);
+  const {data: habits, isLoading, isFetching, error, refetch} = useHabitsWithLog(selectedDate);
   const toggleLog = useToggleHabitLog();
   const skipLog = useSkipHabitLog();
   const unskipLog = useUnskipHabitLog();
@@ -139,6 +141,15 @@ export default function TodayScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          !IS_WEB ? (
+            <RefreshControl
+              refreshing={isFetching && !isLoading}
+              onRefresh={refetch}
+              tintColor={colors.primary[500]}
+            />
+          ) : undefined
+        }
       >
         {habits?.length === 0 ? (
           <View style={styles.emptyContainer}>
@@ -159,19 +170,23 @@ export default function TodayScreen() {
               return (
                 <TimeOfDaySection key={timeOfDay} timeOfDay={timeOfDay}>
                   {habitsInSection.map((habit) => (
-                    <HabitCardActions
+                    <Animated.View
                       key={habit.id}
-                      isSkipped={habit.is_skipped}
-                      onSkip={() => handleSkip(habit)}
-                      onUnskip={() => handleUnskip(habit)}
+                      layout={LinearTransition.duration(300)}
                     >
-                      <HabitCard
-                        habit={habit}
-                        streak={0} // TODO: ストリーク計算を実装
-                        onToggle={handleToggle}
-                        onPress={handlePressHabit}
-                      />
-                    </HabitCardActions>
+                      <HabitCardActions
+                        isSkipped={habit.is_skipped}
+                        onSkip={() => handleSkip(habit)}
+                        onUnskip={() => handleUnskip(habit)}
+                      >
+                        <HabitCard
+                          habit={habit}
+                          streak={0} // TODO: ストリーク計算を実装
+                          onToggle={handleToggle}
+                          onPress={handlePressHabit}
+                        />
+                      </HabitCardActions>
+                    </Animated.View>
                   ))}
                 </TimeOfDaySection>
               );

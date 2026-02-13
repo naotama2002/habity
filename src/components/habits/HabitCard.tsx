@@ -1,7 +1,13 @@
-import {View, Text, StyleSheet, Pressable, Platform} from 'react-native';
+import {View, Text, StyleSheet, Pressable} from 'react-native';
 import {msg} from '@lingui/macro';
 import {useLingui} from '@lingui/react';
-import * as Haptics from 'expo-haptics';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import {useHaptics} from '@/lib/haptics';
 import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
 import {spacing, borderRadius, shadows} from '@/lib/spacing';
@@ -30,21 +36,31 @@ export function HabitCard({
   onPress,
 }: HabitCardProps) {
   const {_} = useLingui();
+  const playHaptic = useHaptics();
   const isCompleted = habit.is_completed;
   const isSkipped = habit.is_skipped;
 
-  const handleToggle = async () => {
+  // 緑フラッシュアニメーション用 shared value (0 = 透明, 1 = 不透明)
+  const flashOpacity = useSharedValue(0);
+
+  const handleToggle = () => {
     if (isSkipped) return; // スキップ中はトグル不可
-    // Haptics フィードバック（ネイティブプラットフォームのみ）
-    if (Platform.OS !== 'web') {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    playHaptic('Light');
+    // チェック時に緑フラッシュ
+    flashOpacity.value = withSequence(
+      withTiming(1, {duration: 200}),
+      withTiming(0, {duration: 300}),
+    );
     onToggle?.(habit);
   };
 
   const handlePress = () => {
     onPress?.(habit);
   };
+
+  const flashStyle = useAnimatedStyle(() => ({
+    opacity: flashOpacity.value,
+  }));
 
   // コンテナスタイルの決定
   const containerStyle = [
@@ -68,11 +84,18 @@ export function HabitCard({
   ];
 
   return (
+    <View>
       <Pressable
         testID="habit-card"
         style={containerStyle}
         onPress={handlePress}
       >
+        {/* 緑フラッシュオーバーレイ */}
+        <Animated.View
+          style={[styles.flashOverlay, flashStyle]}
+          pointerEvents="none"
+        />
+
         {/* チェックボックス */}
         <Pressable
           testID="habit-checkbox"
@@ -99,6 +122,7 @@ export function HabitCard({
           <StreakBadge streak={streak} />
         </View>
       </Pressable>
+    </View>
   );
 }
 
@@ -112,6 +136,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     borderWidth: 1,
     borderColor: lightTheme.border,
+    overflow: 'hidden',
     ...shadows.sm,
   },
   containerCompleted: {
@@ -122,6 +147,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray[50],
     borderColor: colors.gray[200],
     opacity: 0.7,
+  },
+  flashOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.success[100],
+    borderRadius: borderRadius.lg,
   },
   checkbox: {
     width: 24,

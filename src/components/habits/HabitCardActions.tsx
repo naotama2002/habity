@@ -9,7 +9,7 @@ import Animated, {
   runOnJS,
   interpolate,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
+import {useHaptics} from '@/lib/haptics';
 import {colors} from '@/lib/colors';
 import {spacing} from '@/lib/spacing';
 
@@ -36,13 +36,14 @@ export function HabitCardActions({
   onUnskip,
   children,
 }: HabitCardActionsProps) {
+  const playHaptic = useHaptics();
   const transX = useSharedValue(0);
   const iconScale = useSharedValue(1);
   const hitThreshold = useSharedValue(false);
 
   const triggerHaptic = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-  }, []);
+    playHaptic('Medium');
+  }, [playHaptic]);
 
   const executeAction = useCallback(() => {
     if (isSkipped) {

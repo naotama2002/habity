@@ -3,10 +3,10 @@ import {render, screen, fireEvent, waitFor} from '@testing-library/react-native'
 import {HabitCard} from '../HabitCard';
 import type {HabitWithLog} from '@/types/database';
 
-// expo-haptics モック
-jest.mock('expo-haptics', () => ({
-  impactAsync: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
-  ImpactFeedbackStyle: {Light: 'light'},
+// useHaptics モック
+const mockPlayHaptic = jest.fn();
+jest.mock('@/lib/haptics', () => ({
+  useHaptics: () => mockPlayHaptic,
 }));
 
 function createMockHabitWithLog(
