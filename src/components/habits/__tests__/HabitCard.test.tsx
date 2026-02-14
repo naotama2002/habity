@@ -3,12 +3,6 @@ import {render, screen, fireEvent, waitFor} from '@testing-library/react-native'
 import {HabitCard} from '../HabitCard';
 import type {HabitWithLog} from '@/types/database';
 
-// useHaptics モック
-const mockPlayHaptic = jest.fn();
-jest.mock('@/lib/haptics', () => ({
-  useHaptics: () => mockPlayHaptic,
-}));
-
 function createMockHabitWithLog(
   overrides: Partial<HabitWithLog> = {},
 ): HabitWithLog {

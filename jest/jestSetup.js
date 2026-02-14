@@ -22,13 +22,6 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-// expo-secure-store - ネイティブのセキュアストレージ
-jest.mock('expo-secure-store', () => ({
-  getItemAsync: jest.fn().mockResolvedValue(null),
-  setItemAsync: jest.fn().mockResolvedValue(undefined),
-  deleteItemAsync: jest.fn().mockResolvedValue(undefined),
-}));
-
 // expo-constants - アプリ設定
 jest.mock('expo-constants', () => ({
   expoConfig: {

@@ -6,36 +6,9 @@ Bluesky social-app のナビゲーション構成を参考に、Habity の UI/UX
 
 ## ナビゲーション構成
 
-### ネイティブ (iOS / Android / macOS)
-
-Bottom Tab Navigator + Stack Navigator の組み合わせ。
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         App Shell                            │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│                      [Screen Content]                        │
-│                                                              │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐                    │
-│  │Today │  │Habits│  │Stats │  │ Settings │                    │
-│  │  ◉   │  │  ☰   │  │  📊  │  │  ⚙️   │                    │
-│  └──────┘  └──────┘  └──────┘  └──────┘                    │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**タブ:**
-| タブ | アイコン | ルート画面 | 説明 |
-|------|---------|-----------|------|
-| Today | ◉ (circle.fill) | TodayScreen | 今日の習慣一覧 |
-| Habits | ☰ (list.bullet) | HabitsScreen | 全習慣の管理 |
-| Stats | 📊 (chart.bar) | StatisticsScreen | 統計・分析 |
-| Settings | ⚙️ (gear) | SettingsScreen | アプリ設定 |
-
 ### Web
 
-サイドバー + メインコンテンツのレイアウト。Flat Navigator。
+Bottom Tab Navigator + Stack Navigator の組み合わせ。
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -177,7 +150,7 @@ Bottom Tab Navigator + Stack Navigator の組み合わせ。
 
 **インタラクション:**
 - 習慣カードをタップ → チェックイン（トグル）
-- 習慣カードを長押し / 右スワイプ → 詳細画面へ
+- 習慣カードをクリック → 詳細画面へ
 - [+] ボタン → 新規習慣作成
 - 日付をタップ → カレンダーで日付選択
 
@@ -660,7 +633,6 @@ export const typography = {
 ```typescript
 // チェックイン時
 // - チェックマークが弾むようにアニメーション (spring)
-// - 完了時に軽い振動フィードバック (haptics)
 // - カードが軽く縮小→拡大 (scale 0.95 → 1.0)
 
 // ストリーク更新時
@@ -679,5 +651,4 @@ export const typography = {
 
 - [Bluesky social-app Navigation](https://github.com/bluesky-social/social-app/blob/main/src/Navigation.tsx)
 - [Habitify](https://habitify.me) - 機能参考
-- [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/)
 - [Material Design](https://m3.material.io/)

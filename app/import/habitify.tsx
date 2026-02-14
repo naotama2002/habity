@@ -9,7 +9,6 @@ import {
   Switch,
   ScrollView,
   KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
@@ -82,7 +81,7 @@ export default function HabitifyImportScreen() {
 
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
       >
         <ScrollView style={styles.flex} contentContainerStyle={styles.content}>
           {screenState === 'success' && result ? (

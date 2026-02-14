@@ -34,8 +34,8 @@ msgstr "このアプリについて"
 msgid "Active"
 msgstr "アクティブ"
 
-#: app/(tabs)/habits.tsx:192
-#: app/(tabs)/habits.tsx:225
+#: app/(tabs)/habits.tsx:187
+#: app/(tabs)/habits.tsx:221
 #: app/(tabs)/index.tsx:125
 msgid "Add a new habit to get started"
 msgstr "新しい習慣を追加して始めましょう"
@@ -74,7 +74,7 @@ msgstr "戻る"
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: app/(tabs)/habits.tsx:257
+#: app/(tabs)/habits.tsx:253
 msgid "Category"
 msgstr "カテゴリ"
 
@@ -360,13 +360,13 @@ msgstr "新しい習慣"
 msgid "Night"
 msgstr "夜"
 
-#: app/(tabs)/habits.tsx:190
-#: app/(tabs)/habits.tsx:220
+#: app/(tabs)/habits.tsx:185
+#: app/(tabs)/habits.tsx:216
 #: app/(tabs)/index.tsx:123
 msgid "No habits yet"
 msgstr "習慣がありません"
 
-#: app/(tabs)/habits.tsx:220
+#: app/(tabs)/habits.tsx:216
 msgid "No search results"
 msgstr "検索結果がありません"
 
@@ -412,7 +412,7 @@ msgstr "登録が完了しました"
 msgid "Registration failed. Please try again."
 msgstr "登録に失敗しました。もう一度お試しください"
 
-#: src/components/habits/HabitCardActions.web.tsx:77
+#: src/components/habits/HabitCardActions.tsx:77
 msgid "Remove skip"
 msgstr "スキップを解除"
 
@@ -472,11 +472,11 @@ msgstr "ログアウト"
 msgid "Sign Up"
 msgstr "新規登録"
 
-#: src/components/habits/HabitCardActions.web.tsx:87
+#: src/components/habits/HabitCardActions.tsx:87
 msgid "Skip for today"
 msgstr "今日はスキップ"
 
-#: src/components/habits/HabitCard.tsx:117
+#: src/components/habits/HabitCard.tsx:114
 msgid "Skipped"
 msgstr "スキップ済み"
 
@@ -492,7 +492,7 @@ msgstr "開始日"
 msgid "Statistics coming soon"
 msgstr "統計情報は今後実装予定です"
 
-#: src/components/habits/HabitCardActions.web.tsx:90
+#: src/components/habits/HabitCardActions.tsx:90
 msgid "Streak will not be broken"
 msgstr "ストリークは途切れません"
 
@@ -539,7 +539,7 @@ msgstr "明日"
 msgid "Track your daily habits and become a better you"
 msgstr "毎日の習慣を記録して、より良い自分を目指しましょう"
 
-#: app/(tabs)/habits.tsx:224
+#: app/(tabs)/habits.tsx:220
 msgid "Try searching with different keywords"
 msgstr "別のキーワードで検索してみてください"
 
@@ -548,7 +548,7 @@ msgstr "別のキーワードで検索してみてください"
 msgid "Tue"
 msgstr "火"
 
-#: app/(tabs)/habits.tsx:235
+#: app/(tabs)/habits.tsx:231
 msgid "Uncategorized"
 msgstr "未分類"
 

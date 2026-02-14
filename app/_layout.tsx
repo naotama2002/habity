@@ -2,14 +2,10 @@ import { useEffect } from 'react';
 import { Stack, useRouter, useSegments, Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider } from '@tanstack/react-query';
-import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/react-query';
 import { SessionProvider, useSession } from '@/state/session';
 import { I18nProvider } from '@/locale';
-
-// Keep splash screen visible while loading
-SplashScreen.preventAutoHideAsync();
 
 /**
  * ナビゲーション制御コンポーネント
@@ -51,15 +47,6 @@ function NavigationController({ children }: { children: React.ReactNode }) {
  * メインレイアウトコンポーネント
  */
 function MainLayout() {
-  const { isInitialized } = useSession();
-
-  useEffect(() => {
-    // セッション初期化が完了したらスプラッシュスクリーンを非表示
-    if (isInitialized) {
-      SplashScreen.hideAsync();
-    }
-  }, [isInitialized]);
-
   return (
     <NavigationController>
       <Stack

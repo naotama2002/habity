@@ -1,9 +1,9 @@
 import {describe, expect, it, jest} from '@jest/globals';
 import {render, screen, fireEvent} from '@testing-library/react-native';
 import {Text} from 'react-native';
-import {HabitCardActions} from '../HabitCardActions.web';
+import {HabitCardActions} from '../HabitCardActions';
 
-describe('HabitCardActions (Web)', () => {
+describe('HabitCardActions', () => {
   it('should render children and menu button', () => {
     render(
       <HabitCardActions

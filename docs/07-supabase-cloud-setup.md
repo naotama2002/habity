@@ -11,12 +11,12 @@ Web フロントエンドは Cloudflare Pages にデプロイする（詳細は 
 ```
 [ローカル開発 - 現在]
 docker-compose: DB + Auth + REST + Realtime + Storage + Kong + Studio
-React Native:   localhost を参照
+Web App:        localhost を参照
 
 [本番デプロイ]
 Supabase Cloud:    DB + Auth + REST + Realtime + Storage (Supabase が管理)
 Cloudflare Pages:  Web フロントエンド (SPA)
-React Native:      Supabase Cloud URL を参照
+Web App:           Supabase Cloud URL を参照
 ```
 
 ---

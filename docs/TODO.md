@@ -17,8 +17,7 @@
 実装前に以下を確認:
 1. Bluesky で同様の機能がどう実装されているか
 2. コンポーネント構成・命名規則
-3. プラットフォーム固有コードの分離方法（`.native.tsx`, `.web.tsx`）
-4. React Query の使用パターン
+3. React Query の使用パターン
 
 ### テスト実装（必須）
 
@@ -135,7 +134,7 @@
 - [ ] src/components/habits/GoalProgress.tsx - 目標進捗
 - [x] チェックイン機能（タップでトグル）
 - [x] 日付選択機能（DateStrip: 過去7日+今日+明日）
-- [x] Haptics フィードバック
+- [x] ~~Haptics フィードバック~~ （削除済み: Web 専用化）
 
 ### 1.4 Habits 画面（習慣一覧）
 参照: docs/04-ui-design.md「2. Habits 画面」
@@ -205,12 +204,9 @@
 - [ ] app/settings/import.tsx - インポート画面 UI
 - [ ] 進捗表示
 
-### 2.2 リマインダー通知
-- [ ] src/platform/notifications.ts - 共通インターフェース
-- [ ] src/platform/notifications.native.ts - ネイティブ実装
-- [ ] src/platform/notifications.web.ts - Web 実装
+### 2.2 リマインダー通知（Web Push）
+- [ ] Web Push API / Service Worker による通知
 - [ ] リマインダー時刻設定 UI
-- [ ] バックグラウンド通知テスト
 
 ### 2.3 カテゴリ管理
 - [ ] src/state/queries/categories.ts - カテゴリクエリ
@@ -244,10 +240,6 @@
 - [ ] ポモドーロタイマー UI
 - [ ] 時間計測
 
-### 3.4 ヘルスケア連携
-- [ ] Apple Health 連携
-- [ ] Google Fit 連携
-
 ---
 
 ## 技術的負債 / 改善
@@ -258,7 +250,7 @@
 - [x] ESLint 設定
 - [ ] エラーハンドリング統一
 - [ ] オフライン対応
-- [ ] E2E テスト (Detox)
+- [ ] E2E テスト (Playwright)
 - [ ] パフォーマンス最適化
 - [ ] アクセシビリティ対応
 

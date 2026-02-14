@@ -1,17 +1,11 @@
-import { TextStyle, Platform } from 'react-native';
+import { TextStyle } from 'react-native';
 
 /**
  * タイポグラフィ
  * docs/04-ui-design.md を参照
  */
 
-// フォントファミリー（プラットフォーム別）
-const fontFamily = Platform.select({
-  ios: 'System',
-  android: 'Roboto',
-  web: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  default: 'System',
-});
+const fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 
 /**
  * フォントウェイト定義

@@ -30,12 +30,12 @@
 │  └──────────────────────────┼──────────────────────────────────┘   │
 │                             │                                       │
 │  ┌──────────────────────────┼──────────────────────────────────┐   │
-│  │         React Native (Host Machine)                          │   │
+│  │         React Native Web (Host Machine)                      │   │
 │  │                          │                                   │   │
-│  │  ┌───────────┐  ┌───────┴───────┐  ┌───────────────────┐   │   │
-│  │  │    Web    │  │  iOS Simulator │  │ Android Emulator  │   │   │
-│  │  │  :8081    │  │                │  │                   │   │   │
-│  │  └───────────┘  └───────────────┘  └───────────────────┘   │   │
+│  │  ┌───────────┐                                              │   │
+│  │  │    Web    │                                              │   │
+│  │  │  :8081    │                                              │   │
+│  │  └───────────┘                                              │   │
 │  └──────────────────────────────────────────────────────────────┘   │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
@@ -374,8 +374,6 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 
 - Docker Desktop
 - [mise](https://mise.jdx.dev/) (ツールバージョン管理)
-- Xcode (iOS 開発時)
-- Android Studio (Android 開発時)
 
 ### 1. リポジトリクローン
 
@@ -423,7 +421,7 @@ docker compose logs -f backend
 | Supabase Studio | http://localhost:54323 | 管理 UI |
 | Inbucket | http://localhost:54324 | メールテスト |
 
-### 6. React Native セットアップ
+### 6. フロントエンドセットアップ
 
 ```bash
 # 依存パッケージインストール
@@ -431,12 +429,6 @@ pnpm install
 
 # Web 開発サーバー起動
 pnpm web
-
-# iOS シミュレータ
-pnpm ios
-
-# Android エミュレータ
-pnpm android
 ```
 
 ### 7. DB マイグレーション

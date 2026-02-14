@@ -1,11 +1,10 @@
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
 import { HabitForm } from '../HabitForm';
 import type { HabitSubmitData } from '../HabitForm';
 
-// Alert をモック
-jest.spyOn(Alert, 'alert');
+// window.alert をモック
+window.alert = jest.fn();
 
 describe('HabitForm', () => {
   const mockOnSubmit = jest.fn<(data: HabitSubmitData) => Promise<void>>();
@@ -201,9 +200,8 @@ describe('HabitForm', () => {
       fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalledWith(
-          'Error',
-          'Test error'
+        expect(window.alert).toHaveBeenCalledWith(
+          'Error: Test error'
         );
       });
     });

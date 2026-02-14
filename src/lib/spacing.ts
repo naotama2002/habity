@@ -49,7 +49,7 @@ export const borderRadius = {
 } as const;
 
 /**
- * シャドウ（iOS/Android 用）
+ * シャドウ
  */
 export const shadows = {
   sm: {
