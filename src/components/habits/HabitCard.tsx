@@ -81,7 +81,6 @@ export function HabitCard({
   ];
 
   return (
-    <View>
       <Pressable
         testID="habit-card"
         style={containerStyle}
@@ -119,7 +118,6 @@ export function HabitCard({
           <StreakBadge streak={streak} />
         </View>
       </Pressable>
-    </View>
   );
 }
 

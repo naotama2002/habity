@@ -7,9 +7,12 @@ import {typography} from '@/lib/typography';
 import {spacing, borderRadius, shadows} from '@/lib/spacing';
 
 interface HabitCardActionsProps {
+  isCompleted: boolean;
   isSkipped: boolean;
   onSkip: () => void;
   onUnskip: () => void;
+  onUncomplete: () => void;
+  onOpenChange?: (open: boolean) => void;
   children: React.ReactNode;
 }
 
@@ -18,37 +21,96 @@ interface HabitCardActionsProps {
  * カード右端に三点リーダーボタンを配置し、クリックでドロップダウンメニューを表示
  */
 export function HabitCardActions({
+  isCompleted,
   isSkipped,
   onSkip,
   onUnskip,
+  onUncomplete,
+  onOpenChange,
   children,
 }: HabitCardActionsProps) {
   const {_} = useLingui();
   const [open, setOpen] = useState(false);
 
+  const setOpenWithCallback = useCallback((value: boolean) => {
+    setOpen(value);
+    onOpenChange?.(value);
+  }, [onOpenChange]);
+
   const handleToggleMenu = useCallback(() => {
-    setOpen(prev => !prev);
-  }, []);
+    setOpenWithCallback(!open);
+  }, [setOpenWithCallback, open]);
 
   const handleClose = useCallback(() => {
-    setOpen(false);
-  }, []);
+    setOpenWithCallback(false);
+  }, [setOpenWithCallback]);
 
   const handleSkip = useCallback(() => {
-    setOpen(false);
+    setOpenWithCallback(false);
     onSkip();
-  }, [onSkip]);
+  }, [setOpenWithCallback, onSkip]);
 
   const handleUnskip = useCallback(() => {
-    setOpen(false);
+    setOpenWithCallback(false);
     onUnskip();
-  }, [onUnskip]);
+  }, [setOpenWithCallback, onUnskip]);
+
+  const handleUncomplete = useCallback(() => {
+    setOpenWithCallback(false);
+    onUncomplete();
+  }, [setOpenWithCallback, onUncomplete]);
+
+  const renderMenuItems = () => {
+    if (isSkipped) {
+      return (
+        <Pressable
+          testID="habit-action-unskip"
+          style={styles.dropdownItem}
+          onPress={handleUnskip}
+        >
+          <Text style={styles.dropdownItemText}>
+            {_(msg`Remove skip`)}
+          </Text>
+        </Pressable>
+      );
+    }
+
+    if (isCompleted) {
+      return (
+        <Pressable
+          testID="habit-action-uncomplete"
+          style={styles.dropdownItem}
+          onPress={handleUncomplete}
+        >
+          <Text style={styles.dropdownItemText}>
+            {_(msg`Mark as incomplete`)}
+          </Text>
+        </Pressable>
+      );
+    }
+
+    return (
+      <Pressable
+        testID="habit-action-skip"
+        style={styles.dropdownItem}
+        onPress={handleSkip}
+      >
+        <Text style={styles.dropdownItemText}>
+          {_(msg`Skip for today`)}
+        </Text>
+        <Text style={styles.dropdownHint}>
+          {_(msg`Streak will not be broken`)}
+        </Text>
+      </Pressable>
+    );
+  };
 
   return (
     <View style={[styles.wrapper, open && styles.wrapperOpen]}>
-      {children}
+      <View style={styles.childrenContainer}>
+        {children}
+      </View>
 
-      {/* カード右端に絶対配置されるメニュー */}
       <View style={styles.menuAnchor}>
         <Pressable
           testID="habit-actions-button"
@@ -67,30 +129,7 @@ export function HabitCardActions({
               onPress={handleClose}
             />
             <View testID="habit-actions-menu" style={styles.dropdown}>
-              {isSkipped ? (
-                <Pressable
-                  testID="habit-action-unskip"
-                  style={styles.dropdownItem}
-                  onPress={handleUnskip}
-                >
-                  <Text style={styles.dropdownItemText}>
-                    {_(msg`Remove skip`)}
-                  </Text>
-                </Pressable>
-              ) : (
-                <Pressable
-                  testID="habit-action-skip"
-                  style={styles.dropdownItem}
-                  onPress={handleSkip}
-                >
-                  <Text style={styles.dropdownItemText}>
-                    {_(msg`Skip for today`)}
-                  </Text>
-                  <Text style={styles.dropdownHint}>
-                    {_(msg`Streak will not be broken`)}
-                  </Text>
-                </Pressable>
-              )}
+              {renderMenuItems()}
             </View>
           </>
         )}
@@ -101,19 +140,20 @@ export function HabitCardActions({
 
 const styles = StyleSheet.create({
   wrapper: {
-    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
     zIndex: 1,
   },
   wrapperOpen: {
     zIndex: 9999,
   },
+  childrenContainer: {
+    flex: 1,
+  },
   menuAnchor: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
+    position: 'relative',
     justifyContent: 'center',
-    paddingRight: spacing.sm,
+    paddingLeft: spacing.xs,
     zIndex: 10,
   },
   menuButton: {
