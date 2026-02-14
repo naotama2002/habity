@@ -22,7 +22,7 @@ jest.mock('@tanstack/react-query', () => ({
 }));
 
 import {useQuery, useQueryClient, useMutation} from '@tanstack/react-query';
-import {habitKeys, useHabitsWithLog, useReorderHabits} from '../habits';
+import {habitKeys, useHabitsWithLog, useReorderHabits, useArchiveHabit, useUnarchiveHabit} from '../habits';
 import type {Habit} from '@/types/database';
 
 const mockedUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
@@ -517,6 +517,151 @@ describe('habits queries', () => {
       useReorderHabits();
       capturedOnSuccess!();
 
+      expect(mockInvalidateQueries).toHaveBeenCalledWith({
+        queryKey: habitKeys.all,
+      });
+    });
+  });
+
+  describe('useArchiveHabit', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mockUseMutation = useMutation as any;
+
+    function setupMutationMock() {
+      const mockInvalidateQueries = jest.fn();
+      mockedUseQueryClient.mockReturnValue({
+        invalidateQueries: mockInvalidateQueries,
+      } as unknown as ReturnType<typeof useQueryClient>);
+      return {mockInvalidateQueries};
+    }
+
+    it('should update status to archived', async () => {
+      setupMutationMock();
+
+      let capturedMutationFn: (id: string) => Promise<Habit>;
+      mockUseMutation.mockImplementation((opts: {mutationFn: typeof capturedMutationFn}) => {
+        capturedMutationFn = opts.mutationFn;
+        return opts;
+      });
+
+      const mockSingle = jest.fn<() => Promise<{data: Habit; error: null}>>()
+        .mockResolvedValue({data: createMockHabit({status: 'archived'}), error: null});
+      const mockSelect = jest.fn().mockReturnValue({single: mockSingle});
+      const mockEq = jest.fn().mockReturnValue({select: mockSelect});
+      const mockUpdate = jest.fn().mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({update: mockUpdate});
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useArchiveHabit();
+
+      const result = await capturedMutationFn!('habit-1');
+
+      expect(mockFrom).toHaveBeenCalledWith('habits');
+      expect(mockUpdate).toHaveBeenCalledWith({status: 'archived'});
+      expect(mockEq).toHaveBeenCalledWith('id', 'habit-1');
+      expect(result.status).toBe('archived');
+    });
+
+    it('should invalidate queries on success', () => {
+      const {mockInvalidateQueries} = setupMutationMock();
+
+      let capturedOnSuccess: () => void;
+      mockUseMutation.mockImplementation((opts: {onSuccess: () => void}) => {
+        capturedOnSuccess = opts.onSuccess;
+        return opts;
+      });
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useArchiveHabit();
+      capturedOnSuccess!();
+
+      expect(mockInvalidateQueries).toHaveBeenCalledWith({
+        queryKey: habitKeys.lists(),
+      });
+      expect(mockInvalidateQueries).toHaveBeenCalledWith({
+        queryKey: habitKeys.all,
+      });
+    });
+  });
+
+  describe('useUnarchiveHabit', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mockUseMutation = useMutation as any;
+
+    function setupMutationMock() {
+      const mockInvalidateQueries = jest.fn();
+      mockedUseQueryClient.mockReturnValue({
+        invalidateQueries: mockInvalidateQueries,
+      } as unknown as ReturnType<typeof useQueryClient>);
+      return {mockInvalidateQueries};
+    }
+
+    it('should update status to active', async () => {
+      setupMutationMock();
+
+      let capturedMutationFn: (id: string) => Promise<Habit>;
+      mockUseMutation.mockImplementation((opts: {mutationFn: typeof capturedMutationFn}) => {
+        capturedMutationFn = opts.mutationFn;
+        return opts;
+      });
+
+      const mockSingle = jest.fn<() => Promise<{data: Habit; error: null}>>()
+        .mockResolvedValue({data: createMockHabit({status: 'active'}), error: null});
+      const mockSelect = jest.fn().mockReturnValue({single: mockSingle});
+      const mockEq = jest.fn().mockReturnValue({select: mockSelect});
+      const mockUpdate = jest.fn().mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({update: mockUpdate});
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useUnarchiveHabit();
+
+      const result = await capturedMutationFn!('habit-1');
+
+      expect(mockFrom).toHaveBeenCalledWith('habits');
+      expect(mockUpdate).toHaveBeenCalledWith({status: 'active'});
+      expect(mockEq).toHaveBeenCalledWith('id', 'habit-1');
+      expect(result.status).toBe('active');
+    });
+
+    it('should throw when supabase returns an error', async () => {
+      setupMutationMock();
+
+      let capturedMutationFn: (id: string) => Promise<Habit>;
+      mockUseMutation.mockImplementation((opts: {mutationFn: typeof capturedMutationFn}) => {
+        capturedMutationFn = opts.mutationFn;
+        return opts;
+      });
+
+      const dbError = {message: 'Update failed', code: '500'};
+      const mockSingle = jest.fn<() => Promise<{data: null; error: typeof dbError}>>()
+        .mockResolvedValue({data: null, error: dbError});
+      const mockSelect = jest.fn().mockReturnValue({single: mockSingle});
+      const mockEq = jest.fn().mockReturnValue({select: mockSelect});
+      const mockUpdate = jest.fn().mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({update: mockUpdate});
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useUnarchiveHabit();
+
+      await expect(capturedMutationFn!('habit-1')).rejects.toEqual(dbError);
+    });
+
+    it('should invalidate queries on success', () => {
+      const {mockInvalidateQueries} = setupMutationMock();
+
+      let capturedOnSuccess: () => void;
+      mockUseMutation.mockImplementation((opts: {onSuccess: () => void}) => {
+        capturedOnSuccess = opts.onSuccess;
+        return opts;
+      });
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useUnarchiveHabit();
+      capturedOnSuccess!();
+
+      expect(mockInvalidateQueries).toHaveBeenCalledWith({
+        queryKey: habitKeys.lists(),
+      });
       expect(mockInvalidateQueries).toHaveBeenCalledWith({
         queryKey: habitKeys.all,
       });

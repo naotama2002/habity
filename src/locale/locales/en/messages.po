@@ -30,12 +30,12 @@ msgstr "6 or more characters"
 msgid "About This App"
 msgstr "About This App"
 
-#: app/(tabs)/habits.tsx:45
+#: app/(tabs)/habits.tsx:48
 msgid "Active"
 msgstr "Active"
 
-#: app/(tabs)/habits.tsx:187
-#: app/(tabs)/habits.tsx:221
+#: app/(tabs)/habits.tsx:190
+#: app/(tabs)/habits.tsx:224
 #: app/(tabs)/index.tsx:126
 msgid "Add a new habit to get started"
 msgstr "Add a new habit to get started"
@@ -45,7 +45,7 @@ msgstr "Add a new habit to get started"
 msgid "Afternoon"
 msgstr "Afternoon"
 
-#: app/(tabs)/habits.tsx:44
+#: app/(tabs)/habits.tsx:47
 msgid "All"
 msgstr "All"
 
@@ -62,7 +62,11 @@ msgstr "Anytime"
 msgid "Appearance"
 msgstr "Appearance"
 
-#: app/(tabs)/habits.tsx:46
+#: src/components/habits/HabitListItemActions.tsx:95
+msgid "Archive"
+msgstr "Archive"
+
+#: app/(tabs)/habits.tsx:49
 msgid "Archived"
 msgstr "Archived"
 
@@ -74,7 +78,7 @@ msgstr "Back"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: app/(tabs)/habits.tsx:253
+#: app/(tabs)/habits.tsx:263
 msgid "Category"
 msgstr "Category"
 
@@ -150,7 +154,7 @@ msgstr "Discard Changes"
 msgid "Don't have an account?"
 msgstr "Don't have an account?"
 
-#: app/(tabs)/habits.tsx:144
+#: app/(tabs)/habits.tsx:147
 msgid "Done"
 msgstr "Done"
 
@@ -158,7 +162,7 @@ msgstr "Done"
 msgid "e.g., Reading, Exercise, Meditation"
 msgstr "e.g., Reading, Exercise, Meditation"
 
-#: app/(tabs)/habits.tsx:144
+#: app/(tabs)/habits.tsx:147
 msgid "Edit"
 msgstr "Edit"
 
@@ -201,7 +205,7 @@ msgstr "Evening"
 msgid "Export Data"
 msgstr "Export Data"
 
-#: app/(tabs)/habits.tsx:128
+#: app/(tabs)/habits.tsx:131
 #: app/(tabs)/index.tsx:100
 msgid "Failed to load habits"
 msgstr "Failed to load habits"
@@ -360,13 +364,13 @@ msgstr "New Habit"
 msgid "Night"
 msgstr "Night"
 
-#: app/(tabs)/habits.tsx:185
-#: app/(tabs)/habits.tsx:216
+#: app/(tabs)/habits.tsx:188
+#: app/(tabs)/habits.tsx:219
 #: app/(tabs)/index.tsx:124
 msgid "No habits yet"
 msgstr "No habits yet"
 
-#: app/(tabs)/habits.tsx:216
+#: app/(tabs)/habits.tsx:219
 msgid "No search results"
 msgstr "No search results"
 
@@ -539,7 +543,7 @@ msgstr "Tomorrow"
 msgid "Track your daily habits and become a better you"
 msgstr "Track your daily habits and become a better you"
 
-#: app/(tabs)/habits.tsx:220
+#: app/(tabs)/habits.tsx:223
 msgid "Try searching with different keywords"
 msgstr "Try searching with different keywords"
 
@@ -548,7 +552,11 @@ msgstr "Try searching with different keywords"
 msgid "Tue"
 msgstr "Tue"
 
-#: app/(tabs)/habits.tsx:231
+#: src/components/habits/HabitListItemActions.tsx:85
+msgid "Unarchive"
+msgstr "Unarchive"
+
+#: app/(tabs)/habits.tsx:234
 msgid "Uncategorized"
 msgstr "Uncategorized"
 

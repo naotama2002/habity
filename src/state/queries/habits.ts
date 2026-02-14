@@ -236,3 +236,25 @@ export function useArchiveHabit() {
     },
   });
 }
+
+export function useUnarchiveHabit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('habits')
+        .update({ status: 'active' })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Habit;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: habitKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: habitKeys.all });
+    },
+  });
+}

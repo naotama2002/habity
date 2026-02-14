@@ -12,8 +12,8 @@ import { useLingui } from '@lingui/react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useHabits, useReorderHabits } from '@/state/queries/habits';
-import { HabitListItem } from '@/components/habits';
+import { useHabits, useReorderHabits, useArchiveHabit, useUnarchiveHabit } from '@/state/queries/habits';
+import { HabitListItem, HabitListItemActions } from '@/components/habits';
 import { SearchInput, SegmentedControl, SortableList } from '@/components/ui';
 import { colors, lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
@@ -38,7 +38,10 @@ export default function HabitsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [localHabits, setLocalHabits] = useState<Habit[]>([]);
+  const [openMenuHabitId, setOpenMenuHabitId] = useState<string | null>(null);
   const reorderMutation = useReorderHabits();
+  const archiveHabit = useArchiveHabit();
+  const unarchiveHabit = useUnarchiveHabit();
 
   const FILTER_SEGMENTS: { value: FilterValue; label: string }[] = [
     { value: 'all', label: _(msg`All`) },
@@ -233,12 +236,19 @@ export default function HabitsScreen() {
                   </View>
                   <View style={styles.sectionContent}>
                     {groupedHabits.uncategorized.map((habit) => (
-                      <HabitListItem
+                      <View
                         key={habit.id}
-                        habit={habit}
-                        streak={0} // TODO: ストリーク計算
-                        onPress={handlePressHabit}
-                      />
+                        style={openMenuHabitId === habit.id ? {zIndex: 9999} : undefined}
+                      >
+                        <HabitListItemActions
+                          isArchived={habit.status === 'archived'}
+                          onArchive={() => archiveHabit.mutate(habit.id)}
+                          onUnarchive={() => unarchiveHabit.mutate(habit.id)}
+                          onOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
+                        >
+                          <HabitListItem habit={habit} streak={0} onPress={handlePressHabit} />
+                        </HabitListItemActions>
+                      </View>
                     ))}
                   </View>
                 </View>
@@ -260,12 +270,19 @@ export default function HabitsScreen() {
                   </View>
                   <View style={styles.sectionContent}>
                     {categoryHabits.map((habit) => (
-                      <HabitListItem
+                      <View
                         key={habit.id}
-                        habit={habit}
-                        streak={0}
-                        onPress={handlePressHabit}
-                      />
+                        style={openMenuHabitId === habit.id ? {zIndex: 9999} : undefined}
+                      >
+                        <HabitListItemActions
+                          isArchived={habit.status === 'archived'}
+                          onArchive={() => archiveHabit.mutate(habit.id)}
+                          onUnarchive={() => unarchiveHabit.mutate(habit.id)}
+                          onOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
+                        >
+                          <HabitListItem habit={habit} streak={0} onPress={handlePressHabit} />
+                        </HabitListItemActions>
+                      </View>
                     ))}
                   </View>
                 </View>
