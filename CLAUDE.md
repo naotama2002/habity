@@ -4,16 +4,15 @@
 
 ## 対応プラットフォーム
 
-Bluesky と同じアプローチ。1つのコードベースで全プラットフォームをカバー。
+**Web 専用**（React Native Web + Expo Web）。将来的に PWA 化を検討。
 
 | プラットフォーム | 対応方法 |
 |-----------------|---------|
-| iOS | React Native + Expo |
 | Web | React Native Web (Expo Web) |
 | macOS | Web版をブラウザで使用 |
 | Windows | Web版をブラウザで使用 |
 
-- プラットフォーム分離は `.native.tsx` / `.web.tsx` で実装
+- iOS / Android ネイティブアプリは非対応
 - デスクトップ専用アプリは作らない（Web版で対応）
 
 ---
@@ -34,7 +33,6 @@ Bluesky と同じアプローチ。1つのコードベースで全プラット�
 | ナビゲーション | `social-app/src/Navigation.tsx` |
 | 状態管理 | `social-app/src/state/` |
 | コンポーネント設計 | `social-app/src/components/` |
-| プラットフォーム分離 | `.native.tsx`, `.web.tsx` ファイル |
 | React Query 使用法 | `social-app/src/state/queries/` |
 | Jest 設定 | `social-app/jest/`, `social-app/package.json` の jest セクション |
 | テストパターン | `social-app/src/state/session/__tests__/`, `social-app/__tests__/` |
@@ -45,14 +43,13 @@ Bluesky と同じアプローチ。1つのコードベースで全プラット�
 1. [ ] Bluesky social-app で同様の機能がどう実装されているか確認
 2. [ ] コンポーネント構成を参考に設計
 3. [ ] 命名規則を統一
-4. [ ] プラットフォーム固有コードの分離方法を確認
 
 ---
 
 ## プロジェクト概要
 
 - **アプリ名**: Habity（習慣トラッキングアプリ）
-- **対応プラットフォーム**: iOS, Web, macOS, Windows
+- **対応プラットフォーム**: Web（macOS, Windows はブラウザ経由）
 - **技術スタック**: React Native + Expo, Supabase
 
 ## ドキュメント
@@ -90,7 +87,6 @@ docker compose up -d
 
 # 開発サーバー
 pnpm web       # Web
-pnpm ios       # iOS
 
 # マイグレーション
 supabase migration new <name>                                                    # 新規作成
@@ -109,7 +105,7 @@ pnpm test
 - ESLint + Prettier
 - React Query でサーバー状態管理
 - Zod でスキーマ検証
-- プラットフォーム固有コードは `.native.ts` / `.web.ts` で分離
+- Web 専用プロジェクト（ネイティブ分離なし）
 
 ## 国際化（i18n）ルール
 

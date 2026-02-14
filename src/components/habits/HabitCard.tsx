@@ -7,7 +7,6 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import {useHaptics} from '@/lib/haptics';
 import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
 import {spacing, borderRadius, shadows} from '@/lib/spacing';
@@ -36,7 +35,6 @@ export function HabitCard({
   onPress,
 }: HabitCardProps) {
   const {_} = useLingui();
-  const playHaptic = useHaptics();
   const isCompleted = habit.is_completed;
   const isSkipped = habit.is_skipped;
 
@@ -45,7 +43,6 @@ export function HabitCard({
 
   const handleToggle = () => {
     if (isSkipped) return; // スキップ中はトグル不可
-    playHaptic('Light');
     // チェック時に緑フラッシュ
     flashOpacity.value = withSequence(
       withTiming(1, {duration: 200}),

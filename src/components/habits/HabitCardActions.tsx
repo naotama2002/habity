@@ -1,20 +1,10 @@
-import {useCallback} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSequence,
-  runOnJS,
-  interpolate,
-} from 'react-native-reanimated';
-import {useHaptics} from '@/lib/haptics';
-import {colors} from '@/lib/colors';
-import {spacing} from '@/lib/spacing';
-
-const THRESHOLD = 80;
-const MAX_SWIPE = 150;
+import {useState, useCallback} from 'react';
+import {View, Text, StyleSheet, Pressable} from 'react-native';
+import {msg} from '@lingui/macro';
+import {useLingui} from '@lingui/react';
+import {colors, lightTheme} from '@/lib/colors';
+import {typography} from '@/lib/typography';
+import {spacing, borderRadius, shadows} from '@/lib/spacing';
 
 interface HabitCardActionsProps {
   isSkipped: boolean;
@@ -24,11 +14,8 @@ interface HabitCardActionsProps {
 }
 
 /**
- * HabitCard のアクションメニュー (Native版)
- * 右スワイプ（左→右）でアクションアイコンが出現
- * 閾値(80px)超えでHaptic + アクション実行
- *
- * Bluesky の GestureActionView パターンを簡易化
+ * HabitCard のアクションメニュー
+ * カード右端に三点リーダーボタンを配置し、クリックでドロップダウンメニューを表示
  */
 export function HabitCardActions({
   isSkipped,
@@ -36,112 +23,142 @@ export function HabitCardActions({
   onUnskip,
   children,
 }: HabitCardActionsProps) {
-  const playHaptic = useHaptics();
-  const transX = useSharedValue(0);
-  const iconScale = useSharedValue(1);
-  const hitThreshold = useSharedValue(false);
+  const {_} = useLingui();
+  const [open, setOpen] = useState(false);
 
-  const triggerHaptic = useCallback(() => {
-    playHaptic('Medium');
-  }, [playHaptic]);
+  const handleToggleMenu = useCallback(() => {
+    setOpen(prev => !prev);
+  }, []);
 
-  const executeAction = useCallback(() => {
-    if (isSkipped) {
-      onUnskip();
-    } else {
-      onSkip();
-    }
-  }, [isSkipped, onSkip, onUnskip]);
+  const handleClose = useCallback(() => {
+    setOpen(false);
+  }, []);
 
-  const panGesture = Gesture.Pan()
-    .activeOffsetX([10, 200])
-    .activeOffsetY([-200, 200])
-    .onChange(e => {
-      'worklet';
-      // 右スワイプのみ (左→右)
-      const clamped = Math.max(0, Math.min(e.translationX, MAX_SWIPE));
-      transX.set(clamped);
+  const handleSkip = useCallback(() => {
+    setOpen(false);
+    onSkip();
+  }, [onSkip]);
 
-      if (clamped >= THRESHOLD && !hitThreshold.get()) {
-        hitThreshold.set(true);
-        // ポップアニメーション
-        iconScale.set(
-          withSequence(
-            withTiming(1.3, {duration: 150}),
-            withTiming(1, {duration: 100}),
-          ),
-        );
-        runOnJS(triggerHaptic)();
-      } else if (clamped < THRESHOLD && hitThreshold.get()) {
-        hitThreshold.set(false);
-      }
-    })
-    .onEnd(() => {
-      'worklet';
-      if (hitThreshold.get()) {
-        runOnJS(executeAction)();
-      }
-      transX.set(withTiming(0, {duration: 200}));
-      hitThreshold.set(false);
-    });
-
-  const animatedContentStyle = useAnimatedStyle(() => ({
-    transform: [{translateX: transX.get()}],
-  }));
-
-  const animatedBackgroundStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(transX.get(), [0, THRESHOLD], [0, 1]),
-  }));
-
-  const animatedIconStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(transX.get(), [0, 40], [0, 1]),
-    transform: [{scale: iconScale.get()}],
-  }));
-
-  const backgroundColor = isSkipped ? colors.primary[500] : colors.gray[400];
-  const iconText = isSkipped ? '↩' : '⊘';
+  const handleUnskip = useCallback(() => {
+    setOpen(false);
+    onUnskip();
+  }, [onUnskip]);
 
   return (
-    <GestureDetector gesture={panGesture}>
-      <View style={styles.container}>
-        {/* 背景 + アイコン */}
-        <Animated.View
-          style={[styles.background, {backgroundColor}, animatedBackgroundStyle]}
-        >
-          <Animated.View style={[styles.iconContainer, animatedIconStyle]}>
-            <Text style={styles.icon}>{iconText}</Text>
-          </Animated.View>
-        </Animated.View>
+    <View style={[styles.wrapper, open && styles.wrapperOpen]}>
+      {children}
 
-        {/* スライドするコンテンツ */}
-        <Animated.View style={animatedContentStyle}>{children}</Animated.View>
+      {/* カード右端に絶対配置されるメニュー */}
+      <View style={styles.menuAnchor}>
+        <Pressable
+          testID="habit-actions-button"
+          style={styles.menuButton}
+          onPress={handleToggleMenu}
+          hitSlop={8}
+        >
+          <Text style={styles.menuButtonText}>⋮</Text>
+        </Pressable>
+
+        {open && (
+          <>
+            <Pressable
+              testID="habit-actions-overlay"
+              style={styles.overlay}
+              onPress={handleClose}
+            />
+            <View testID="habit-actions-menu" style={styles.dropdown}>
+              {isSkipped ? (
+                <Pressable
+                  testID="habit-action-unskip"
+                  style={styles.dropdownItem}
+                  onPress={handleUnskip}
+                >
+                  <Text style={styles.dropdownItemText}>
+                    {_(msg`Remove skip`)}
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  testID="habit-action-skip"
+                  style={styles.dropdownItem}
+                  onPress={handleSkip}
+                >
+                  <Text style={styles.dropdownItemText}>
+                    {_(msg`Skip for today`)}
+                  </Text>
+                  <Text style={styles.dropdownHint}>
+                    {_(msg`Streak will not be broken`)}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          </>
+        )}
       </View>
-    </GestureDetector>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     position: 'relative',
-    overflow: 'hidden',
-    borderRadius: 12,
+    zIndex: 1,
   },
-  background: {
-    ...StyleSheet.absoluteFillObject,
+  wrapperOpen: {
+    zIndex: 9999,
+  },
+  menuAnchor: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'center',
-    paddingLeft: spacing.lg,
-    borderRadius: 12,
+    paddingRight: spacing.sm,
+    zIndex: 10,
   },
-  iconContainer: {
+  menuButton: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  icon: {
-    fontSize: 18,
-    color: colors.white,
+  menuButtonText: {
+    fontSize: 20,
+    color: colors.gray[400],
+    lineHeight: 24,
+  },
+  overlay: {
+    position: 'fixed' as never,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 99,
+  },
+  dropdown: {
+    position: 'absolute',
+    top: '100%' as never,
+    right: 0,
+    backgroundColor: lightTheme.background,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: lightTheme.border,
+    minWidth: 200,
+    zIndex: 100,
+    ...shadows.md,
+  },
+  dropdownItem: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+  },
+  dropdownItemText: {
+    ...typography.bodySmall,
+    color: lightTheme.text,
+  },
+  dropdownHint: {
+    ...typography.caption,
+    color: lightTheme.textTertiary,
+    marginTop: spacing.xs,
   },
 });

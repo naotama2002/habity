@@ -2,22 +2,21 @@
 
 ## プロジェクト概要
 
-Habity は、Habitify に似た機能を持つマルチプラットフォーム対応の習慣トラッキングアプリケーションです。
+Habity は、Habitify に似た機能を持つ Web ベースの習慣トラッキングアプリケーションです。
 
 **参考実装**: [Bluesky social-app](https://github.com/bluesky-social/social-app)
 
 ## 対応プラットフォーム
 
-Bluesky と同じアプローチを採用。1つのコードベースで全プラットフォームをカバー。
+Web 専用（React Native Web + Expo Web）。将来的に PWA 化を検討。
 
 | プラットフォーム | 対応方法 | 状態 |
 |-----------------|---------|------|
-| iOS | React Native + Expo | ✅ 対応 |
 | Web | React Native Web (Expo Web) | ✅ 対応 |
 | macOS | Web版をブラウザで使用 | ✅ 対応 |
 | Windows | Web版をブラウザで使用 | ✅ 対応 |
 
-> **将来の検討**: macOS ネイティブアプリ（Raycast 連携等）は需要に応じて検討
+> iOS / Android ネイティブアプリは非対応
 
 ## 技術スタック
 
@@ -66,8 +65,6 @@ Bluesky と同じアプローチを採用。1つのコードベースで全プ�
 |------|------|------|
 | ノート機能 | 習慣ごとのメモ | 未着手 |
 | タイマー機能 | ポモドーロ等 | 未着手 |
-| Apple Health 連携 | | 未着手 |
-| Google Fit 連携 | | 未着手 |
 | エクスポート | CSV/JSON 出力 | 未着手 |
 
 ---
@@ -94,13 +91,10 @@ Bluesky と同じアプローチを採用。1つのコードベースで全プ�
 ```
 habity/
 ├── src/                    # React Native ソースコード
-│   ├── App.native.tsx      # ネイティブエントリー
-│   ├── App.web.tsx         # Web エントリー
 │   ├── components/         # 共通コンポーネント
 │   ├── screens/            # 画面
 │   ├── state/              # 状態管理（React Query）
 │   ├── lib/                # ユーティリティ
-│   ├── platform/           # プラットフォーム固有コード
 │   ├── locale/             # 多言語
 │   └── types/              # 型定義
 ├── supabase/               # Supabase 設定・マイグレーション
@@ -128,7 +122,6 @@ pnpm install
 
 # 開発サーバー
 pnpm web      # Web (http://localhost:8081)
-pnpm ios      # iOS
 ```
 
 ### サービス URL

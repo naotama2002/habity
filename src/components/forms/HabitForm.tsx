@@ -5,9 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
-  Alert,
   KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
@@ -170,13 +168,8 @@ export function HabitForm({
 
     if (!isValid) {
       // バリデーションエラーがある場合はフィードバック
-      const errorTitle = _(msg`Input Error`);
       const errorMessage = _(msg`There are errors in the input. Please check the fields highlighted in red.`);
-      if (Platform.OS === 'web') {
-        window.alert(errorMessage);
-      } else {
-        Alert.alert(errorTitle, errorMessage);
-      }
+      window.alert(errorMessage);
       return;
     }
 
@@ -212,11 +205,7 @@ export function HabitForm({
         message = String((error as { message: unknown }).message);
       }
       const errorLabel = _(msg`Error`);
-      if (Platform.OS === 'web') {
-        window.alert(`${errorLabel}: ${message}`);
-      } else {
-        Alert.alert(errorLabel, message);
-      }
+      window.alert(`${errorLabel}: ${message}`);
     }
   };
 
@@ -243,7 +232,7 @@ export function HabitForm({
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior="padding"
     >
       <ScrollView
         style={styles.scrollView}

@@ -13,32 +13,13 @@ export default {
       backgroundColor: "#6366f1"
     },
     assetBundlePatterns: ["**/*"],
-    ios: {
-      supportsTablet: true,
-      bundleIdentifier: "com.habity.app"
-    },
-    android: {
-      adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
-        backgroundColor: "#6366f1"
-      },
-      package: "com.habity.app"
-    },
     web: {
       bundler: "metro",
       output: "single",
       favicon: "./assets/favicon.png"
     },
     plugins: [
-      "expo-router",
-      "expo-secure-store",
-      [
-        "expo-notifications",
-        {
-          icon: "./assets/notification-icon.png",
-          color: "#6366f1"
-        }
-      ]
+      "expo-router"
     ],
     experiments: {
       typedRoutes: true

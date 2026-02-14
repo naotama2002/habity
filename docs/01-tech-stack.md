@@ -13,14 +13,12 @@
 
 ## 決定事項
 
-**フロントエンド**: React Native 統一構成（Bluesky social-app 参考）
+**フロントエンド**: React Native Web + Expo Web（Web 専用）
 
 | プラットフォーム | 技術 | 備考 |
 |-----------------|------|------|
-| iOS | React Native + Expo | |
-| Android | React Native + Expo | |
-| macOS | react-native-macos | Microsoft 管理 |
 | Web | React Native Web | Expo でサポート |
+| macOS / Windows | Web 版をブラウザで使用 | |
 
 **バックエンド**: Supabase + Go
 
@@ -33,8 +31,6 @@ Bluesky social-app の構成を参考に設計。
 ```
 habity/
 ├── src/                          # メインソースコード
-│   ├── App.native.tsx            # ネイティブアプリエントリー
-│   ├── App.web.tsx               # Web アプリエントリー
 │   ├── Navigation.tsx            # ナビゲーション定義
 │   │
 │   ├── components/               # 再利用可能なコンポーネント
@@ -86,11 +82,6 @@ habity/
 │   │   ├── dates.ts              # 日付ユーティリティ
 │   │   └── rrule.ts              # RRule パーサー
 │   │
-│   ├── platform/                 # プラットフォーム固有
-│   │   ├── notifications.ts
-│   │   ├── notifications.native.ts
-│   │   ├── notifications.web.ts
-│   │   └── storage.ts
 │   │
 │   ├── locale/                   # 多言語対応
 │   │   ├── locales/
@@ -101,8 +92,6 @@ habity/
 │   └── types/                    # 型定義
 │       ├── database.ts
 │       └── navigation.ts
-│
-├── modules/                      # カスタムネイティブモジュール（必要な場合）
 │
 ├── backend/                      # Go バックエンド
 │   ├── cmd/
@@ -127,10 +116,6 @@ habity/
 ├── web/                          # Web 固有ファイル
 │   └── index.html
 │
-├── ios/                          # iOS 固有（prebuild で生成）
-├── android/                      # Android 固有（prebuild で生成）
-├── macos/                        # macOS 固有
-│
 ├── __tests__/                    # テスト
 ├── docs/                         # ドキュメント
 │
@@ -139,7 +124,6 @@ habity/
 ├── babel.config.js
 ├── metro.config.js
 ├── app.config.js                 # Expo 設定
-├── eas.json                      # EAS Build 設定
 └── .env.example
 ```
 
@@ -188,7 +172,6 @@ Bluesky の package.json を参考に選定。
   "react-native-reanimated": "^3.x",
   "react-native-gesture-handler": "^2.x",
   "react-native-safe-area-context": "^5.x",
-  "expo-haptics": "~15.x",
   "expo-image": "~3.x"
 }
 ```
@@ -226,63 +209,9 @@ Bluesky の package.json を参考に選定。
 
 ---
 
-## プラットフォーム別コード分離
+## コード構成
 
-Bluesky と同様に、ファイル拡張子でプラットフォームを分離。
-
-```
-// 命名規則
-filename.ts           # 全プラットフォーム共通
-filename.native.ts    # iOS / Android 共通
-filename.web.ts       # Web のみ
-filename.ios.ts       # iOS のみ
-filename.android.ts   # Android のみ
-```
-
-**例: 通知機能**
-
-```typescript
-// src/platform/notifications.ts（共通インターフェース）
-export interface NotificationService {
-  requestPermission(): Promise<boolean>;
-  scheduleReminder(habitId: string, time: Date): Promise<void>;
-  cancelReminder(habitId: string): Promise<void>;
-}
-
-// src/platform/notifications.native.ts
-import * as Notifications from 'expo-notifications';
-
-export const notificationService: NotificationService = {
-  async requestPermission() {
-    const { status } = await Notifications.requestPermissionsAsync();
-    return status === 'granted';
-  },
-  async scheduleReminder(habitId, time) {
-    await Notifications.scheduleNotificationAsync({
-      content: { title: 'Habity', body: '習慣を記録しましょう' },
-      trigger: { hour: time.getHours(), minute: time.getMinutes(), repeats: true },
-    });
-  },
-  async cancelReminder(habitId) {
-    await Notifications.cancelScheduledNotificationAsync(habitId);
-  },
-};
-
-// src/platform/notifications.web.ts
-export const notificationService: NotificationService = {
-  async requestPermission() {
-    if (!('Notification' in window)) return false;
-    const result = await Notification.requestPermission();
-    return result === 'granted';
-  },
-  async scheduleReminder(habitId, time) {
-    // Web Push API or Service Worker
-  },
-  async cancelReminder(habitId) {
-    //
-  },
-};
-```
+Web 専用プロジェクトのため、プラットフォーム分離（`.native.tsx` / `.web.tsx`）は使用しない。すべてのコードは Web 向けに統一。
 
 ---
 
@@ -512,8 +441,6 @@ docker compose up -d
 
 # 6. 開発サーバー起動
 pnpm web          # Web 版
-pnpm ios          # iOS シミュレータ
-pnpm android      # Android エミュレータ
 ```
 
 ---
@@ -521,7 +448,6 @@ pnpm android      # Android エミュレータ
 ## 参考リンク
 
 - [Bluesky social-app](https://github.com/bluesky-social/social-app) - 参考実装
-- [React Native macOS](https://github.com/microsoft/react-native-macos) - macOS サポート
 - [Expo Documentation](https://docs.expo.dev/)
 - [Supabase Documentation](https://supabase.com/docs)
 - [React Query Documentation](https://tanstack.com/query/latest)

@@ -34,8 +34,8 @@ msgstr "About This App"
 msgid "Active"
 msgstr "Active"
 
-#: app/(tabs)/habits.tsx:192
-#: app/(tabs)/habits.tsx:225
+#: app/(tabs)/habits.tsx:187
+#: app/(tabs)/habits.tsx:221
 #: app/(tabs)/index.tsx:125
 msgid "Add a new habit to get started"
 msgstr "Add a new habit to get started"
@@ -74,7 +74,7 @@ msgstr "Back"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: app/(tabs)/habits.tsx:257
+#: app/(tabs)/habits.tsx:253
 msgid "Category"
 msgstr "Category"
 
@@ -360,13 +360,13 @@ msgstr "New Habit"
 msgid "Night"
 msgstr "Night"
 
-#: app/(tabs)/habits.tsx:190
-#: app/(tabs)/habits.tsx:220
+#: app/(tabs)/habits.tsx:185
+#: app/(tabs)/habits.tsx:216
 #: app/(tabs)/index.tsx:123
 msgid "No habits yet"
 msgstr "No habits yet"
 
-#: app/(tabs)/habits.tsx:220
+#: app/(tabs)/habits.tsx:216
 msgid "No search results"
 msgstr "No search results"
 
@@ -412,7 +412,7 @@ msgstr "Registration complete"
 msgid "Registration failed. Please try again."
 msgstr "Registration failed. Please try again."
 
-#: src/components/habits/HabitCardActions.web.tsx:77
+#: src/components/habits/HabitCardActions.tsx:77
 msgid "Remove skip"
 msgstr "Remove skip"
 
@@ -472,11 +472,11 @@ msgstr "Sign Out"
 msgid "Sign Up"
 msgstr "Sign Up"
 
-#: src/components/habits/HabitCardActions.web.tsx:87
+#: src/components/habits/HabitCardActions.tsx:87
 msgid "Skip for today"
 msgstr "Skip for today"
 
-#: src/components/habits/HabitCard.tsx:117
+#: src/components/habits/HabitCard.tsx:114
 msgid "Skipped"
 msgstr "Skipped"
 
@@ -492,7 +492,7 @@ msgstr "Start Date"
 msgid "Statistics coming soon"
 msgstr "Statistics coming soon"
 
-#: src/components/habits/HabitCardActions.web.tsx:90
+#: src/components/habits/HabitCardActions.tsx:90
 msgid "Streak will not be broken"
 msgstr "Streak will not be broken"
 
@@ -539,7 +539,7 @@ msgstr "Tomorrow"
 msgid "Track your daily habits and become a better you"
 msgstr "Track your daily habits and become a better you"
 
-#: app/(tabs)/habits.tsx:224
+#: app/(tabs)/habits.tsx:220
 msgid "Try searching with different keywords"
 msgstr "Try searching with different keywords"
 
@@ -548,7 +548,7 @@ msgstr "Try searching with different keywords"
 msgid "Tue"
 msgstr "Tue"
 
-#: app/(tabs)/habits.tsx:235
+#: app/(tabs)/habits.tsx:231
 msgid "Uncategorized"
 msgstr "Uncategorized"
 

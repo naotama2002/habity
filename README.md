@@ -1,10 +1,10 @@
 # Habity
 
-習慣トラッキングアプリケーション。Habitify に似た機能を持つマルチプラットフォーム対応アプリ。
+習慣トラッキング Web アプリケーション。Habitify に似た機能を持つ。
 
 ## 技術スタック
 
-- **フロントエンド**: React Native + Expo (iOS, Android, Web, macOS)
+- **フロントエンド**: React Native Web + Expo Web
 - **バックエンド**: Supabase (PostgreSQL, Auth, Realtime) + Go
 - **参考実装**: [Bluesky social-app](https://github.com/bluesky-social/social-app)
 
@@ -57,12 +57,6 @@ pnpm install
 
 # Web 版
 pnpm web
-
-# iOS (要 Xcode)
-pnpm ios
-
-# Android (要 Android Studio)
-pnpm android
 ```
 
 ### 5. Web フロントエンド (Docker)
@@ -172,8 +166,6 @@ docker compose -f docker-compose.deploy.yml --env-file .env.deploy down
 # フロントエンド
 pnpm install              # 依存パッケージインストール
 pnpm web                  # Web 版起動
-pnpm ios                  # iOS 起動
-pnpm android              # Android 起動
 pnpm lint                 # Lint
 pnpm typecheck            # 型チェック
 
