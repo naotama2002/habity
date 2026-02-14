@@ -32,6 +32,7 @@ export default function TodayScreen() {
   const [selectedDate, setSelectedDate] = useState(() =>
     format(new Date(), 'yyyy-MM-dd'),
   );
+  const [openMenuHabitId, setOpenMenuHabitId] = useState<string | null>(null);
 
   const {data: habits, isLoading, isFetching, error, refetch} = useHabitsWithLog(selectedDate);
   const toggleLog = useToggleHabitLog();
@@ -139,11 +140,15 @@ export default function TodayScreen() {
                     <Animated.View
                       key={habit.id}
                       layout={LinearTransition.duration(300)}
+                      style={openMenuHabitId === habit.id ? {zIndex: 9999} : undefined}
                     >
                       <HabitCardActions
+                        isCompleted={habit.is_completed}
                         isSkipped={habit.is_skipped}
                         onSkip={() => handleSkip(habit)}
                         onUnskip={() => handleUnskip(habit)}
+                        onUncomplete={() => handleToggle(habit)}
+                        onOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
                       >
                         <HabitCard
                           habit={habit}

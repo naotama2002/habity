@@ -17,12 +17,12 @@ msgstr ""
 msgid "{streak} days"
 msgstr "{streak} days"
 
-#: app/(auth)/login.tsx:81
-#: app/(auth)/signup.tsx:119
+#: app/(auth)/login.tsx:80
+#: app/(auth)/signup.tsx:118
 msgid "← Back"
 msgstr "← Back"
 
-#: app/(auth)/signup.tsx:162
+#: app/(auth)/signup.tsx:161
 msgid "6 or more characters"
 msgstr "6 or more characters"
 
@@ -36,11 +36,11 @@ msgstr "Active"
 
 #: app/(tabs)/habits.tsx:187
 #: app/(tabs)/habits.tsx:221
-#: app/(tabs)/index.tsx:125
+#: app/(tabs)/index.tsx:126
 msgid "Add a new habit to get started"
 msgstr "Add a new habit to get started"
 
-#: src/components/forms/HabitForm.tsx:106
+#: src/components/forms/HabitForm.tsx:104
 #: src/components/habits/TimeOfDaySection.tsx:31
 msgid "Afternoon"
 msgstr "Afternoon"
@@ -49,11 +49,11 @@ msgstr "Afternoon"
 msgid "All"
 msgstr "All"
 
-#: app/(auth)/signup.tsx:214
+#: app/(auth)/signup.tsx:213
 msgid "Already have an account?"
 msgstr "Already have an account?"
 
-#: src/components/forms/HabitForm.tsx:109
+#: src/components/forms/HabitForm.tsx:107
 #: src/components/habits/TimeOfDaySection.tsx:34
 msgid "Anytime"
 msgstr "Anytime"
@@ -70,7 +70,7 @@ msgstr "Archived"
 msgid "Back"
 msgstr "Back"
 
-#: src/components/forms/HabitForm.tsx:364
+#: src/components/forms/HabitForm.tsx:353
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -87,15 +87,15 @@ msgstr "Charts coming soon"
 msgid "Clear all"
 msgstr "Clear all"
 
-#: app/(auth)/signup.tsx:95
+#: app/(auth)/signup.tsx:94
 msgid "Click the link in the email to activate your account."
 msgstr "Click the link in the email to activate your account."
 
-#: app/import/habitify.tsx:260
+#: app/import/habitify.tsx:259
 msgid "Close"
 msgstr "Close"
 
-#: app/(tabs)/index.tsx:189
+#: app/(tabs)/index.tsx:194
 msgid "completed"
 msgstr "completed"
 
@@ -107,16 +107,16 @@ msgstr "Completion Rate"
 msgid "Completion Rate by Habit"
 msgstr "Completion Rate by Habit"
 
-#: app/(auth)/signup.tsx:178
+#: app/(auth)/signup.tsx:177
 msgid "Confirm Password"
 msgstr "Confirm Password"
 
-#: src/components/forms/HabitForm.tsx:386
+#: src/components/forms/HabitForm.tsx:375
 msgid "Continue Editing"
 msgstr "Continue Editing"
 
-#: app/(auth)/signup.tsx:121
-#: app/(auth)/signup.tsx:207
+#: app/(auth)/signup.tsx:120
+#: app/(auth)/signup.tsx:206
 msgid "Create Account"
 msgstr "Create Account"
 
@@ -134,15 +134,15 @@ msgstr "Data"
 msgid "days"
 msgstr "days"
 
-#: src/components/forms/HabitForm.tsx:272
+#: src/components/forms/HabitForm.tsx:261
 msgid "Description"
 msgstr "Description"
 
-#: src/components/forms/HabitForm.tsx:385
+#: src/components/forms/HabitForm.tsx:374
 msgid "Discard"
 msgstr "Discard"
 
-#: src/components/forms/HabitForm.tsx:383
+#: src/components/forms/HabitForm.tsx:372
 msgid "Discard Changes"
 msgstr "Discard Changes"
 
@@ -154,7 +154,7 @@ msgstr "Don't have an account?"
 msgid "Done"
 msgstr "Done"
 
-#: src/components/forms/HabitForm.tsx:264
+#: src/components/forms/HabitForm.tsx:253
 msgid "e.g., Reading, Exercise, Meditation"
 msgstr "e.g., Reading, Exercise, Meditation"
 
@@ -167,12 +167,12 @@ msgstr "Edit"
 msgid "Edit Habit"
 msgstr "Edit Habit"
 
-#: app/(auth)/login.tsx:100
-#: app/(auth)/signup.tsx:138
+#: app/(auth)/login.tsx:99
+#: app/(auth)/signup.tsx:137
 msgid "Email"
 msgstr "Email"
 
-#: app/(auth)/login.tsx:58
+#: app/(auth)/login.tsx:57
 msgid "Email or password is incorrect"
 msgstr "Email or password is incorrect"
 
@@ -180,19 +180,19 @@ msgstr "Email or password is incorrect"
 msgid "English"
 msgstr "English"
 
-#: app/(auth)/login.tsx:85
+#: app/(auth)/login.tsx:84
 msgid "Enter your email and password"
 msgstr "Enter your email and password"
 
-#: app/import/habitify.tsx:101
+#: app/import/habitify.tsx:100
 msgid "Enter your Habitify API key"
 msgstr "Enter your Habitify API key"
 
-#: src/components/forms/HabitForm.tsx:214
+#: src/components/forms/HabitForm.tsx:207
 msgid "Error"
 msgstr "Error"
 
-#: src/components/forms/HabitForm.tsx:107
+#: src/components/forms/HabitForm.tsx:105
 #: src/components/habits/TimeOfDaySection.tsx:32
 msgid "Evening"
 msgstr "Evening"
@@ -202,11 +202,11 @@ msgid "Export Data"
 msgstr "Export Data"
 
 #: app/(tabs)/habits.tsx:128
-#: app/(tabs)/index.tsx:99
+#: app/(tabs)/index.tsx:100
 msgid "Failed to load habits"
 msgstr "Failed to load habits"
 
-#: src/components/forms/HabitForm.tsx:208
+#: src/components/forms/HabitForm.tsx:201
 msgid "Failed to save. Please try again."
 msgstr "Failed to save. Please try again."
 
@@ -223,7 +223,7 @@ msgstr "Fri"
 msgid "General"
 msgstr "General"
 
-#: app/(auth)/signup.tsx:98
+#: app/(auth)/signup.tsx:97
 msgid "Go to Sign In"
 msgstr "Go to Sign In"
 
@@ -231,7 +231,7 @@ msgstr "Go to Sign In"
 msgid "Guest User"
 msgstr "Guest User"
 
-#: src/components/forms/HabitForm.tsx:256
+#: src/components/forms/HabitForm.tsx:245
 msgid "Habit Name"
 msgstr "Habit Name"
 
@@ -239,7 +239,7 @@ msgstr "Habit Name"
 msgid "Habit not found"
 msgstr "Habit not found"
 
-#: app/import/habitify.tsx:95
+#: app/import/habitify.tsx:94
 msgid "Habitify API Key"
 msgstr "Habitify API Key"
 
@@ -247,7 +247,7 @@ msgstr "Habitify API Key"
 msgid "Habits"
 msgstr "Habits"
 
-#: app/import/habitify.tsx:236
+#: app/import/habitify.tsx:235
 msgid "Habits imported"
 msgstr "Habits imported"
 
@@ -255,42 +255,38 @@ msgstr "Habits imported"
 msgid "Help"
 msgstr "Help"
 
-#: app/import/habitify.tsx:110
+#: app/import/habitify.tsx:109
 msgid "How to get your API key: Open Habitify app → Settings → API Credential → Copy"
 msgstr "How to get your API key: Open Habitify app → Settings → API Credential → Copy"
 
-#: app/import/habitify.tsx:206
+#: app/import/habitify.tsx:205
 msgid "Import"
 msgstr "Import"
 
-#: app/import/habitify.tsx:232
+#: app/import/habitify.tsx:231
 msgid "Import Complete"
 msgstr "Import Complete"
 
 #: app/(tabs)/settings.tsx:61
-#: app/import/habitify.tsx:79
+#: app/import/habitify.tsx:78
 msgid "Import from Habitify"
 msgstr "Import from Habitify"
 
-#: app/import/habitify.tsx:128
+#: app/import/habitify.tsx:127
 msgid "Import Habits"
 msgstr "Import Habits"
 
-#: app/import/habitify.tsx:154
+#: app/import/habitify.tsx:153
 msgid "Import Logs"
 msgstr "Import Logs"
 
-#: app/import/habitify.tsx:117
+#: app/import/habitify.tsx:116
 msgid "Import Options"
 msgstr "Import Options"
 
-#: app/import/habitify.tsx:201
+#: app/import/habitify.tsx:200
 msgid "Importing..."
 msgstr "Importing..."
-
-#: src/components/forms/HabitForm.tsx:173
-msgid "Input Error"
-msgstr "Input Error"
 
 #: src/components/forms/RecurrencePicker.tsx:38
 msgid "Interval"
@@ -304,15 +300,15 @@ msgstr "Japanese"
 msgid "Language"
 msgstr "Language"
 
-#: app/(auth)/signup.tsx:123
+#: app/(auth)/signup.tsx:122
 msgid "Let's create a new account"
 msgstr "Let's create a new account"
 
-#: app/(auth)/login.tsx:60
+#: app/(auth)/login.tsx:59
 msgid "Login failed. Please try again."
 msgstr "Login failed. Please try again."
 
-#: app/import/habitify.tsx:241
+#: app/import/habitify.tsx:240
 msgid "Logs imported"
 msgstr "Logs imported"
 
@@ -328,6 +324,10 @@ msgstr "Make habits simpler"
 msgid "Manage Categories"
 msgstr "Manage Categories"
 
+#: src/components/habits/HabitCardActions.tsx:86
+msgid "Mark as incomplete"
+msgstr "Mark as incomplete"
+
 #: src/components/forms/RecurrencePicker.tsx:42
 #: src/components/habits/HabitListItem.tsx:40
 msgid "Mon"
@@ -342,12 +342,12 @@ msgstr "Monday"
 msgid "Monthly"
 msgstr "Monthly"
 
-#: src/components/forms/HabitForm.tsx:105
+#: src/components/forms/HabitForm.tsx:103
 #: src/components/habits/TimeOfDaySection.tsx:30
 msgid "Morning"
 msgstr "Morning"
 
-#: src/components/forms/HabitForm.tsx:323
+#: src/components/forms/HabitForm.tsx:312
 msgid "Multiple selection allowed"
 msgstr "Multiple selection allowed"
 
@@ -355,14 +355,14 @@ msgstr "Multiple selection allowed"
 msgid "New Habit"
 msgstr "New Habit"
 
-#: src/components/forms/HabitForm.tsx:108
+#: src/components/forms/HabitForm.tsx:106
 #: src/components/habits/TimeOfDaySection.tsx:33
 msgid "Night"
 msgstr "Night"
 
 #: app/(tabs)/habits.tsx:185
 #: app/(tabs)/habits.tsx:216
-#: app/(tabs)/index.tsx:123
+#: app/(tabs)/index.tsx:124
 msgid "No habits yet"
 msgstr "No habits yet"
 
@@ -370,7 +370,7 @@ msgstr "No habits yet"
 msgid "No search results"
 msgstr "No search results"
 
-#: src/components/forms/HabitForm.tsx:274
+#: src/components/forms/HabitForm.tsx:263
 msgid "Note the purpose or rules of the habit"
 msgstr "Note the purpose or rules of the habit"
 
@@ -378,13 +378,13 @@ msgstr "Note the purpose or rules of the habit"
 msgid "Notifications"
 msgstr "Notifications"
 
-#: src/components/forms/HabitForm.tsx:280
+#: src/components/forms/HabitForm.tsx:269
 msgid "Optional"
 msgstr "Optional"
 
-#: app/(auth)/login.tsx:120
-#: app/(auth)/login.tsx:124
-#: app/(auth)/signup.tsx:158
+#: app/(auth)/login.tsx:119
+#: app/(auth)/login.tsx:123
+#: app/(auth)/signup.tsx:157
 msgid "Password"
 msgstr "Password"
 
@@ -392,27 +392,27 @@ msgstr "Password"
 msgid "Please sign in"
 msgstr "Please sign in"
 
-#: app/(tabs)/index.tsx:100
+#: app/(tabs)/index.tsx:101
 msgid "Please try again"
 msgstr "Please try again"
 
-#: app/(auth)/signup.tsx:182
+#: app/(auth)/signup.tsx:181
 msgid "Re-enter password"
 msgstr "Re-enter password"
 
-#: src/components/forms/HabitForm.tsx:290
+#: src/components/forms/HabitForm.tsx:279
 msgid "Recurrence"
 msgstr "Recurrence"
 
-#: app/(auth)/signup.tsx:91
+#: app/(auth)/signup.tsx:90
 msgid "Registration complete"
 msgstr "Registration complete"
 
-#: app/(auth)/signup.tsx:66
+#: app/(auth)/signup.tsx:65
 msgid "Registration failed. Please try again."
 msgstr "Registration failed. Please try again."
 
-#: src/components/habits/HabitCardActions.tsx:77
+#: src/components/habits/HabitCardActions.tsx:72
 msgid "Remove skip"
 msgstr "Remove skip"
 
@@ -421,11 +421,11 @@ msgstr "Remove skip"
 msgid "Sat"
 msgstr "Sat"
 
-#: src/components/forms/HabitForm.tsx:375
+#: src/components/forms/HabitForm.tsx:364
 msgid "Save"
 msgstr "Save"
 
-#: src/components/forms/HabitForm.tsx:375
+#: src/components/forms/HabitForm.tsx:364
 msgid "Saving..."
 msgstr "Saving..."
 
@@ -450,9 +450,9 @@ msgstr "Select days of the month"
 msgid "Select days of the week"
 msgstr "Select days of the week"
 
-#: app/(auth)/login.tsx:83
-#: app/(auth)/login.tsx:149
-#: app/(auth)/signup.tsx:217
+#: app/(auth)/login.tsx:82
+#: app/(auth)/login.tsx:148
+#: app/(auth)/signup.tsx:216
 msgid "Sign In"
 msgstr "Sign In"
 
@@ -472,19 +472,19 @@ msgstr "Sign Out"
 msgid "Sign Up"
 msgstr "Sign Up"
 
-#: src/components/habits/HabitCardActions.tsx:87
+#: src/components/habits/HabitCardActions.tsx:99
 msgid "Skip for today"
 msgstr "Skip for today"
 
-#: src/components/habits/HabitCard.tsx:114
+#: src/components/habits/HabitCard.tsx:113
 msgid "Skipped"
 msgstr "Skipped"
 
-#: app/import/habitify.tsx:249
+#: app/import/habitify.tsx:248
 msgid "Some items could not be imported"
 msgstr "Some items could not be imported"
 
-#: src/components/forms/HabitForm.tsx:334
+#: src/components/forms/HabitForm.tsx:323
 msgid "Start Date"
 msgstr "Start Date"
 
@@ -492,7 +492,7 @@ msgstr "Start Date"
 msgid "Statistics coming soon"
 msgstr "Statistics coming soon"
 
-#: src/components/habits/HabitCardActions.tsx:90
+#: src/components/habits/HabitCardActions.tsx:102
 msgid "Streak will not be broken"
 msgstr "Streak will not be broken"
 
@@ -509,11 +509,11 @@ msgstr "Support"
 msgid "System"
 msgstr "System"
 
-#: src/components/forms/HabitForm.tsx:174
+#: src/components/forms/HabitForm.tsx:171
 msgid "There are errors in the input. Please check the fields highlighted in red."
 msgstr "There are errors in the input. Please check the fields highlighted in red."
 
-#: app/(auth)/signup.tsx:64
+#: app/(auth)/signup.tsx:63
 msgid "This email is already registered"
 msgstr "This email is already registered"
 
@@ -522,11 +522,11 @@ msgstr "This email is already registered"
 msgid "Thu"
 msgstr "Thu"
 
-#: src/components/forms/HabitForm.tsx:320
+#: src/components/forms/HabitForm.tsx:309
 msgid "Time of Day"
 msgstr "Time of Day"
 
-#: app/(tabs)/index.tsx:45
+#: app/(tabs)/index.tsx:46
 #: src/components/date/DateStrip.tsx:121
 msgid "Today"
 msgstr "Today"
@@ -552,7 +552,7 @@ msgstr "Tue"
 msgid "Uncategorized"
 msgstr "Uncategorized"
 
-#: app/(auth)/signup.tsx:93
+#: app/(auth)/signup.tsx:92
 msgid "We sent you a confirmation email."
 msgstr "We sent you a confirmation email."
 
@@ -574,6 +574,6 @@ msgstr "Weekly"
 msgid "Weekly Completion Rate"
 msgstr "Weekly Completion Rate"
 
-#: src/components/forms/HabitForm.tsx:384
+#: src/components/forms/HabitForm.tsx:373
 msgid "Your input will not be saved. Are you sure?"
 msgstr "Your input will not be saved. Are you sure?"
