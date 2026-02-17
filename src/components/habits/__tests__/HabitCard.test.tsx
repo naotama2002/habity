@@ -107,4 +107,36 @@ describe('HabitCard', () => {
       expect(onToggle).not.toHaveBeenCalled();
     });
   });
+
+  it('should show checkmark immediately on toggle (optimistic update)', () => {
+    const habit = createMockHabitWithLog({is_completed: false});
+    render(<HabitCard habit={habit} onToggle={jest.fn()} />);
+
+    // チェックマークがまだ表示されていないことを確認
+    expect(screen.queryByText('✓')).toBeNull();
+
+    // チェックボックスを押す
+    fireEvent.press(screen.getByTestId('habit-checkbox'));
+
+    // サーバー応答前にチェックマークが即座に表示される
+    expect(screen.getByText('✓')).toBeTruthy();
+  });
+
+  it('should hide checkmark immediately on uncomplete toggle (optimistic update)', () => {
+    const habit = createMockHabitWithLog({
+      is_completed: true,
+      log_id: 'log-1',
+      log_status: 'completed',
+    });
+    render(<HabitCard habit={habit} onToggle={jest.fn()} />);
+
+    // チェックマークが表示されていることを確認
+    expect(screen.getByText('✓')).toBeTruthy();
+
+    // チェックボックスを押す（未完了に戻す）
+    fireEvent.press(screen.getByTestId('habit-checkbox'));
+
+    // チェックマークが即座に消える
+    expect(screen.queryByText('✓')).toBeNull();
+  });
 });

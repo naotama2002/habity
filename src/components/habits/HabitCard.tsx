@@ -1,3 +1,4 @@
+import {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, Pressable} from 'react-native';
 import {msg} from '@lingui/macro';
 import {useLingui} from '@lingui/react';
@@ -6,6 +7,7 @@ import Animated, {
   useAnimatedStyle,
   withSequence,
   withTiming,
+  withDelay,
 } from 'react-native-reanimated';
 import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
@@ -35,19 +37,39 @@ export function HabitCard({
   onPress,
 }: HabitCardProps) {
   const {_} = useLingui();
-  const isCompleted = habit.is_completed;
   const isSkipped = habit.is_skipped;
+
+  // ローカル楽観的更新: チェックマークを即座に表示
+  const [optimisticCompleted, setOptimisticCompleted] = useState(habit.is_completed);
+
+  // サーバーからの確定データで同期
+  useEffect(() => {
+    setOptimisticCompleted(habit.is_completed);
+  }, [habit.is_completed]);
 
   // 緑フラッシュアニメーション用 shared value (0 = 透明, 1 = 不透明)
   const flashOpacity = useSharedValue(0);
 
   const handleToggle = () => {
     if (isSkipped) return; // スキップ中はトグル不可
-    // チェック時に緑フラッシュ
-    flashOpacity.value = withSequence(
-      withTiming(1, {duration: 200}),
-      withTiming(0, {duration: 300}),
-    );
+
+    const willComplete = !optimisticCompleted;
+
+    // 1. チェックマークを即座に表示/非表示
+    setOptimisticCompleted(willComplete);
+
+    // 2. 完了時のみ: 緑フラッシュをチェックの後に再生
+    if (willComplete) {
+      flashOpacity.value = withDelay(
+        100,
+        withSequence(
+          withTiming(1, {duration: 200}),
+          withTiming(0, {duration: 300}),
+        ),
+      );
+    }
+
+    // 3. サーバーに送信
     onToggle?.(habit);
   };
 
@@ -62,21 +84,21 @@ export function HabitCard({
   // コンテナスタイルの決定
   const containerStyle = [
     styles.container,
-    isCompleted && styles.containerCompleted,
+    optimisticCompleted && styles.containerCompleted,
     isSkipped && styles.containerSkipped,
   ];
 
   // チェックボックススタイルの決定
   const checkboxStyle = [
     styles.checkbox,
-    isCompleted && styles.checkboxCompleted,
+    optimisticCompleted && styles.checkboxCompleted,
     isSkipped && styles.checkboxSkipped,
   ];
 
   // 名前スタイルの決定
   const nameStyle = [
     styles.name,
-    isCompleted && styles.nameCompleted,
+    optimisticCompleted && styles.nameCompleted,
     isSkipped && styles.nameSkipped,
   ];
 
@@ -99,7 +121,7 @@ export function HabitCard({
           onPress={handleToggle}
           hitSlop={8}
         >
-          {isCompleted && <Text style={styles.checkmark}>✓</Text>}
+          {optimisticCompleted && <Text style={styles.checkmark}>✓</Text>}
           {isSkipped && <Text style={styles.skipMark}>⊘</Text>}
         </Pressable>
 
