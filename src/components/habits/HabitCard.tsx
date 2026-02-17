@@ -8,6 +8,7 @@ import Animated, {
   withSequence,
   withTiming,
   withDelay,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
@@ -52,6 +53,10 @@ export function HabitCard({
 
   const handleToggle = () => {
     if (isSkipped) return; // スキップ中はトグル不可
+
+    // 連打時に前のフラッシュアニメーションが残らないようキャンセル
+    cancelAnimation(flashOpacity);
+    flashOpacity.value = 0;
 
     const willComplete = !optimisticCompleted;
 
