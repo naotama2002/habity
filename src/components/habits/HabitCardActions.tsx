@@ -65,7 +65,10 @@ export function HabitCardActions({
       return (
         <Pressable
           testID="habit-action-unskip"
-          style={styles.dropdownItem}
+          style={({hovered}: {hovered: boolean}) => [
+            styles.dropdownItem,
+            hovered && styles.dropdownItemHovered,
+          ]}
           onPress={handleUnskip}
         >
           <Text style={styles.dropdownItemText}>
@@ -79,7 +82,10 @@ export function HabitCardActions({
       return (
         <Pressable
           testID="habit-action-uncomplete"
-          style={styles.dropdownItem}
+          style={({hovered}: {hovered: boolean}) => [
+            styles.dropdownItem,
+            hovered && styles.dropdownItemHovered,
+          ]}
           onPress={handleUncomplete}
         >
           <Text style={styles.dropdownItemText}>
@@ -92,7 +98,10 @@ export function HabitCardActions({
     return (
       <Pressable
         testID="habit-action-skip"
-        style={styles.dropdownItem}
+        style={({hovered}: {hovered: boolean}) => [
+          styles.dropdownItem,
+          hovered && styles.dropdownItemHovered,
+        ]}
         onPress={handleSkip}
       >
         <Text style={styles.dropdownItemText}>
@@ -162,6 +171,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
+    cursor: 'pointer' as never,
   },
   menuButtonText: {
     fontSize: 20,
@@ -191,6 +201,10 @@ const styles = StyleSheet.create({
   dropdownItem: {
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+  },
+  dropdownItemHovered: {
+    backgroundColor: colors.gray[100],
   },
   dropdownItemText: {
     ...typography.bodySmall,

@@ -99,7 +99,7 @@ msgstr "Click the link in the email to activate your account."
 msgid "Close"
 msgstr "Close"
 
-#: app/(tabs)/index.tsx:194
+#: app/(tabs)/index.tsx:197
 msgid "completed"
 msgstr "completed"
 
@@ -480,7 +480,7 @@ msgstr "Sign Up"
 msgid "Skip for today"
 msgstr "Skip for today"
 
-#: src/components/habits/HabitCard.tsx:113
+#: src/components/habits/HabitCard.tsx:165
 msgid "Skipped"
 msgstr "Skipped"
 

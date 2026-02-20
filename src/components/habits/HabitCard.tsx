@@ -1,5 +1,5 @@
-import {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Pressable} from 'react-native';
+import {useState, useEffect, useCallback, useMemo} from 'react';
+import {View, Text, StyleSheet, Pressable, Linking} from 'react-native';
 import {msg} from '@lingui/macro';
 import {useLingui} from '@lingui/react';
 import Animated, {
@@ -13,6 +13,7 @@ import Animated, {
 import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
 import {spacing, borderRadius, shadows} from '@/lib/spacing';
+import {extractUrls} from '@/lib/url';
 import {StreakBadge} from './StreakBadge';
 import type {HabitWithLog} from '@/types/database';
 
@@ -23,8 +24,8 @@ interface HabitCardProps {
   streak?: number;
   /** チェックイン時のコールバック */
   onToggle?: (habit: HabitWithLog) => void;
-  /** 詳細表示時のコールバック */
-  onPress?: (habit: HabitWithLog) => void;
+  /** リンクメニュー開閉通知コールバック */
+  onLinkMenuOpenChange?: (open: boolean) => void;
 }
 
 /**
@@ -35,18 +36,21 @@ export function HabitCard({
   habit,
   streak = 0,
   onToggle,
-  onPress,
+  onLinkMenuOpenChange,
 }: HabitCardProps) {
   const {_} = useLingui();
   const isSkipped = habit.is_skipped;
 
   // ローカル楽観的更新: チェックマークを即座に表示
   const [optimisticCompleted, setOptimisticCompleted] = useState(habit.is_completed);
+  const [linkMenuOpen, setLinkMenuOpen] = useState(false);
 
   // サーバーからの確定データで同期
   useEffect(() => {
     setOptimisticCompleted(habit.is_completed);
   }, [habit.is_completed]);
+
+  const urls = useMemo(() => extractUrls(habit.description), [habit.description]);
 
   // 緑フラッシュアニメーション用 shared value (0 = 透明, 1 = 不透明)
   const flashOpacity = useSharedValue(0);
@@ -78,9 +82,23 @@ export function HabitCard({
     onToggle?.(habit);
   };
 
-  const handlePress = () => {
-    onPress?.(habit);
-  };
+  const setLinkMenuOpenWithCallback = useCallback((value: boolean) => {
+    setLinkMenuOpen(value);
+    onLinkMenuOpenChange?.(value);
+  }, [onLinkMenuOpenChange]);
+
+  const handleToggleLinkMenu = useCallback(() => {
+    setLinkMenuOpenWithCallback(!linkMenuOpen);
+  }, [setLinkMenuOpenWithCallback, linkMenuOpen]);
+
+  const handleCloseLinkMenu = useCallback(() => {
+    setLinkMenuOpenWithCallback(false);
+  }, [setLinkMenuOpenWithCallback]);
+
+  const handleOpenUrl = useCallback((url: string) => {
+    setLinkMenuOpenWithCallback(false);
+    Linking.openURL(url);
+  }, [setLinkMenuOpenWithCallback]);
 
   const flashStyle = useAnimatedStyle(() => ({
     opacity: flashOpacity.value,
@@ -108,10 +126,9 @@ export function HabitCard({
   ];
 
   return (
-      <Pressable
+      <View
         testID="habit-card"
         style={containerStyle}
-        onPress={handlePress}
       >
         {/* 緑フラッシュオーバーレイ */}
         <Animated.View
@@ -144,7 +161,47 @@ export function HabitCard({
           {/* ストリーク */}
           <StreakBadge streak={streak} />
         </View>
-      </Pressable>
+
+        {/* リンクボタン */}
+        {urls.length > 0 && (
+          <View style={styles.linkAnchor}>
+            <Pressable
+              testID="habit-link-button"
+              style={styles.linkButton}
+              onPress={handleToggleLinkMenu}
+              hitSlop={8}
+            >
+              <Text style={styles.linkButtonText}>{'🔗'}</Text>
+            </Pressable>
+
+            {linkMenuOpen && (
+              <>
+                <Pressable
+                  testID="habit-link-overlay"
+                  style={styles.linkOverlay}
+                  onPress={handleCloseLinkMenu}
+                />
+                <View testID="habit-link-menu" style={styles.linkDropdown}>
+                  {urls.map((url) => (
+                    <Pressable
+                      key={url}
+                      style={({hovered}: {hovered: boolean}) => [
+                        styles.linkDropdownItem,
+                        hovered && styles.linkDropdownItemHovered,
+                      ]}
+                      onPress={() => handleOpenUrl(url)}
+                    >
+                      <Text style={styles.linkDropdownItemText} numberOfLines={1}>
+                        {url}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
+            )}
+          </View>
+        )}
+      </View>
   );
 }
 
@@ -158,7 +215,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     borderWidth: 1,
     borderColor: lightTheme.border,
-    overflow: 'hidden',
     ...shadows.sm,
   },
   containerCompleted: {
@@ -183,6 +239,7 @@ const styles = StyleSheet.create({
     borderColor: colors.gray[300],
     alignItems: 'center',
     justifyContent: 'center',
+    cursor: 'pointer' as never,
   },
   checkboxCompleted: {
     backgroundColor: colors.success[500],
@@ -228,5 +285,56 @@ const styles = StyleSheet.create({
   skipLabel: {
     ...typography.bodySmall,
     color: colors.gray[400],
+  },
+  linkAnchor: {
+    position: 'relative',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  linkButton: {
+    width: 32,
+    height: 32,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer' as never,
+  },
+  linkButtonText: {
+    fontSize: 18,
+    color: colors.primary[500],
+    lineHeight: 24,
+  },
+  linkOverlay: {
+    position: 'fixed' as never,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 99,
+  },
+  linkDropdown: {
+    position: 'absolute',
+    top: '100%' as never,
+    right: 0,
+    backgroundColor: lightTheme.background,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: lightTheme.border,
+    minWidth: 220,
+    maxWidth: 320,
+    zIndex: 100,
+    ...shadows.md,
+  },
+  linkDropdownItem: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+  },
+  linkDropdownItemHovered: {
+    backgroundColor: colors.gray[100],
+  },
+  linkDropdownItemText: {
+    ...typography.bodySmall,
+    color: colors.primary[600],
   },
 });

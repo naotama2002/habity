@@ -99,7 +99,7 @@ msgstr "メール内のリンクをクリックしてアカウントを有効化
 msgid "Close"
 msgstr "閉じる"
 
-#: app/(tabs)/index.tsx:194
+#: app/(tabs)/index.tsx:197
 msgid "completed"
 msgstr "完了"
 
@@ -480,7 +480,7 @@ msgstr "新規登録"
 msgid "Skip for today"
 msgstr "今日はスキップ"
 
-#: src/components/habits/HabitCard.tsx:113
+#: src/components/habits/HabitCard.tsx:165
 msgid "Skipped"
 msgstr "スキップ済み"
 
