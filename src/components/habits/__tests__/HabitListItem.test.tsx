@@ -62,5 +62,113 @@ describe('HabitListItem', () => {
       render(<HabitListItem habit={createMockHabit()} editMode streak={5} />);
       expect(screen.queryByText(/days/)).toBeNull();
     });
+
+    it('should not show action menu button in edit mode', () => {
+      render(<HabitListItem habit={createMockHabit()} editMode />);
+      expect(screen.queryByTestId('habit-list-actions-button')).toBeNull();
+    });
+  });
+
+  describe('action menu', () => {
+    it('should render action menu button', () => {
+      render(<HabitListItem habit={createMockHabit()} />);
+      expect(screen.getByTestId('habit-list-actions-button')).toBeTruthy();
+    });
+
+    it('should show menu with archive option for active habit', () => {
+      render(<HabitListItem habit={createMockHabit()} isArchived={false} onArchive={jest.fn()} />);
+
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+
+      expect(screen.getByTestId('habit-list-actions-menu')).toBeTruthy();
+      expect(screen.getByText('Archive')).toBeTruthy();
+      expect(screen.queryByText('Unarchive')).toBeNull();
+    });
+
+    it('should show menu with unarchive option for archived habit', () => {
+      render(<HabitListItem habit={createMockHabit()} isArchived={true} onUnarchive={jest.fn()} />);
+
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+
+      expect(screen.getByTestId('habit-list-actions-menu')).toBeTruthy();
+      expect(screen.getByText('Unarchive')).toBeTruthy();
+      expect(screen.queryByText('Archive')).toBeNull();
+    });
+
+    it('should call onArchive when archive option is pressed', () => {
+      const onArchive = jest.fn();
+      render(<HabitListItem habit={createMockHabit()} onArchive={onArchive} />);
+
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+      fireEvent.press(screen.getByTestId('habit-list-action-archive'));
+
+      expect(onArchive).toHaveBeenCalled();
+    });
+
+    it('should call onUnarchive when unarchive option is pressed', () => {
+      const onUnarchive = jest.fn();
+      render(<HabitListItem habit={createMockHabit()} isArchived={true} onUnarchive={onUnarchive} />);
+
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+      fireEvent.press(screen.getByTestId('habit-list-action-unarchive'));
+
+      expect(onUnarchive).toHaveBeenCalled();
+    });
+
+    it('should close menu after action', () => {
+      render(<HabitListItem habit={createMockHabit()} onArchive={jest.fn()} />);
+
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+      expect(screen.getByTestId('habit-list-actions-menu')).toBeTruthy();
+
+      fireEvent.press(screen.getByTestId('habit-list-action-archive'));
+      expect(screen.queryByTestId('habit-list-actions-menu')).toBeNull();
+    });
+
+    it('should call onMenuOpenChange when menu opens and closes', () => {
+      const onMenuOpenChange = jest.fn();
+      render(<HabitListItem habit={createMockHabit()} onMenuOpenChange={onMenuOpenChange} />);
+
+      // Open
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+      expect(onMenuOpenChange).toHaveBeenCalledWith(true);
+
+      // Close
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+      expect(onMenuOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('should call onMenuOpenChange(false) when action is taken', () => {
+      const onMenuOpenChange = jest.fn();
+      render(<HabitListItem habit={createMockHabit()} onArchive={jest.fn()} onMenuOpenChange={onMenuOpenChange} />);
+
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+      onMenuOpenChange.mockClear();
+
+      fireEvent.press(screen.getByTestId('habit-list-action-archive'));
+      expect(onMenuOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('should toggle menu on button press', () => {
+      render(<HabitListItem habit={createMockHabit()} />);
+
+      // Open
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+      expect(screen.getByTestId('habit-list-actions-menu')).toBeTruthy();
+
+      // Close
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+      expect(screen.queryByTestId('habit-list-actions-menu')).toBeNull();
+    });
+
+    it('should close menu when overlay is pressed', () => {
+      render(<HabitListItem habit={createMockHabit()} />);
+
+      fireEvent.press(screen.getByTestId('habit-list-actions-button'));
+      expect(screen.getByTestId('habit-list-actions-menu')).toBeTruthy();
+
+      fireEvent.press(screen.getByTestId('habit-list-actions-overlay'));
+      expect(screen.queryByTestId('habit-list-actions-menu')).toBeNull();
+    });
   });
 });

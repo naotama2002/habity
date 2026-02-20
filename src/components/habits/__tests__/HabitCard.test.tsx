@@ -226,20 +226,154 @@ describe('HabitCard', () => {
       expect(screen.queryByTestId('habit-link-menu')).toBeNull();
     });
 
-    it('should call onLinkMenuOpenChange when menu opens and closes', () => {
-      const onLinkMenuOpenChange = jest.fn();
+    it('should call onMenuOpenChange when link menu opens and closes', () => {
+      const onMenuOpenChange = jest.fn();
       const habit = createMockHabitWithLog({
         description: 'Open https://example.com',
       });
       render(
-        <HabitCard habit={habit} onLinkMenuOpenChange={onLinkMenuOpenChange} />,
+        <HabitCard habit={habit} onMenuOpenChange={onMenuOpenChange} />,
       );
 
       fireEvent.press(screen.getByTestId('habit-link-button'));
-      expect(onLinkMenuOpenChange).toHaveBeenCalledWith(true);
+      expect(onMenuOpenChange).toHaveBeenCalledWith(true);
 
       fireEvent.press(screen.getByTestId('habit-link-overlay'));
-      expect(onLinkMenuOpenChange).toHaveBeenCalledWith(false);
+      expect(onMenuOpenChange).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe('action menu', () => {
+    it('should render action menu button', () => {
+      const habit = createMockHabitWithLog();
+      render(<HabitCard habit={habit} />);
+      expect(screen.getByTestId('habit-actions-button')).toBeTruthy();
+    });
+
+    it('should show menu with skip option when button is pressed (incomplete habit)', () => {
+      const habit = createMockHabitWithLog();
+      render(<HabitCard habit={habit} onSkip={jest.fn()} />);
+
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+
+      expect(screen.getByTestId('habit-actions-menu')).toBeTruthy();
+      expect(screen.getByText('Skip for today')).toBeTruthy();
+      expect(screen.getByText('Streak will not be broken')).toBeTruthy();
+    });
+
+    it('should show unskip option when habit is already skipped', () => {
+      const habit = createMockHabitWithLog({is_skipped: true, log_status: 'skipped'});
+      render(<HabitCard habit={habit} onUnskip={jest.fn()} />);
+
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+
+      expect(screen.getByText('Remove skip')).toBeTruthy();
+      expect(screen.queryByText('Skip for today')).toBeNull();
+    });
+
+    it('should show uncomplete option when habit is completed', () => {
+      const habit = createMockHabitWithLog({is_completed: true, log_status: 'completed'});
+      render(<HabitCard habit={habit} onUncomplete={jest.fn()} />);
+
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+
+      expect(screen.getByText('Mark as incomplete')).toBeTruthy();
+      expect(screen.queryByText('Skip for today')).toBeNull();
+      expect(screen.queryByText('Remove skip')).toBeNull();
+    });
+
+    it('should call onSkip when skip option is pressed', () => {
+      const onSkip = jest.fn();
+      const habit = createMockHabitWithLog();
+      render(<HabitCard habit={habit} onSkip={onSkip} />);
+
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      fireEvent.press(screen.getByTestId('habit-action-skip'));
+
+      expect(onSkip).toHaveBeenCalled();
+    });
+
+    it('should call onUnskip when unskip option is pressed', () => {
+      const onUnskip = jest.fn();
+      const habit = createMockHabitWithLog({is_skipped: true, log_status: 'skipped'});
+      render(<HabitCard habit={habit} onUnskip={onUnskip} />);
+
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      fireEvent.press(screen.getByTestId('habit-action-unskip'));
+
+      expect(onUnskip).toHaveBeenCalled();
+    });
+
+    it('should call onUncomplete when uncomplete option is pressed', () => {
+      const onUncomplete = jest.fn();
+      const habit = createMockHabitWithLog({is_completed: true, log_status: 'completed'});
+      render(<HabitCard habit={habit} onUncomplete={onUncomplete} />);
+
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      fireEvent.press(screen.getByTestId('habit-action-uncomplete'));
+
+      expect(onUncomplete).toHaveBeenCalled();
+    });
+
+    it('should close menu after action', () => {
+      const habit = createMockHabitWithLog();
+      render(<HabitCard habit={habit} onSkip={jest.fn()} />);
+
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      expect(screen.getByTestId('habit-actions-menu')).toBeTruthy();
+
+      fireEvent.press(screen.getByTestId('habit-action-skip'));
+      expect(screen.queryByTestId('habit-actions-menu')).toBeNull();
+    });
+
+    it('should call onMenuOpenChange when action menu opens and closes', () => {
+      const onMenuOpenChange = jest.fn();
+      const habit = createMockHabitWithLog();
+      render(<HabitCard habit={habit} onMenuOpenChange={onMenuOpenChange} />);
+
+      // Open
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      expect(onMenuOpenChange).toHaveBeenCalledWith(true);
+
+      // Close
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      expect(onMenuOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('should call onMenuOpenChange(false) when action is taken', () => {
+      const onMenuOpenChange = jest.fn();
+      const habit = createMockHabitWithLog();
+      render(<HabitCard habit={habit} onSkip={jest.fn()} onMenuOpenChange={onMenuOpenChange} />);
+
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      onMenuOpenChange.mockClear();
+
+      fireEvent.press(screen.getByTestId('habit-action-skip'));
+      expect(onMenuOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('should toggle menu on button press', () => {
+      const habit = createMockHabitWithLog();
+      render(<HabitCard habit={habit} />);
+
+      // Open
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      expect(screen.getByTestId('habit-actions-menu')).toBeTruthy();
+
+      // Close
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      expect(screen.queryByTestId('habit-actions-menu')).toBeNull();
+    });
+
+    it('should close menu when overlay is pressed', () => {
+      const habit = createMockHabitWithLog();
+      render(<HabitCard habit={habit} />);
+
+      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      expect(screen.getByTestId('habit-actions-menu')).toBeTruthy();
+
+      fireEvent.press(screen.getByTestId('habit-actions-overlay'));
+      expect(screen.queryByTestId('habit-actions-menu')).toBeNull();
     });
   });
 });

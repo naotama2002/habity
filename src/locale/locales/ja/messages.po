@@ -30,13 +30,13 @@ msgstr "6文字以上"
 msgid "About This App"
 msgstr "このアプリについて"
 
-#: app/(tabs)/habits.tsx:48
+#: app/(tabs)/habits.tsx:49
 msgid "Active"
 msgstr "アクティブ"
 
-#: app/(tabs)/habits.tsx:190
-#: app/(tabs)/habits.tsx:224
-#: app/(tabs)/index.tsx:126
+#: app/(tabs)/habits.tsx:203
+#: app/(tabs)/habits.tsx:237
+#: app/(tabs)/index.tsx:133
 msgid "Add a new habit to get started"
 msgstr "新しい習慣を追加して始めましょう"
 
@@ -45,7 +45,7 @@ msgstr "新しい習慣を追加して始めましょう"
 msgid "Afternoon"
 msgstr "昼"
 
-#: app/(tabs)/habits.tsx:47
+#: app/(tabs)/habits.tsx:48
 msgid "All"
 msgstr "すべて"
 
@@ -62,11 +62,11 @@ msgstr "いつでも"
 msgid "Appearance"
 msgstr "外観"
 
-#: src/components/habits/HabitListItemActions.tsx:95
+#: src/components/habits/HabitListItem.tsx:164
 msgid "Archive"
 msgstr "アーカイブする"
 
-#: app/(tabs)/habits.tsx:49
+#: app/(tabs)/habits.tsx:50
 msgid "Archived"
 msgstr "アーカイブ"
 
@@ -78,7 +78,7 @@ msgstr "戻る"
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: app/(tabs)/habits.tsx:263
+#: app/(tabs)/habits.tsx:277
 msgid "Category"
 msgstr "カテゴリ"
 
@@ -99,7 +99,7 @@ msgstr "メール内のリンクをクリックしてアカウントを有効化
 msgid "Close"
 msgstr "閉じる"
 
-#: app/(tabs)/index.tsx:197
+#: app/(tabs)/index.tsx:195
 msgid "completed"
 msgstr "完了"
 
@@ -124,8 +124,8 @@ msgstr "編集を続ける"
 msgid "Create Account"
 msgstr "アカウント作成"
 
-#: src/components/habits/HabitListItem.tsx:47
-#: src/components/habits/HabitListItem.tsx:60
+#: src/components/habits/HabitListItem.tsx:84
+#: src/components/habits/HabitListItem.tsx:97
 msgid "Daily"
 msgstr "毎日"
 
@@ -134,7 +134,7 @@ msgid "Data"
 msgstr "データ"
 
 #: src/components/forms/RecurrencePicker.tsx:180
-#: src/components/habits/HabitListItem.tsx:61
+#: src/components/habits/HabitListItem.tsx:98
 msgid "days"
 msgstr "日ごと"
 
@@ -154,7 +154,7 @@ msgstr "変更を破棄"
 msgid "Don't have an account?"
 msgstr "アカウントをお持ちでない方は"
 
-#: app/(tabs)/habits.tsx:147
+#: app/(tabs)/habits.tsx:160
 msgid "Done"
 msgstr "完了"
 
@@ -162,7 +162,7 @@ msgstr "完了"
 msgid "e.g., Reading, Exercise, Meditation"
 msgstr "例: 読書、運動、瞑想"
 
-#: app/(tabs)/habits.tsx:147
+#: app/(tabs)/habits.tsx:160
 msgid "Edit"
 msgstr "編集"
 
@@ -205,8 +205,8 @@ msgstr "夕方"
 msgid "Export Data"
 msgstr "データエクスポート"
 
-#: app/(tabs)/habits.tsx:131
-#: app/(tabs)/index.tsx:100
+#: app/(tabs)/habits.tsx:144
+#: app/(tabs)/index.tsx:107
 msgid "Failed to load habits"
 msgstr "習慣の読み込みに失敗しました"
 
@@ -219,7 +219,7 @@ msgid "Feedback"
 msgstr "フィードバック"
 
 #: src/components/forms/RecurrencePicker.tsx:46
-#: src/components/habits/HabitListItem.tsx:41
+#: src/components/habits/HabitListItem.tsx:78
 msgid "Fri"
 msgstr "金"
 
@@ -328,12 +328,12 @@ msgstr "習慣を、もっとシンプルに"
 msgid "Manage Categories"
 msgstr "カテゴリ管理"
 
-#: src/components/habits/HabitCardActions.tsx:86
+#: src/components/habits/HabitCard.tsx:186
 msgid "Mark as incomplete"
 msgstr "未完了にする"
 
 #: src/components/forms/RecurrencePicker.tsx:42
-#: src/components/habits/HabitListItem.tsx:40
+#: src/components/habits/HabitListItem.tsx:77
 msgid "Mon"
 msgstr "月"
 
@@ -342,7 +342,7 @@ msgid "Monday"
 msgstr "月曜"
 
 #: src/components/forms/RecurrencePicker.tsx:37
-#: src/components/habits/HabitListItem.tsx:57
+#: src/components/habits/HabitListItem.tsx:94
 msgid "Monthly"
 msgstr "毎月"
 
@@ -364,13 +364,13 @@ msgstr "新しい習慣"
 msgid "Night"
 msgstr "夜"
 
-#: app/(tabs)/habits.tsx:188
-#: app/(tabs)/habits.tsx:219
-#: app/(tabs)/index.tsx:124
+#: app/(tabs)/habits.tsx:201
+#: app/(tabs)/habits.tsx:232
+#: app/(tabs)/index.tsx:131
 msgid "No habits yet"
 msgstr "習慣がありません"
 
-#: app/(tabs)/habits.tsx:219
+#: app/(tabs)/habits.tsx:232
 msgid "No search results"
 msgstr "検索結果がありません"
 
@@ -396,7 +396,7 @@ msgstr "パスワード"
 msgid "Please sign in"
 msgstr "ログインしてください"
 
-#: app/(tabs)/index.tsx:101
+#: app/(tabs)/index.tsx:108
 msgid "Please try again"
 msgstr "もう一度お試しください"
 
@@ -416,12 +416,12 @@ msgstr "登録が完了しました"
 msgid "Registration failed. Please try again."
 msgstr "登録に失敗しました。もう一度お試しください"
 
-#: src/components/habits/HabitCardActions.tsx:72
+#: src/components/habits/HabitCard.tsx:169
 msgid "Remove skip"
 msgstr "スキップを解除"
 
 #: src/components/forms/RecurrencePicker.tsx:47
-#: src/components/habits/HabitListItem.tsx:41
+#: src/components/habits/HabitListItem.tsx:78
 msgid "Sat"
 msgstr "土"
 
@@ -476,11 +476,11 @@ msgstr "ログアウト"
 msgid "Sign Up"
 msgstr "新規登録"
 
-#: src/components/habits/HabitCardActions.tsx:99
+#: src/components/habits/HabitCard.tsx:202
 msgid "Skip for today"
 msgstr "今日はスキップ"
 
-#: src/components/habits/HabitCard.tsx:165
+#: src/components/habits/HabitCard.tsx:265
 msgid "Skipped"
 msgstr "スキップ済み"
 
@@ -496,12 +496,12 @@ msgstr "開始日"
 msgid "Statistics coming soon"
 msgstr "統計情報は今後実装予定です"
 
-#: src/components/habits/HabitCardActions.tsx:102
+#: src/components/habits/HabitCard.tsx:205
 msgid "Streak will not be broken"
 msgstr "ストリークは途切れません"
 
 #: src/components/forms/RecurrencePicker.tsx:48
-#: src/components/habits/HabitListItem.tsx:41
+#: src/components/habits/HabitListItem.tsx:78
 msgid "Sun"
 msgstr "日"
 
@@ -522,7 +522,7 @@ msgid "This email is already registered"
 msgstr "このメールアドレスは既に登録されています"
 
 #: src/components/forms/RecurrencePicker.tsx:45
-#: src/components/habits/HabitListItem.tsx:40
+#: src/components/habits/HabitListItem.tsx:77
 msgid "Thu"
 msgstr "木"
 
@@ -530,7 +530,7 @@ msgstr "木"
 msgid "Time of Day"
 msgstr "実行する時間帯"
 
-#: app/(tabs)/index.tsx:46
+#: app/(tabs)/index.tsx:59
 #: src/components/date/DateStrip.tsx:121
 msgid "Today"
 msgstr "今日"
@@ -543,20 +543,20 @@ msgstr "明日"
 msgid "Track your daily habits and become a better you"
 msgstr "毎日の習慣を記録して、より良い自分を目指しましょう"
 
-#: app/(tabs)/habits.tsx:223
+#: app/(tabs)/habits.tsx:236
 msgid "Try searching with different keywords"
 msgstr "別のキーワードで検索してみてください"
 
 #: src/components/forms/RecurrencePicker.tsx:43
-#: src/components/habits/HabitListItem.tsx:40
+#: src/components/habits/HabitListItem.tsx:77
 msgid "Tue"
 msgstr "火"
 
-#: src/components/habits/HabitListItemActions.tsx:85
+#: src/components/habits/HabitListItem.tsx:151
 msgid "Unarchive"
 msgstr "アーカイブを解除する"
 
-#: app/(tabs)/habits.tsx:234
+#: app/(tabs)/habits.tsx:247
 msgid "Uncategorized"
 msgstr "未分類"
 
@@ -565,7 +565,7 @@ msgid "We sent you a confirmation email."
 msgstr "確認メールを送信しました。"
 
 #: src/components/forms/RecurrencePicker.tsx:44
-#: src/components/habits/HabitListItem.tsx:40
+#: src/components/habits/HabitListItem.tsx:77
 msgid "Wed"
 msgstr "水"
 
@@ -574,7 +574,7 @@ msgid "Week Starts On"
 msgstr "週の開始日"
 
 #: src/components/forms/RecurrencePicker.tsx:36
-#: src/components/habits/HabitListItem.tsx:53
+#: src/components/habits/HabitListItem.tsx:90
 msgid "Weekly"
 msgstr "毎週"
 

@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useMemo} from 'react';
 import {View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, RefreshControl} from 'react-native';
 import {msg} from '@lingui/macro';
 import {useLingui} from '@lingui/react';
@@ -9,8 +9,9 @@ import {format, parseISO, isToday as dateIsToday} from 'date-fns';
 import {ja, enUS} from 'date-fns/locale';
 import {useHabitsWithLog} from '@/state/queries/habits';
 import {useToggleHabitLog, useSkipHabitLog, useUnskipHabitLog} from '@/state/queries/habit-logs';
+import {useHabitStreaks} from '@/state/queries/streaks';
 import {calculateProgress, sortByCompletion} from '@/lib/progress';
-import {HabitCard, HabitCardActions, TimeOfDaySection} from '@/components/habits';
+import {HabitCard, TimeOfDaySection} from '@/components/habits';
 import {DateStrip} from '@/components/date/DateStrip';
 import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
@@ -38,6 +39,18 @@ export default function TodayScreen() {
   const toggleLog = useToggleHabitLog();
   const skipLog = useSkipHabitLog();
   const unskipLog = useUnskipHabitLog();
+
+  // ストリーク計算用データ
+  const {habitIds, habitInfos} = useMemo(() => {
+    if (!habits || habits.length === 0) return {habitIds: [] as string[], habitInfos: {} as Record<string, {recurrence_rule: string | null; start_date: string}>};
+    const ids = habits.map(h => h.id);
+    const infos: Record<string, {recurrence_rule: string | null; start_date: string}> = {};
+    for (const h of habits) {
+      infos[h.id] = {recurrence_rule: h.recurrence_rule, start_date: h.start_date};
+    }
+    return {habitIds: ids, habitInfos: infos};
+  }, [habits]);
+  const {data: streaks} = useHabitStreaks(habitIds, habitInfos);
 
   const isSelectedToday = dateIsToday(parseISO(selectedDate));
 
@@ -136,23 +149,15 @@ export default function TodayScreen() {
                       layout={LinearTransition.duration(300)}
                       style={openMenuHabitId === habit.id ? {zIndex: 9999} : undefined}
                     >
-                      <HabitCardActions
-                        isCompleted={habit.is_completed}
-                        isSkipped={habit.is_skipped}
+                      <HabitCard
+                        habit={habit}
+                        streak={streaks?.[habit.id] ?? 0}
+                        onToggle={handleToggle}
                         onSkip={() => handleSkip(habit)}
                         onUnskip={() => handleUnskip(habit)}
                         onUncomplete={() => handleToggle(habit)}
-                        onOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
-                      >
-                        <HabitCard
-                          habit={habit}
-                          streak={0} // TODO: ストリーク計算を実装
-                          onToggle={handleToggle}
-                          onLinkMenuOpenChange={(isOpen) =>
-                            setOpenMenuHabitId(isOpen ? habit.id : null)
-                          }
-                        />
-                      </HabitCardActions>
+                        onMenuOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
+                      />
                     </Animated.View>
                   ))}
                 </TimeOfDaySection>
