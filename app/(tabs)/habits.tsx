@@ -13,7 +13,8 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useHabits, useReorderHabits, useArchiveHabit, useUnarchiveHabit } from '@/state/queries/habits';
-import { HabitListItem, HabitListItemActions } from '@/components/habits';
+import { useHabitStreaks } from '@/state/queries/streaks';
+import { HabitListItem } from '@/components/habits';
 import { SearchInput, SegmentedControl, SortableList } from '@/components/ui';
 import { colors, lightTheme } from '@/lib/colors';
 import { typography } from '@/lib/typography';
@@ -54,6 +55,18 @@ export default function HabitsScreen() {
     filter === 'all' ? undefined : filter === 'active' ? 'active' : 'archived';
 
   const { data: habits, isLoading, error } = useHabits(statusFilter);
+
+  // ストリーク計算用データ
+  const {habitIds, habitInfos} = useMemo(() => {
+    if (!habits || habits.length === 0) return {habitIds: [] as string[], habitInfos: {} as Record<string, {recurrence_rule: string | null; start_date: string}>};
+    const ids = habits.map(h => h.id);
+    const infos: Record<string, {recurrence_rule: string | null; start_date: string}> = {};
+    for (const h of habits) {
+      infos[h.id] = {recurrence_rule: h.recurrence_rule, start_date: h.start_date};
+    }
+    return {habitIds: ids, habitInfos: infos};
+  }, [habits]);
+  const {data: streaks} = useHabitStreaks(habitIds, habitInfos);
 
   // 検索フィルタリング
   const filteredHabits = useMemo(() => {
@@ -240,14 +253,15 @@ export default function HabitsScreen() {
                         key={habit.id}
                         style={openMenuHabitId === habit.id ? {zIndex: 9999} : undefined}
                       >
-                        <HabitListItemActions
+                        <HabitListItem
+                          habit={habit}
+                          streak={streaks?.[habit.id] ?? 0}
+                          onPress={handlePressHabit}
                           isArchived={habit.status === 'archived'}
                           onArchive={() => archiveHabit.mutate(habit.id)}
                           onUnarchive={() => unarchiveHabit.mutate(habit.id)}
-                          onOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
-                        >
-                          <HabitListItem habit={habit} streak={0} onPress={handlePressHabit} />
-                        </HabitListItemActions>
+                          onMenuOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
+                        />
                       </View>
                     ))}
                   </View>
@@ -274,14 +288,15 @@ export default function HabitsScreen() {
                         key={habit.id}
                         style={openMenuHabitId === habit.id ? {zIndex: 9999} : undefined}
                       >
-                        <HabitListItemActions
+                        <HabitListItem
+                          habit={habit}
+                          streak={streaks?.[habit.id] ?? 0}
+                          onPress={handlePressHabit}
                           isArchived={habit.status === 'archived'}
                           onArchive={() => archiveHabit.mutate(habit.id)}
                           onUnarchive={() => unarchiveHabit.mutate(habit.id)}
-                          onOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
-                        >
-                          <HabitListItem habit={habit} streak={0} onPress={handlePressHabit} />
-                        </HabitListItemActions>
+                          onMenuOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
+                        />
                       </View>
                     ))}
                   </View>

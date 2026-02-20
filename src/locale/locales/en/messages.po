@@ -30,13 +30,13 @@ msgstr "6 or more characters"
 msgid "About This App"
 msgstr "About This App"
 
-#: app/(tabs)/habits.tsx:48
+#: app/(tabs)/habits.tsx:49
 msgid "Active"
 msgstr "Active"
 
-#: app/(tabs)/habits.tsx:190
-#: app/(tabs)/habits.tsx:224
-#: app/(tabs)/index.tsx:126
+#: app/(tabs)/habits.tsx:203
+#: app/(tabs)/habits.tsx:237
+#: app/(tabs)/index.tsx:133
 msgid "Add a new habit to get started"
 msgstr "Add a new habit to get started"
 
@@ -45,7 +45,7 @@ msgstr "Add a new habit to get started"
 msgid "Afternoon"
 msgstr "Afternoon"
 
-#: app/(tabs)/habits.tsx:47
+#: app/(tabs)/habits.tsx:48
 msgid "All"
 msgstr "All"
 
@@ -62,11 +62,11 @@ msgstr "Anytime"
 msgid "Appearance"
 msgstr "Appearance"
 
-#: src/components/habits/HabitListItemActions.tsx:95
+#: src/components/habits/HabitListItem.tsx:164
 msgid "Archive"
 msgstr "Archive"
 
-#: app/(tabs)/habits.tsx:49
+#: app/(tabs)/habits.tsx:50
 msgid "Archived"
 msgstr "Archived"
 
@@ -78,7 +78,7 @@ msgstr "Back"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: app/(tabs)/habits.tsx:263
+#: app/(tabs)/habits.tsx:277
 msgid "Category"
 msgstr "Category"
 
@@ -99,7 +99,7 @@ msgstr "Click the link in the email to activate your account."
 msgid "Close"
 msgstr "Close"
 
-#: app/(tabs)/index.tsx:197
+#: app/(tabs)/index.tsx:195
 msgid "completed"
 msgstr "completed"
 
@@ -124,8 +124,8 @@ msgstr "Continue Editing"
 msgid "Create Account"
 msgstr "Create Account"
 
-#: src/components/habits/HabitListItem.tsx:47
-#: src/components/habits/HabitListItem.tsx:60
+#: src/components/habits/HabitListItem.tsx:84
+#: src/components/habits/HabitListItem.tsx:97
 msgid "Daily"
 msgstr "Daily"
 
@@ -134,7 +134,7 @@ msgid "Data"
 msgstr "Data"
 
 #: src/components/forms/RecurrencePicker.tsx:180
-#: src/components/habits/HabitListItem.tsx:61
+#: src/components/habits/HabitListItem.tsx:98
 msgid "days"
 msgstr "days"
 
@@ -154,7 +154,7 @@ msgstr "Discard Changes"
 msgid "Don't have an account?"
 msgstr "Don't have an account?"
 
-#: app/(tabs)/habits.tsx:147
+#: app/(tabs)/habits.tsx:160
 msgid "Done"
 msgstr "Done"
 
@@ -162,7 +162,7 @@ msgstr "Done"
 msgid "e.g., Reading, Exercise, Meditation"
 msgstr "e.g., Reading, Exercise, Meditation"
 
-#: app/(tabs)/habits.tsx:147
+#: app/(tabs)/habits.tsx:160
 msgid "Edit"
 msgstr "Edit"
 
@@ -205,8 +205,8 @@ msgstr "Evening"
 msgid "Export Data"
 msgstr "Export Data"
 
-#: app/(tabs)/habits.tsx:131
-#: app/(tabs)/index.tsx:100
+#: app/(tabs)/habits.tsx:144
+#: app/(tabs)/index.tsx:107
 msgid "Failed to load habits"
 msgstr "Failed to load habits"
 
@@ -219,7 +219,7 @@ msgid "Feedback"
 msgstr "Feedback"
 
 #: src/components/forms/RecurrencePicker.tsx:46
-#: src/components/habits/HabitListItem.tsx:41
+#: src/components/habits/HabitListItem.tsx:78
 msgid "Fri"
 msgstr "Fri"
 
@@ -328,12 +328,12 @@ msgstr "Make habits simpler"
 msgid "Manage Categories"
 msgstr "Manage Categories"
 
-#: src/components/habits/HabitCardActions.tsx:86
+#: src/components/habits/HabitCard.tsx:186
 msgid "Mark as incomplete"
 msgstr "Mark as incomplete"
 
 #: src/components/forms/RecurrencePicker.tsx:42
-#: src/components/habits/HabitListItem.tsx:40
+#: src/components/habits/HabitListItem.tsx:77
 msgid "Mon"
 msgstr "Mon"
 
@@ -342,7 +342,7 @@ msgid "Monday"
 msgstr "Monday"
 
 #: src/components/forms/RecurrencePicker.tsx:37
-#: src/components/habits/HabitListItem.tsx:57
+#: src/components/habits/HabitListItem.tsx:94
 msgid "Monthly"
 msgstr "Monthly"
 
@@ -364,13 +364,13 @@ msgstr "New Habit"
 msgid "Night"
 msgstr "Night"
 
-#: app/(tabs)/habits.tsx:188
-#: app/(tabs)/habits.tsx:219
-#: app/(tabs)/index.tsx:124
+#: app/(tabs)/habits.tsx:201
+#: app/(tabs)/habits.tsx:232
+#: app/(tabs)/index.tsx:131
 msgid "No habits yet"
 msgstr "No habits yet"
 
-#: app/(tabs)/habits.tsx:219
+#: app/(tabs)/habits.tsx:232
 msgid "No search results"
 msgstr "No search results"
 
@@ -396,7 +396,7 @@ msgstr "Password"
 msgid "Please sign in"
 msgstr "Please sign in"
 
-#: app/(tabs)/index.tsx:101
+#: app/(tabs)/index.tsx:108
 msgid "Please try again"
 msgstr "Please try again"
 
@@ -416,12 +416,12 @@ msgstr "Registration complete"
 msgid "Registration failed. Please try again."
 msgstr "Registration failed. Please try again."
 
-#: src/components/habits/HabitCardActions.tsx:72
+#: src/components/habits/HabitCard.tsx:169
 msgid "Remove skip"
 msgstr "Remove skip"
 
 #: src/components/forms/RecurrencePicker.tsx:47
-#: src/components/habits/HabitListItem.tsx:41
+#: src/components/habits/HabitListItem.tsx:78
 msgid "Sat"
 msgstr "Sat"
 
@@ -476,11 +476,11 @@ msgstr "Sign Out"
 msgid "Sign Up"
 msgstr "Sign Up"
 
-#: src/components/habits/HabitCardActions.tsx:99
+#: src/components/habits/HabitCard.tsx:202
 msgid "Skip for today"
 msgstr "Skip for today"
 
-#: src/components/habits/HabitCard.tsx:165
+#: src/components/habits/HabitCard.tsx:265
 msgid "Skipped"
 msgstr "Skipped"
 
@@ -496,12 +496,12 @@ msgstr "Start Date"
 msgid "Statistics coming soon"
 msgstr "Statistics coming soon"
 
-#: src/components/habits/HabitCardActions.tsx:102
+#: src/components/habits/HabitCard.tsx:205
 msgid "Streak will not be broken"
 msgstr "Streak will not be broken"
 
 #: src/components/forms/RecurrencePicker.tsx:48
-#: src/components/habits/HabitListItem.tsx:41
+#: src/components/habits/HabitListItem.tsx:78
 msgid "Sun"
 msgstr "Sun"
 
@@ -522,7 +522,7 @@ msgid "This email is already registered"
 msgstr "This email is already registered"
 
 #: src/components/forms/RecurrencePicker.tsx:45
-#: src/components/habits/HabitListItem.tsx:40
+#: src/components/habits/HabitListItem.tsx:77
 msgid "Thu"
 msgstr "Thu"
 
@@ -530,7 +530,7 @@ msgstr "Thu"
 msgid "Time of Day"
 msgstr "Time of Day"
 
-#: app/(tabs)/index.tsx:46
+#: app/(tabs)/index.tsx:59
 #: src/components/date/DateStrip.tsx:121
 msgid "Today"
 msgstr "Today"
@@ -543,20 +543,20 @@ msgstr "Tomorrow"
 msgid "Track your daily habits and become a better you"
 msgstr "Track your daily habits and become a better you"
 
-#: app/(tabs)/habits.tsx:223
+#: app/(tabs)/habits.tsx:236
 msgid "Try searching with different keywords"
 msgstr "Try searching with different keywords"
 
 #: src/components/forms/RecurrencePicker.tsx:43
-#: src/components/habits/HabitListItem.tsx:40
+#: src/components/habits/HabitListItem.tsx:77
 msgid "Tue"
 msgstr "Tue"
 
-#: src/components/habits/HabitListItemActions.tsx:85
+#: src/components/habits/HabitListItem.tsx:151
 msgid "Unarchive"
 msgstr "Unarchive"
 
-#: app/(tabs)/habits.tsx:234
+#: app/(tabs)/habits.tsx:247
 msgid "Uncategorized"
 msgstr "Uncategorized"
 
@@ -565,7 +565,7 @@ msgid "We sent you a confirmation email."
 msgstr "We sent you a confirmation email."
 
 #: src/components/forms/RecurrencePicker.tsx:44
-#: src/components/habits/HabitListItem.tsx:40
+#: src/components/habits/HabitListItem.tsx:77
 msgid "Wed"
 msgstr "Wed"
 
@@ -574,7 +574,7 @@ msgid "Week Starts On"
 msgstr "Week Starts On"
 
 #: src/components/forms/RecurrencePicker.tsx:36
-#: src/components/habits/HabitListItem.tsx:53
+#: src/components/habits/HabitListItem.tsx:90
 msgid "Weekly"
 msgstr "Weekly"
 

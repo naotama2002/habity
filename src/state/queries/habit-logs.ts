@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { habitKeys } from './habits';
+import { streakKeys } from './streaks';
 import type { HabitLog, CreateHabitLogInput, LogStatus } from '@/types/database';
 
 // ===========================================
@@ -96,6 +97,7 @@ export function useCreateHabitLog() {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(data.target_date) });
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
+      queryClient.invalidateQueries({ queryKey: streakKeys.all });
     },
   });
 }
@@ -127,6 +129,7 @@ export function useUpdateHabitLog() {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(data.target_date) });
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
+      queryClient.invalidateQueries({ queryKey: streakKeys.all });
     },
   });
 }
@@ -158,6 +161,7 @@ export function useDeleteHabitLog() {
         queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(targetDate) });
       }
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
+      queryClient.invalidateQueries({ queryKey: streakKeys.all });
     },
   });
 }
@@ -218,6 +222,7 @@ export function useToggleHabitLog() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
+      queryClient.invalidateQueries({ queryKey: streakKeys.all });
     },
   });
 }
@@ -277,6 +282,7 @@ export function useSkipHabitLog() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
+      queryClient.invalidateQueries({ queryKey: streakKeys.all });
     },
   });
 }
@@ -296,6 +302,7 @@ export function useUnskipHabitLog() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
+      queryClient.invalidateQueries({ queryKey: streakKeys.all });
     },
   });
 }

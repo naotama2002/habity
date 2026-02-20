@@ -24,8 +24,14 @@ interface HabitCardProps {
   streak?: number;
   /** チェックイン時のコールバック */
   onToggle?: (habit: HabitWithLog) => void;
-  /** リンクメニュー開閉通知コールバック */
-  onLinkMenuOpenChange?: (open: boolean) => void;
+  /** スキップ時のコールバック */
+  onSkip?: () => void;
+  /** スキップ解除時のコールバック */
+  onUnskip?: () => void;
+  /** 完了解除時のコールバック */
+  onUncomplete?: () => void;
+  /** メニュー開閉通知コールバック（リンクメニュー or アクションメニュー） */
+  onMenuOpenChange?: (open: boolean) => void;
 }
 
 /**
@@ -36,14 +42,19 @@ export function HabitCard({
   habit,
   streak = 0,
   onToggle,
-  onLinkMenuOpenChange,
+  onSkip,
+  onUnskip,
+  onUncomplete,
+  onMenuOpenChange,
 }: HabitCardProps) {
   const {_} = useLingui();
   const isSkipped = habit.is_skipped;
+  const isCompleted = habit.is_completed;
 
   // ローカル楽観的更新: チェックマークを即座に表示
   const [optimisticCompleted, setOptimisticCompleted] = useState(habit.is_completed);
   const [linkMenuOpen, setLinkMenuOpen] = useState(false);
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
 
   // サーバーからの確定データで同期
   useEffect(() => {
@@ -82,10 +93,20 @@ export function HabitCard({
     onToggle?.(habit);
   };
 
+  // メニュー開閉の通知（リンク or アクションどちらかが開いたら true）
+  const notifyMenuChange = useCallback((linkOpen: boolean, actionOpen: boolean) => {
+    onMenuOpenChange?.(linkOpen || actionOpen);
+  }, [onMenuOpenChange]);
+
+  // --- リンクメニュー ---
   const setLinkMenuOpenWithCallback = useCallback((value: boolean) => {
     setLinkMenuOpen(value);
-    onLinkMenuOpenChange?.(value);
-  }, [onLinkMenuOpenChange]);
+    // リンクメニューが開いたらアクションメニューを閉じる
+    if (value) {
+      setActionMenuOpen(false);
+    }
+    notifyMenuChange(value, false);
+  }, [notifyMenuChange]);
 
   const handleToggleLinkMenu = useCallback(() => {
     setLinkMenuOpenWithCallback(!linkMenuOpen);
@@ -99,6 +120,93 @@ export function HabitCard({
     setLinkMenuOpenWithCallback(false);
     Linking.openURL(url);
   }, [setLinkMenuOpenWithCallback]);
+
+  // --- アクションメニュー ---
+  const setActionMenuOpenWithCallback = useCallback((value: boolean) => {
+    setActionMenuOpen(value);
+    // アクションメニューが開いたらリンクメニューを閉じる
+    if (value) {
+      setLinkMenuOpen(false);
+    }
+    notifyMenuChange(false, value);
+  }, [notifyMenuChange]);
+
+  const handleToggleActionMenu = useCallback(() => {
+    setActionMenuOpenWithCallback(!actionMenuOpen);
+  }, [setActionMenuOpenWithCallback, actionMenuOpen]);
+
+  const handleCloseActionMenu = useCallback(() => {
+    setActionMenuOpenWithCallback(false);
+  }, [setActionMenuOpenWithCallback]);
+
+  const handleSkip = useCallback(() => {
+    setActionMenuOpenWithCallback(false);
+    onSkip?.();
+  }, [setActionMenuOpenWithCallback, onSkip]);
+
+  const handleUnskip = useCallback(() => {
+    setActionMenuOpenWithCallback(false);
+    onUnskip?.();
+  }, [setActionMenuOpenWithCallback, onUnskip]);
+
+  const handleUncomplete = useCallback(() => {
+    setActionMenuOpenWithCallback(false);
+    onUncomplete?.();
+  }, [setActionMenuOpenWithCallback, onUncomplete]);
+
+  const renderActionMenuItems = () => {
+    if (isSkipped) {
+      return (
+        <Pressable
+          testID="habit-action-unskip"
+          style={(state) => [
+            styles.actionDropdownItem,
+            (state as unknown as {hovered?: boolean}).hovered && styles.actionDropdownItemHovered,
+          ]}
+          onPress={handleUnskip}
+        >
+          <Text style={styles.actionDropdownItemText}>
+            {_(msg`Remove skip`)}
+          </Text>
+        </Pressable>
+      );
+    }
+
+    if (isCompleted) {
+      return (
+        <Pressable
+          testID="habit-action-uncomplete"
+          style={(state) => [
+            styles.actionDropdownItem,
+            (state as unknown as {hovered?: boolean}).hovered && styles.actionDropdownItemHovered,
+          ]}
+          onPress={handleUncomplete}
+        >
+          <Text style={styles.actionDropdownItemText}>
+            {_(msg`Mark as incomplete`)}
+          </Text>
+        </Pressable>
+      );
+    }
+
+    return (
+      <Pressable
+        testID="habit-action-skip"
+        style={(state) => [
+          styles.actionDropdownItem,
+          (state as unknown as {hovered?: boolean}).hovered && styles.actionDropdownItemHovered,
+        ]}
+        onPress={handleSkip}
+      >
+        <Text style={styles.actionDropdownItemText}>
+          {_(msg`Skip for today`)}
+        </Text>
+        <Text style={styles.actionDropdownHint}>
+          {_(msg`Streak will not be broken`)}
+        </Text>
+      </Pressable>
+    );
+  };
 
   const flashStyle = useAnimatedStyle(() => ({
     opacity: flashOpacity.value,
@@ -157,9 +265,6 @@ export function HabitCard({
               <Text style={styles.skipLabel}>{_(msg`Skipped`)}</Text>
             )}
           </View>
-
-          {/* ストリーク */}
-          <StreakBadge streak={streak} />
         </View>
 
         {/* リンクボタン */}
@@ -201,6 +306,34 @@ export function HabitCard({
             )}
           </View>
         )}
+
+        {/* ストリーク */}
+        <StreakBadge streak={streak} />
+
+        {/* アクションメニュー（⋮ボタン） */}
+        <View style={styles.actionAnchor}>
+          <Pressable
+            testID="habit-actions-button"
+            style={styles.actionButton}
+            onPress={handleToggleActionMenu}
+            hitSlop={8}
+          >
+            <Text style={styles.actionButtonText}>⋮</Text>
+          </Pressable>
+
+          {actionMenuOpen && (
+            <>
+              <Pressable
+                testID="habit-actions-overlay"
+                style={styles.actionOverlay}
+                onPress={handleCloseActionMenu}
+              />
+              <View testID="habit-actions-menu" style={styles.actionDropdown}>
+                {renderActionMenuItems()}
+              </View>
+            </>
+          )}
+        </View>
       </View>
   );
 }
@@ -212,7 +345,7 @@ const styles = StyleSheet.create({
     backgroundColor: lightTheme.background,
     borderRadius: borderRadius.lg,
     padding: spacing.lg,
-    gap: spacing.md,
+    gap: spacing.sm,
     borderWidth: 1,
     borderColor: lightTheme.border,
     ...shadows.sm,
@@ -292,17 +425,17 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   linkButton: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer' as never,
   },
   linkButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     color: colors.primary[500],
-    lineHeight: 24,
+    lineHeight: 20,
   },
   linkOverlay: {
     position: 'fixed' as never,
@@ -336,5 +469,60 @@ const styles = StyleSheet.create({
   linkDropdownItemText: {
     ...typography.bodySmall,
     color: colors.primary[600],
+  },
+  actionAnchor: {
+    position: 'relative',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  actionButton: {
+    width: 28,
+    height: 28,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer' as never,
+  },
+  actionButtonText: {
+    fontSize: 18,
+    color: colors.gray[400],
+    lineHeight: 20,
+  },
+  actionOverlay: {
+    position: 'fixed' as never,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 99,
+  },
+  actionDropdown: {
+    position: 'absolute',
+    top: '100%' as never,
+    right: 0,
+    backgroundColor: lightTheme.background,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: lightTheme.border,
+    minWidth: 200,
+    zIndex: 100,
+    ...shadows.md,
+  },
+  actionDropdownItem: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+  },
+  actionDropdownItemHovered: {
+    backgroundColor: colors.gray[100],
+  },
+  actionDropdownItemText: {
+    ...typography.bodySmall,
+    color: lightTheme.text,
+  },
+  actionDropdownHint: {
+    ...typography.caption,
+    color: lightTheme.textTertiary,
+    marginTop: spacing.xs,
   },
 });
