@@ -72,12 +72,6 @@ export default function TodayScreen() {
     }
   };
 
-  // 習慣詳細へ遷移
-  const handlePressHabit = (habit: HabitWithLog) => {
-    // TODO: 習慣詳細画面へ遷移
-    console.log('Navigate to habit detail:', habit.id);
-  };
-
   // 進捗計算（スキップを分母から除外）
   const {completedCount, effectiveTotal, percentage: progress} = calculateProgress(habits ?? []);
 
@@ -154,7 +148,9 @@ export default function TodayScreen() {
                           habit={habit}
                           streak={0} // TODO: ストリーク計算を実装
                           onToggle={handleToggle}
-                          onPress={handlePressHabit}
+                          onLinkMenuOpenChange={(isOpen) =>
+                            setOpenMenuHabitId(isOpen ? habit.id : null)
+                          }
                         />
                       </HabitCardActions>
                     </Animated.View>

@@ -1,5 +1,6 @@
 import {describe, expect, it, jest} from '@jest/globals';
 import {render, screen, fireEvent, waitFor} from '@testing-library/react-native';
+import {Linking} from 'react-native';
 import {HabitCard} from '../HabitCard';
 import type {HabitWithLog} from '@/types/database';
 
@@ -138,5 +139,107 @@ describe('HabitCard', () => {
 
     // チェックマークが即座に消える
     expect(screen.queryByText('✓')).toBeNull();
+  });
+
+  describe('link button', () => {
+    it('should not show link button when description has no URLs', () => {
+      const habit = createMockHabitWithLog({description: 'No links here'});
+      render(<HabitCard habit={habit} />);
+      expect(screen.queryByTestId('habit-link-button')).toBeNull();
+    });
+
+    it('should not show link button when description is null', () => {
+      const habit = createMockHabitWithLog({description: null});
+      render(<HabitCard habit={habit} />);
+      expect(screen.queryByTestId('habit-link-button')).toBeNull();
+    });
+
+    it('should show link button when description contains a URL', () => {
+      const habit = createMockHabitWithLog({
+        description: 'Open https://example.com',
+      });
+      render(<HabitCard habit={habit} />);
+      expect(screen.getByTestId('habit-link-button')).toBeTruthy();
+    });
+
+    it('should show link menu when link button is pressed', () => {
+      const habit = createMockHabitWithLog({
+        description: 'Open https://example.com',
+      });
+      render(<HabitCard habit={habit} />);
+
+      fireEvent.press(screen.getByTestId('habit-link-button'));
+      expect(screen.getByTestId('habit-link-menu')).toBeTruthy();
+    });
+
+    it('should display URLs in link menu', () => {
+      const habit = createMockHabitWithLog({
+        description: 'Visit https://example.com and myapp://start',
+      });
+      render(<HabitCard habit={habit} />);
+
+      fireEvent.press(screen.getByTestId('habit-link-button'));
+      expect(screen.getByText('https://example.com')).toBeTruthy();
+      expect(screen.getByText('myapp://start')).toBeTruthy();
+    });
+
+    it('should call Linking.openURL when a URL in the menu is pressed', () => {
+      const openURLSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined as never);
+      const habit = createMockHabitWithLog({
+        description: 'Open https://example.com',
+      });
+      render(<HabitCard habit={habit} />);
+
+      fireEvent.press(screen.getByTestId('habit-link-button'));
+      fireEvent.press(screen.getByText('https://example.com'));
+
+      expect(openURLSpy).toHaveBeenCalledWith('https://example.com');
+      openURLSpy.mockRestore();
+    });
+
+    it('should close menu after URL is pressed', () => {
+      jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined as never);
+      const habit = createMockHabitWithLog({
+        description: 'Open https://example.com',
+      });
+      render(<HabitCard habit={habit} />);
+
+      fireEvent.press(screen.getByTestId('habit-link-button'));
+      expect(screen.getByTestId('habit-link-menu')).toBeTruthy();
+
+      fireEvent.press(screen.getByText('https://example.com'));
+      expect(screen.queryByTestId('habit-link-menu')).toBeNull();
+
+      jest.restoreAllMocks();
+    });
+
+    it('should close menu when overlay is pressed', () => {
+      const habit = createMockHabitWithLog({
+        description: 'Open https://example.com',
+      });
+      render(<HabitCard habit={habit} />);
+
+      fireEvent.press(screen.getByTestId('habit-link-button'));
+      expect(screen.getByTestId('habit-link-menu')).toBeTruthy();
+
+      fireEvent.press(screen.getByTestId('habit-link-overlay'));
+      expect(screen.queryByTestId('habit-link-menu')).toBeNull();
+    });
+
+    it('should call onLinkMenuOpenChange when menu opens and closes', () => {
+      const onLinkMenuOpenChange = jest.fn();
+      const habit = createMockHabitWithLog({
+        description: 'Open https://example.com',
+      });
+      render(
+        <HabitCard habit={habit} onLinkMenuOpenChange={onLinkMenuOpenChange} />,
+      );
+
+      fireEvent.press(screen.getByTestId('habit-link-button'));
+      expect(onLinkMenuOpenChange).toHaveBeenCalledWith(true);
+
+      fireEvent.press(screen.getByTestId('habit-link-overlay'));
+      expect(onLinkMenuOpenChange).toHaveBeenCalledWith(false);
+    });
   });
 });
