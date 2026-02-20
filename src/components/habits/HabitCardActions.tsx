@@ -98,9 +98,9 @@ export function HabitCardActions({
     return (
       <Pressable
         testID="habit-action-skip"
-        style={({hovered}: {hovered: boolean}) => [
+        style={(state) => [
           styles.dropdownItem,
-          hovered && styles.dropdownItemHovered,
+          (state as unknown as {hovered?: boolean}).hovered && styles.dropdownItemHovered,
         ]}
         onPress={handleSkip}
       >
