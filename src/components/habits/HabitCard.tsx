@@ -185,9 +185,9 @@ export function HabitCard({
                   {urls.map((url) => (
                     <Pressable
                       key={url}
-                      style={({hovered}: {hovered: boolean}) => [
+                      style={(state) => [
                         styles.linkDropdownItem,
-                        hovered && styles.linkDropdownItemHovered,
+                        (state as unknown as {hovered?: boolean}).hovered && styles.linkDropdownItemHovered,
                       ]}
                       onPress={() => handleOpenUrl(url)}
                     >
