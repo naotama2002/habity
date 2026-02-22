@@ -35,19 +35,21 @@ function getQueryFn(
 }
 
 function setupMockChain(response: unknown) {
+  const mockRange = jest.fn<() => Promise<unknown>>().mockResolvedValue(response);
   mockFrom.mockReturnValue({
     select: jest.fn().mockReturnValue({
       in: jest.fn().mockReturnValue({
         gte: jest.fn().mockReturnValue({
           lte: jest.fn().mockReturnValue({
             order: jest.fn().mockReturnValue({
-              range: jest.fn<() => Promise<unknown>>().mockResolvedValue(response),
+              range: mockRange,
             }),
           }),
         }),
       }),
     }),
   });
+  return {mockRange};
 }
 
 describe('streaks queries', () => {

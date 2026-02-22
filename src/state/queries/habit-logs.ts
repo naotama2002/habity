@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { fetchAllRows } from '@/lib/supabase-pagination';
 import { habitKeys } from './habits';
 import { streakKeys } from './streaks';
 import type { HabitLog, CreateHabitLogInput, LogStatus } from '@/types/database';
@@ -40,10 +41,7 @@ export function useHabitLogs(
         query = query.lte('target_date', options.to);
       }
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-      return data as HabitLog[];
+      return fetchAllRows<HabitLog>(query);
     },
     enabled: !!habitId,
   });
