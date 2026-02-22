@@ -41,6 +41,8 @@ export function useHabitStreaks(
   return useQuery({
     queryKey: streakKeys.byHabits(habitIds),
     queryFn: async () => {
+      console.log('[streaks] queryFn called', {habitCount: habitIds.length, today, fromDate});
+
       const {data, error} = await supabase
         .from('habit_logs')
         .select('habit_id, target_date, status')
@@ -48,7 +50,12 @@ export function useHabitStreaks(
         .gte('target_date', fromDate)
         .lte('target_date', today);
 
-      if (error) throw error;
+      if (error) {
+        console.error('[streaks] Supabase error', error);
+        throw error;
+      }
+
+      console.log('[streaks] Supabase rows:', data?.length ?? 0);
 
       // habit_id ごとにログをグルーピング
       const logsByHabit: Record<string, StreakLogEntry[]> = {};
@@ -62,7 +69,11 @@ export function useHabitStreaks(
         });
       }
 
-      return calculateStreaks(logsByHabit, habits, today);
+      const result = calculateStreaks(logsByHabit, habits, today);
+      const nonZero = Object.entries(result).filter(([, v]) => v.count > 0);
+      console.log('[streaks] result:', {total: Object.keys(result).length, nonZero: nonZero.length, samples: nonZero.slice(0, 3)});
+
+      return result;
     },
     enabled: habitIds.length > 0,
     staleTime: 5 * 60 * 1000,
