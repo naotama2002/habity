@@ -1,4 +1,4 @@
-import {useState, useMemo} from 'react';
+import {useState, useMemo, useCallback, useRef} from 'react';
 import {View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, RefreshControl} from 'react-native';
 import {msg} from '@lingui/macro';
 import {useLingui} from '@lingui/react';
@@ -51,6 +51,22 @@ export default function TodayScreen() {
     return {habitIds: ids, habitInfos: infos};
   }, [habits]);
   const {data: streaks} = useHabitStreaks(habitIds, habitInfos);
+
+  // ストリークデータを安定化（クエリ再取得中の一時的な undefined を防ぐ）
+  const lastStreaksRef = useRef(streaks);
+  if (streaks) {
+    lastStreaksRef.current = streaks;
+  }
+  const stableStreaks = streaks ?? lastStreaksRef.current;
+
+  // selectedDate がストリーク範囲内のときのみ streak を返す
+  const getStreakForDate = useCallback((habitId: string): number => {
+    const result = stableStreaks?.[habitId];
+    if (!result || result.count === 0 || !result.from) return 0;
+    // from <= selectedDate であればストリーク範囲内
+    if (selectedDate >= result.from) return result.count;
+    return 0;
+  }, [stableStreaks, selectedDate]);
 
   const isSelectedToday = dateIsToday(parseISO(selectedDate));
 
@@ -151,7 +167,7 @@ export default function TodayScreen() {
                     >
                       <HabitCard
                         habit={habit}
-                        streak={streaks?.[habit.id] ?? 0}
+                        streak={getStreakForDate(habit.id)}
                         onToggle={handleToggle}
                         onSkip={() => handleSkip(habit)}
                         onUnskip={() => handleUnskip(habit)}

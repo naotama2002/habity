@@ -21,6 +21,13 @@ export interface StreakHabitInfo {
   start_date: string;
 }
 
+export interface StreakResult {
+  /** 連続達成日数 */
+  count: number;
+  /** ストリーク開始日（最も古い日）。count=0 の場合は null */
+  from: string | null;
+}
+
 /** 最大遡り日数（安全制限） */
 const MAX_LOOKBACK_DAYS = 365;
 
@@ -63,7 +70,7 @@ export function calculateStreak(
   logs: StreakLogEntry[],
   habit: StreakHabitInfo,
   today?: string,
-): number {
+): StreakResult {
   // ログを Map に変換して O(1) ルックアップ
   const logMap = new Map<string, 'completed' | 'skipped'>();
   for (const log of logs) {
@@ -81,6 +88,7 @@ export function calculateStreak(
 
   let streak = 0;
   let daysChecked = 0;
+  let fromDate: string | null = null;
 
   while (daysChecked < MAX_LOOKBACK_DAYS) {
     const dateStr = formatDate(currentDate);
@@ -99,8 +107,10 @@ export function calculateStreak(
 
     if (status === 'completed') {
       streak++;
+      fromDate = dateStr;
     } else if (status === 'skipped') {
       // skipped はストリーク維持（インクリメントなし）
+      fromDate = dateStr;
     } else {
       // ログなし → ストリーク途切れ
       break;
@@ -110,7 +120,7 @@ export function calculateStreak(
     daysChecked++;
   }
 
-  return streak;
+  return {count: streak, from: streak > 0 ? fromDate : null};
 }
 
 /**
@@ -120,8 +130,8 @@ export function calculateStreaks(
   logsByHabit: Record<string, StreakLogEntry[]>,
   habits: Record<string, StreakHabitInfo>,
   today?: string,
-): Record<string, number> {
-  const result: Record<string, number> = {};
+): Record<string, StreakResult> {
+  const result: Record<string, StreakResult> = {};
 
   for (const habitId of Object.keys(habits)) {
     const logs = logsByHabit[habitId] ?? [];

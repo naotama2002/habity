@@ -29,20 +29,23 @@ const dailyHabit: StreakHabitInfo = {
 };
 
 describe('calculateStreak', () => {
-  it('ログなし → 0', () => {
-    expect(calculateStreak([], dailyHabit, '2024-03-01')).toBe(0);
+  it('ログなし → count=0, from=null', () => {
+    const result = calculateStreak([], dailyHabit, '2024-03-01');
+    expect(result).toEqual({count: 0, from: null});
   });
 
-  it('今日のみ completed → 1', () => {
+  it('今日のみ completed → count=1, from=今日', () => {
     const logs: StreakLogEntry[] = [
       {target_date: '2024-03-01', status: 'completed'},
     ];
-    expect(calculateStreak(logs, dailyHabit, '2024-03-01')).toBe(1);
+    const result = calculateStreak(logs, dailyHabit, '2024-03-01');
+    expect(result).toEqual({count: 1, from: '2024-03-01'});
   });
 
-  it('3日連続 completed → 3', () => {
+  it('3日連続 completed → count=3, from=最古日', () => {
     const logs = makeConsecutiveLogs('2024-03-03', 3);
-    expect(calculateStreak(logs, dailyHabit, '2024-03-03')).toBe(3);
+    const result = calculateStreak(logs, dailyHabit, '2024-03-03');
+    expect(result).toEqual({count: 3, from: '2024-03-01'});
   });
 
   it('途中にギャップ（ログなし）→ ギャップ前まで', () => {
@@ -53,10 +56,11 @@ describe('calculateStreak', () => {
       {target_date: '2024-03-02', status: 'completed'},
       {target_date: '2024-03-01', status: 'completed'},
     ];
-    expect(calculateStreak(logs, dailyHabit, '2024-03-05')).toBe(2);
+    const result = calculateStreak(logs, dailyHabit, '2024-03-05');
+    expect(result).toEqual({count: 2, from: '2024-03-04'});
   });
 
-  it('途中に skipped → skipped はカウントせずストリーク維持', () => {
+  it('途中に skipped → skipped はカウントせずストリーク維持、from は skipped 含む', () => {
     const logs: StreakLogEntry[] = [
       {target_date: '2024-03-05', status: 'completed'},
       {target_date: '2024-03-04', status: 'skipped'},
@@ -64,12 +68,14 @@ describe('calculateStreak', () => {
       {target_date: '2024-03-02', status: 'completed'},
     ];
     // completed: 3/5, 3/3, 3/2 = 3。skipped(3/4) はカウントしないが途切れない
-    expect(calculateStreak(logs, dailyHabit, '2024-03-05')).toBe(3);
+    const result = calculateStreak(logs, dailyHabit, '2024-03-05');
+    expect(result).toEqual({count: 3, from: '2024-03-02'});
   });
 
-  it('全部 skipped → 0', () => {
+  it('全部 skipped → count=0, from=null', () => {
     const logs = makeConsecutiveLogs('2024-03-03', 3, 'skipped');
-    expect(calculateStreak(logs, dailyHabit, '2024-03-03')).toBe(0);
+    const result = calculateStreak(logs, dailyHabit, '2024-03-03');
+    expect(result).toEqual({count: 0, from: null});
   });
 
   it('週3回の習慣（Mon/Wed/Fri）で非対象日をスキップ', () => {
@@ -86,7 +92,8 @@ describe('calculateStreak', () => {
       {target_date: '2024-03-06', status: 'completed'}, // Wed
       {target_date: '2024-03-04', status: 'completed'}, // Mon
     ];
-    expect(calculateStreak(logs, weeklyHabit, '2024-03-08')).toBe(3);
+    const result = calculateStreak(logs, weeklyHabit, '2024-03-08');
+    expect(result).toEqual({count: 3, from: '2024-03-04'});
   });
 
   it('interval=2 の習慣で非対象日をスキップ', () => {
@@ -101,7 +108,8 @@ describe('calculateStreak', () => {
       {target_date: '2024-03-03', status: 'completed'},
       {target_date: '2024-03-01', status: 'completed'},
     ];
-    expect(calculateStreak(logs, intervalHabit, '2024-03-07')).toBe(4);
+    const result = calculateStreak(logs, intervalHabit, '2024-03-07');
+    expect(result).toEqual({count: 4, from: '2024-03-01'});
   });
 
   it('start_date 以前は走査しない', () => {
@@ -116,23 +124,26 @@ describe('calculateStreak', () => {
       // 3/2 以前にもログがあるが start_date 以前なので走査しない
       {target_date: '2024-03-02', status: 'completed'},
     ];
-    expect(calculateStreak(logs, habit, '2024-03-05')).toBe(3);
+    const result = calculateStreak(logs, habit, '2024-03-05');
+    expect(result).toEqual({count: 3, from: '2024-03-03'});
   });
 
-  it('今日にログがなく過去にログがある場合 → 0', () => {
+  it('今日にログがなく過去にログがある場合 → count=0', () => {
     const logs: StreakLogEntry[] = [
       {target_date: '2024-03-01', status: 'completed'},
       {target_date: '2024-02-29', status: 'completed'},
     ];
-    expect(calculateStreak(logs, dailyHabit, '2024-03-02')).toBe(0);
+    const result = calculateStreak(logs, dailyHabit, '2024-03-02');
+    expect(result).toEqual({count: 0, from: null});
   });
 
-  it('今日が skipped で昨日が completed → 1', () => {
+  it('今日が skipped で昨日が completed → count=1, from=昨日', () => {
     const logs: StreakLogEntry[] = [
       {target_date: '2024-03-02', status: 'skipped'},
       {target_date: '2024-03-01', status: 'completed'},
     ];
-    expect(calculateStreak(logs, dailyHabit, '2024-03-02')).toBe(1);
+    const result = calculateStreak(logs, dailyHabit, '2024-03-02');
+    expect(result).toEqual({count: 1, from: '2024-03-01'});
   });
 
   it('週次習慣で today が非対象日の場合、直近の対象日から計算', () => {
@@ -146,7 +157,8 @@ describe('calculateStreak', () => {
       {target_date: '2024-03-08', status: 'completed'}, // Fri
       {target_date: '2024-03-06', status: 'completed'}, // Wed
     ];
-    expect(calculateStreak(logs, weeklyHabit, '2024-03-09')).toBe(2);
+    const result = calculateStreak(logs, weeklyHabit, '2024-03-09');
+    expect(result).toEqual({count: 2, from: '2024-03-06'});
   });
 });
 
@@ -165,19 +177,19 @@ describe('calculateStreaks', () => {
 
     const result = calculateStreaks(logsByHabit, habits, '2024-03-05');
     expect(result).toEqual({
-      'habit-1': 5,
-      'habit-2': 2,
-      'habit-3': 0,
+      'habit-1': {count: 5, from: '2024-03-01'},
+      'habit-2': {count: 2, from: '2024-03-04'},
+      'habit-3': {count: 0, from: null},
     });
   });
 
-  it('ログが存在しない習慣IDは 0 を返す', () => {
+  it('ログが存在しない習慣IDは count=0 を返す', () => {
     const logsByHabit: Record<string, StreakLogEntry[]> = {};
     const habits: Record<string, StreakHabitInfo> = {
       'habit-1': {recurrence_rule: null, start_date: '2024-01-01'},
     };
 
     const result = calculateStreaks(logsByHabit, habits, '2024-03-05');
-    expect(result).toEqual({'habit-1': 0});
+    expect(result).toEqual({'habit-1': {count: 0, from: null}});
   });
 });
