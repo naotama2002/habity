@@ -39,7 +39,11 @@ function setupMockChain(response: unknown) {
     select: jest.fn().mockReturnValue({
       in: jest.fn().mockReturnValue({
         gte: jest.fn().mockReturnValue({
-          lte: jest.fn<() => Promise<unknown>>().mockResolvedValue(response),
+          lte: jest.fn().mockReturnValue({
+            order: jest.fn().mockReturnValue({
+              range: jest.fn<() => Promise<unknown>>().mockResolvedValue(response),
+            }),
+          }),
         }),
       }),
     }),

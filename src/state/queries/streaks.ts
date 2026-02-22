@@ -29,6 +29,46 @@ function formatLocalDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+/** Supabase のデフォルト行数制限 */
+const PAGE_SIZE = 1000;
+
+/**
+ * Supabase の 1000 行制限を超えるデータをページネーションで全件取得
+ */
+async function fetchAllHabitLogs(
+  habitIds: string[],
+  fromDate: string,
+  today: string,
+) {
+  const allRows: {habit_id: string; target_date: string; status: string}[] = [];
+  let rangeStart = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const {data, error} = await supabase
+      .from('habit_logs')
+      .select('habit_id, target_date, status')
+      .in('habit_id', habitIds)
+      .gte('target_date', fromDate)
+      .lte('target_date', today)
+      .order('target_date', {ascending: false})
+      .range(rangeStart, rangeStart + PAGE_SIZE - 1);
+
+    if (error) throw error;
+
+    allRows.push(...(data ?? []));
+
+    // 返却行数が PAGE_SIZE 未満なら全件取得済み
+    if (!data || data.length < PAGE_SIZE) {
+      hasMore = false;
+    } else {
+      rangeStart += PAGE_SIZE;
+    }
+  }
+
+  return allRows;
+}
+
 export function useHabitStreaks(
   habitIds: string[],
   habits: Record<string, StreakHabitInfo>,
@@ -41,25 +81,11 @@ export function useHabitStreaks(
   return useQuery({
     queryKey: streakKeys.byHabits(habitIds),
     queryFn: async () => {
-      console.log('[streaks] queryFn called', {habitCount: habitIds.length, today, fromDate});
-
-      const {data, error} = await supabase
-        .from('habit_logs')
-        .select('habit_id, target_date, status')
-        .in('habit_id', habitIds)
-        .gte('target_date', fromDate)
-        .lte('target_date', today);
-
-      if (error) {
-        console.error('[streaks] Supabase error', error);
-        throw error;
-      }
-
-      console.log('[streaks] Supabase rows:', data?.length ?? 0);
+      const rows = await fetchAllHabitLogs(habitIds, fromDate, today);
 
       // habit_id ごとにログをグルーピング
       const logsByHabit: Record<string, StreakLogEntry[]> = {};
-      for (const row of data ?? []) {
+      for (const row of rows) {
         if (!logsByHabit[row.habit_id]) {
           logsByHabit[row.habit_id] = [];
         }
@@ -69,11 +95,7 @@ export function useHabitStreaks(
         });
       }
 
-      const result = calculateStreaks(logsByHabit, habits, today);
-      const nonZero = Object.entries(result).filter(([, v]) => v.count > 0);
-      console.log('[streaks] result:', {total: Object.keys(result).length, nonZero: nonZero.length, samples: nonZero.slice(0, 3)});
-
-      return result;
+      return calculateStreaks(logsByHabit, habits, today);
     },
     enabled: habitIds.length > 0,
     staleTime: 5 * 60 * 1000,

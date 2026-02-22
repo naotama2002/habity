@@ -50,16 +50,7 @@ export default function TodayScreen() {
     }
     return {habitIds: ids, habitInfos: infos};
   }, [habits]);
-  const {data: streaks, error: streakError, isLoading: streakLoading, fetchStatus: streakFetchStatus} = useHabitStreaks(habitIds, habitInfos);
-
-  console.log('[today] streak query state', {
-    habitIds: habitIds.length,
-    hasData: !!streaks,
-    streakError: streakError?.message ?? null,
-    streakLoading,
-    streakFetchStatus,
-    selectedDate,
-  });
+  const {data: streaks} = useHabitStreaks(habitIds, habitInfos);
 
   // ストリークデータを安定化（クエリ再取得中の一時的な undefined を防ぐ）
   const lastStreaksRef = useRef(streaks);
