@@ -112,6 +112,7 @@ CREATE TYPE tracking_type AS ENUM ('boolean', 'numeric', 'duration');
 CREATE TYPE habit_status AS ENUM ('active', 'paused', 'archived');
 CREATE TYPE goal_period AS ENUM ('daily', 'weekly', 'monthly');
 CREATE TYPE time_of_day AS ENUM ('anytime', 'morning', 'afternoon', 'evening', 'night');
+CREATE TYPE log_status AS ENUM ('completed', 'skipped');
 
 CREATE TABLE habits (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -185,6 +186,7 @@ CREATE TABLE habit_logs (
   habit_id UUID NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
 
   -- 記録内容
+  status log_status NOT NULL DEFAULT 'completed',  -- 'completed' または 'skipped'
   value NUMERIC NOT NULL DEFAULT 1,     -- 達成値（boolean なら 1/0, numeric なら実際の値）
   note TEXT,                            -- メモ
 
@@ -335,34 +337,41 @@ const logs = await supabase.from('habit_logs').select('*').in('habit_id', habitI
 // クライアント側で結合し HabitWithLog を生成
 ```
 
-### ストリーク計算
+### ストリーク計算（サーバーサイド RPC）
+
+ストリーク計算はサーバーサイド RPC `calculate_streaks()` で実行される。
+クライアント側（`src/state/queries/streaks.ts` の `useHabitStreaks()`）は RPC を呼び出し、結果をマッピングする。
+
+`src/lib/streak.ts` のクライアント側実装は、アルゴリズムの参照用およびテスト目的のみ。
 
 ```sql
-CREATE OR REPLACE FUNCTION calculate_streak(p_habit_id UUID)
-RETURNS INTEGER AS $$
-DECLARE
-  v_streak INTEGER := 0;
-  v_date DATE := CURRENT_DATE;
-  v_has_log BOOLEAN;
-BEGIN
-  LOOP
-    SELECT EXISTS(
-      SELECT 1 FROM habit_logs
-      WHERE habit_id = p_habit_id AND target_date = v_date
-    ) INTO v_has_log;
+-- ヘルパー: RRULE に基づきスケジュール対象日か判定
+CREATE OR REPLACE FUNCTION _is_scheduled_date(
+  p_date DATE,
+  p_recurrence_rule TEXT,
+  p_start_date DATE
+) RETURNS BOOLEAN
+LANGUAGE plpgsql IMMUTABLE;
 
-    IF v_has_log THEN
-      v_streak := v_streak + 1;
-      v_date := v_date - 1;
-    ELSE
-      EXIT;
-    END IF;
-  END LOOP;
-
-  RETURN v_streak;
-END;
-$$ LANGUAGE plpgsql;
+-- メイン RPC: 複数習慣のストリーク一括計算
+CREATE OR REPLACE FUNCTION calculate_streaks(
+  p_habit_ids UUID[],
+  p_today DATE DEFAULT CURRENT_DATE
+) RETURNS TABLE(habit_id UUID, streak_count INT, streak_from DATE)
+LANGUAGE plpgsql
+SECURITY INVOKER;  -- RLS 適用
 ```
+
+アルゴリズム:
+- 各 habit_id について `habits` テーブルから `recurrence_rule`, `start_date` を取得
+- `p_today` から過去方向に走査:
+  - 非スケジュール日 → スキップ
+  - completed → count++, from 更新
+  - skipped → from 更新（count はそのまま）
+  - ログなし → break
+- 安全制限: 36500日（100年）
+
+詳細は `supabase/migrations/20260222120331_calculate_streaks_rpc.sql` を参照。
 
 ---
 
@@ -375,6 +384,7 @@ export type TrackingType = 'boolean' | 'numeric' | 'duration';
 export type HabitStatus = 'active' | 'paused' | 'archived';
 export type GoalPeriod = 'daily' | 'weekly' | 'monthly';
 export type TimeOfDay = 'anytime' | 'morning' | 'afternoon' | 'evening' | 'night';
+export type LogStatus = 'completed' | 'skipped';
 
 export interface Category {
   id: string;
@@ -414,12 +424,20 @@ export interface HabitLog {
   id: string;
   user_id: string;
   habit_id: string;
+  status: LogStatus;
   value: number;
   note: string | null;
   completed_at: string;
   target_date: string;
   external_id: string | null;
   created_at: string;
+}
+
+export interface StreakResult {
+  /** 連続達成日数 */
+  count: number;
+  /** ストリーク開始日（最も古い日）。count=0 の場合は null */
+  from: string | null;
 }
 
 export interface UserSettings {
