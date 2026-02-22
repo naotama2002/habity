@@ -1,11 +1,11 @@
 import {describe, expect, it, jest, beforeEach} from '@jest/globals';
 
-// Supabase モック
-const mockFrom = jest.fn();
+// Supabase モック — RPC 呼び出し用
+const mockRpc = jest.fn<(...args: unknown[]) => Promise<{data: unknown; error: unknown}>>();
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
-    from: (...args: unknown[]) => mockFrom(...args),
+    rpc: (...args: unknown[]) => mockRpc(...args),
   },
 }));
 
@@ -18,38 +18,16 @@ jest.mock('@tanstack/react-query', () => ({
 
 import {useQuery} from '@tanstack/react-query';
 import {streakKeys, useHabitStreaks} from '../streaks';
-import type {StreakHabitInfo} from '@/lib/streak';
 
 const mockedUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
 
 // テスト用ヘルパー: useQuery に渡された queryFn を取得して実行
-function getQueryFn(
-  habitIds: string[],
-  habits: Record<string, StreakHabitInfo>,
-) {
+function getQueryFn(habitIds: string[]) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  useHabitStreaks(habitIds, habits);
+  useHabitStreaks(habitIds);
   const call = mockedUseQuery.mock.calls[mockedUseQuery.mock.calls.length - 1];
   const opts = call[0] as unknown as {queryFn: () => Promise<unknown>};
   return opts.queryFn;
-}
-
-function setupMockChain(response: unknown) {
-  const mockRange = jest.fn<() => Promise<unknown>>().mockResolvedValue(response);
-  mockFrom.mockReturnValue({
-    select: jest.fn().mockReturnValue({
-      in: jest.fn().mockReturnValue({
-        gte: jest.fn().mockReturnValue({
-          lte: jest.fn().mockReturnValue({
-            order: jest.fn().mockReturnValue({
-              range: mockRange,
-            }),
-          }),
-        }),
-      }),
-    }),
-  });
-  return {mockRange};
 }
 
 describe('streaks queries', () => {
@@ -80,69 +58,52 @@ describe('streaks queries', () => {
   });
 
   describe('useHabitStreaks', () => {
-    it('should query habit_logs table', async () => {
-      setupMockChain({data: [], error: null});
+    it('should call RPC with habit_ids and today', async () => {
+      mockRpc.mockResolvedValue({data: [], error: null});
 
-      const habits: Record<string, StreakHabitInfo> = {
-        'habit-1': {recurrence_rule: null, start_date: '2024-01-01'},
-      };
-      const queryFn = getQueryFn(['habit-1'], habits);
+      const queryFn = getQueryFn(['habit-1']);
       await queryFn();
 
-      expect(mockFrom).toHaveBeenCalledWith('habit_logs');
+      expect(mockRpc).toHaveBeenCalledWith('calculate_streaks', {
+        p_habit_ids: ['habit-1'],
+        p_today: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      });
     });
 
-    it('should return streak results for each habit', async () => {
-      const now = new Date();
-      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-
-      setupMockChain({
+    it('should convert RPC results to StreakResult map', async () => {
+      mockRpc.mockResolvedValue({
         data: [
-          {habit_id: 'habit-1', target_date: today, status: 'completed'},
-          {habit_id: 'habit-1', target_date: yesterdayStr, status: 'completed'},
-          {habit_id: 'habit-2', target_date: today, status: 'completed'},
+          {habit_id: 'habit-1', streak_count: 5, streak_from: '2026-02-17'},
+          {habit_id: 'habit-2', streak_count: 1, streak_from: '2026-02-22'},
         ],
         error: null,
       });
 
-      const habits: Record<string, StreakHabitInfo> = {
-        'habit-1': {recurrence_rule: null, start_date: '2024-01-01'},
-        'habit-2': {recurrence_rule: null, start_date: '2024-01-01'},
-      };
-      const queryFn = getQueryFn(['habit-1', 'habit-2'], habits);
+      const queryFn = getQueryFn(['habit-1', 'habit-2']);
       const result = await queryFn();
 
       expect(result).toEqual({
-        'habit-1': {count: 2, from: yesterdayStr},
-        'habit-2': {count: 1, from: today},
+        'habit-1': {count: 5, from: '2026-02-17'},
+        'habit-2': {count: 1, from: '2026-02-22'},
       });
     });
 
-    it('should return count=0 for habits with no logs', async () => {
-      setupMockChain({data: [], error: null});
+    it('should return count=0 for habits not returned by RPC', async () => {
+      mockRpc.mockResolvedValue({data: [], error: null});
 
-      const habits: Record<string, StreakHabitInfo> = {
-        'habit-1': {recurrence_rule: null, start_date: '2024-01-01'},
-      };
-      const queryFn = getQueryFn(['habit-1'], habits);
+      const queryFn = getQueryFn(['habit-1']);
       const result = await queryFn();
 
       expect(result).toEqual({'habit-1': {count: 0, from: null}});
     });
 
     it('should throw when supabase returns an error', async () => {
-      setupMockChain({
+      mockRpc.mockResolvedValue({
         data: null,
         error: {message: 'DB error', code: '500'},
       });
 
-      const habits: Record<string, StreakHabitInfo> = {
-        'habit-1': {recurrence_rule: null, start_date: '2024-01-01'},
-      };
-      const queryFn = getQueryFn(['habit-1'], habits);
+      const queryFn = getQueryFn(['habit-1']);
 
       await expect(queryFn()).rejects.toEqual({
         message: 'DB error',
@@ -151,11 +112,10 @@ describe('streaks queries', () => {
     });
 
     it('should be disabled when habitIds is empty', () => {
-      setupMockChain({data: [], error: null});
+      mockRpc.mockResolvedValue({data: [], error: null});
 
-      const habits: Record<string, StreakHabitInfo> = {};
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useHabitStreaks([], habits);
+      useHabitStreaks([]);
 
       const call = mockedUseQuery.mock.calls[mockedUseQuery.mock.calls.length - 1];
       const opts = call[0] as unknown as {enabled: boolean};
@@ -163,13 +123,10 @@ describe('streaks queries', () => {
     });
 
     it('should have staleTime of 5 minutes', () => {
-      setupMockChain({data: [], error: null});
+      mockRpc.mockResolvedValue({data: [], error: null});
 
-      const habits: Record<string, StreakHabitInfo> = {
-        'habit-1': {recurrence_rule: null, start_date: '2024-01-01'},
-      };
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useHabitStreaks(['habit-1'], habits);
+      useHabitStreaks(['habit-1']);
 
       const call = mockedUseQuery.mock.calls[mockedUseQuery.mock.calls.length - 1];
       const opts = call[0] as unknown as {staleTime: number};
@@ -177,12 +134,9 @@ describe('streaks queries', () => {
     });
 
     it('should handle null data from supabase', async () => {
-      setupMockChain({data: null, error: null});
+      mockRpc.mockResolvedValue({data: null, error: null});
 
-      const habits: Record<string, StreakHabitInfo> = {
-        'habit-1': {recurrence_rule: null, start_date: '2024-01-01'},
-      };
-      const queryFn = getQueryFn(['habit-1'], habits);
+      const queryFn = getQueryFn(['habit-1']);
       const result = await queryFn();
 
       expect(result).toEqual({'habit-1': {count: 0, from: null}});

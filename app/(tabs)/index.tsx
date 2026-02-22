@@ -41,16 +41,9 @@ export default function TodayScreen() {
   const unskipLog = useUnskipHabitLog();
 
   // ストリーク計算用データ
-  const {habitIds, habitInfos} = useMemo(() => {
-    if (!habits || habits.length === 0) return {habitIds: [] as string[], habitInfos: {} as Record<string, {recurrence_rule: string | null; start_date: string}>};
-    const ids = habits.map(h => h.id);
-    const infos: Record<string, {recurrence_rule: string | null; start_date: string}> = {};
-    for (const h of habits) {
-      infos[h.id] = {recurrence_rule: h.recurrence_rule, start_date: h.start_date};
-    }
-    return {habitIds: ids, habitInfos: infos};
-  }, [habits]);
-  const {data: streaks} = useHabitStreaks(habitIds, habitInfos);
+  const habitIds = useMemo(() =>
+    habits?.map(h => h.id) ?? [], [habits]);
+  const {data: streaks} = useHabitStreaks(habitIds);
 
   // ストリークデータを安定化（クエリ再取得中の一時的な undefined を防ぐ）
   const lastStreaksRef = useRef(streaks);

@@ -1,8 +1,6 @@
 import {useQuery, keepPreviousData} from '@tanstack/react-query';
 import {supabase} from '@/lib/supabase';
-import {fetchAllRows} from '@/lib/supabase-pagination';
-import {calculateStreaks} from '@/lib/streak';
-import type {StreakLogEntry, StreakHabitInfo, StreakResult} from '@/lib/streak';
+import type {StreakResult} from '@/lib/streak';
 
 export type {StreakResult};
 
@@ -30,41 +28,29 @@ function formatLocalDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-export function useHabitStreaks(
-  habitIds: string[],
-  habits: Record<string, StreakHabitInfo>,
-) {
-  const today = formatLocalDate(new Date());
-  const from = new Date();
-  from.setDate(from.getDate() - 365);
-  const fromDate = formatLocalDate(from);
-
+export function useHabitStreaks(habitIds: string[]) {
   return useQuery({
     queryKey: streakKeys.byHabits(habitIds),
     queryFn: async () => {
-      const rows = await fetchAllRows<{habit_id: string; target_date: string; status: string}>(
-        supabase
-          .from('habit_logs')
-          .select('habit_id, target_date, status')
-          .in('habit_id', habitIds)
-          .gte('target_date', fromDate)
-          .lte('target_date', today)
-          .order('target_date', {ascending: false}),
-      );
+      const {data, error} = await supabase.rpc('calculate_streaks', {
+        p_habit_ids: habitIds,
+        p_today: formatLocalDate(new Date()),
+      });
+      if (error) throw error;
 
-      // habit_id ごとにログをグルーピング
-      const logsByHabit: Record<string, StreakLogEntry[]> = {};
-      for (const row of rows) {
-        if (!logsByHabit[row.habit_id]) {
-          logsByHabit[row.habit_id] = [];
-        }
-        logsByHabit[row.habit_id].push({
-          target_date: row.target_date,
-          status: row.status as 'completed' | 'skipped',
-        });
+      const result: Record<string, StreakResult> = {};
+      // Initialize all habits with count=0
+      for (const id of habitIds) {
+        result[id] = {count: 0, from: null};
       }
-
-      return calculateStreaks(logsByHabit, habits, today);
+      // Fill in results from RPC
+      for (const row of data ?? []) {
+        result[row.habit_id] = {
+          count: row.streak_count,
+          from: row.streak_from,
+        };
+      }
+      return result;
     },
     enabled: habitIds.length > 0,
     staleTime: 5 * 60 * 1000,
