@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -67,6 +67,13 @@ export default function HabitsScreen() {
     return {habitIds: ids, habitInfos: infos};
   }, [habits]);
   const {data: streaks} = useHabitStreaks(habitIds, habitInfos);
+
+  // ストリークデータを安定化（クエリ再取得中の一時的な undefined を防ぐ）
+  const lastStreaksRef = useRef(streaks);
+  if (streaks) {
+    lastStreaksRef.current = streaks;
+  }
+  const stableStreaks = streaks ?? lastStreaksRef.current;
 
   // 検索フィルタリング
   const filteredHabits = useMemo(() => {
@@ -255,7 +262,7 @@ export default function HabitsScreen() {
                       >
                         <HabitListItem
                           habit={habit}
-                          streak={streaks?.[habit.id] ?? 0}
+                          streak={stableStreaks?.[habit.id]?.count ?? 0}
                           onPress={handlePressHabit}
                           isArchived={habit.status === 'archived'}
                           onArchive={() => archiveHabit.mutate(habit.id)}
@@ -290,7 +297,7 @@ export default function HabitsScreen() {
                       >
                         <HabitListItem
                           habit={habit}
-                          streak={streaks?.[habit.id] ?? 0}
+                          streak={stableStreaks?.[habit.id]?.count ?? 0}
                           onPress={handlePressHabit}
                           isArchived={habit.status === 'archived'}
                           onArchive={() => archiveHabit.mutate(habit.id)}

@@ -9,21 +9,24 @@ interface StreakBadgeProps {
   streak: number;
   /** サイズ */
   size?: 'sm' | 'md';
+  /** 未完了状態（グレー表示） */
+  inactive?: boolean;
 }
 
 /**
  * ストリークバッジコンポーネント
  * 連続達成日数を炎アイコンと共に表示
+ * inactive=true の場合はグレー表示（未チェック状態）
  */
-export function StreakBadge({ streak, size = 'sm' }: StreakBadgeProps) {
+export function StreakBadge({ streak, size = 'sm', inactive = false }: StreakBadgeProps) {
   const { _ } = useLingui();
 
   if (streak <= 0) return null;
 
   return (
     <View style={[styles.container, size === 'md' && styles.containerMd]}>
-      <Text style={[styles.icon, size === 'md' && styles.iconMd]}>🔥</Text>
-      <Text style={[styles.text, size === 'md' && styles.textMd]}>
+      <Text style={[styles.icon, size === 'md' && styles.iconMd, inactive && styles.iconInactive]}>🔥</Text>
+      <Text style={[styles.text, size === 'md' && styles.textMd, inactive && styles.textInactive]}>
         {_(msg`${streak} days`)}
       </Text>
     </View>
@@ -51,5 +54,11 @@ const styles = StyleSheet.create({
   },
   textMd: {
     ...typography.bodySmallMedium,
+  },
+  iconInactive: {
+    opacity: 0.4,
+  },
+  textInactive: {
+    color: colors.gray[400],
   },
 });

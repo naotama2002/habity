@@ -1,7 +1,9 @@
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, keepPreviousData} from '@tanstack/react-query';
 import {supabase} from '@/lib/supabase';
 import {calculateStreaks} from '@/lib/streak';
-import type {StreakLogEntry, StreakHabitInfo} from '@/lib/streak';
+import type {StreakLogEntry, StreakHabitInfo, StreakResult} from '@/lib/streak';
+
+export type {StreakResult};
 
 // ===========================================
 // Query Keys
@@ -17,14 +19,24 @@ export const streakKeys = {
 // Queries
 // ===========================================
 
+/**
+ * ローカルタイムゾーンの日付を 'YYYY-MM-DD' 形式で返す
+ */
+function formatLocalDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export function useHabitStreaks(
   habitIds: string[],
   habits: Record<string, StreakHabitInfo>,
 ) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = formatLocalDate(new Date());
   const from = new Date();
   from.setDate(from.getDate() - 365);
-  const fromDate = from.toISOString().split('T')[0];
+  const fromDate = formatLocalDate(from);
 
   return useQuery({
     queryKey: streakKeys.byHabits(habitIds),
@@ -54,5 +66,6 @@ export function useHabitStreaks(
     },
     enabled: habitIds.length > 0,
     staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 }

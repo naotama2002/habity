@@ -86,11 +86,12 @@ describe('streaks queries', () => {
       expect(mockFrom).toHaveBeenCalledWith('habit_logs');
     });
 
-    it('should return streak values for each habit', async () => {
-      const today = new Date().toISOString().split('T')[0];
+    it('should return streak results for each habit', async () => {
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
 
       setupMockChain({
         data: [
@@ -109,12 +110,12 @@ describe('streaks queries', () => {
       const result = await queryFn();
 
       expect(result).toEqual({
-        'habit-1': 2,
-        'habit-2': 1,
+        'habit-1': {count: 2, from: yesterdayStr},
+        'habit-2': {count: 1, from: today},
       });
     });
 
-    it('should return 0 for habits with no logs', async () => {
+    it('should return count=0 for habits with no logs', async () => {
       setupMockChain({data: [], error: null});
 
       const habits: Record<string, StreakHabitInfo> = {
@@ -123,7 +124,7 @@ describe('streaks queries', () => {
       const queryFn = getQueryFn(['habit-1'], habits);
       const result = await queryFn();
 
-      expect(result).toEqual({'habit-1': 0});
+      expect(result).toEqual({'habit-1': {count: 0, from: null}});
     });
 
     it('should throw when supabase returns an error', async () => {
@@ -178,7 +179,7 @@ describe('streaks queries', () => {
       const queryFn = getQueryFn(['habit-1'], habits);
       const result = await queryFn();
 
-      expect(result).toEqual({'habit-1': 0});
+      expect(result).toEqual({'habit-1': {count: 0, from: null}});
     });
   });
 });
