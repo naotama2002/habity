@@ -1,5 +1,6 @@
 import {useQuery, keepPreviousData} from '@tanstack/react-query';
 import {supabase} from '@/lib/supabase';
+import {fetchAllRows} from '@/lib/supabase-pagination';
 import {calculateStreaks} from '@/lib/streak';
 import type {StreakLogEntry, StreakHabitInfo, StreakResult} from '@/lib/streak';
 
@@ -41,18 +42,19 @@ export function useHabitStreaks(
   return useQuery({
     queryKey: streakKeys.byHabits(habitIds),
     queryFn: async () => {
-      const {data, error} = await supabase
-        .from('habit_logs')
-        .select('habit_id, target_date, status')
-        .in('habit_id', habitIds)
-        .gte('target_date', fromDate)
-        .lte('target_date', today);
-
-      if (error) throw error;
+      const rows = await fetchAllRows<{habit_id: string; target_date: string; status: string}>(
+        supabase
+          .from('habit_logs')
+          .select('habit_id, target_date, status')
+          .in('habit_id', habitIds)
+          .gte('target_date', fromDate)
+          .lte('target_date', today)
+          .order('target_date', {ascending: false}),
+      );
 
       // habit_id ごとにログをグルーピング
       const logsByHabit: Record<string, StreakLogEntry[]> = {};
-      for (const row of data ?? []) {
+      for (const row of rows) {
         if (!logsByHabit[row.habit_id]) {
           logsByHabit[row.habit_id] = [];
         }
