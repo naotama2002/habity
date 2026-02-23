@@ -14,6 +14,7 @@ import { useRouter, useLocalSearchParams, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 import { validateLoginForm } from '@/lib/validation/auth';
+import { sanitizeReturnTo } from '@/lib/url';
 
 /**
  * ログイン画面
@@ -45,11 +46,7 @@ export default function LoginScreen() {
     try {
       await signInWithEmail(email.trim(), password);
       // 成功時にreturnToがあればそこに遷移、なければトップへ
-      if (returnTo) {
-        router.replace(decodeURIComponent(returnTo) as Href);
-      } else {
-        router.replace('/(tabs)');
-      }
+      router.replace(sanitizeReturnTo(returnTo) as Href);
     } catch (err) {
       console.error('Login error:', err);
       const errorMessage = err instanceof Error ? err.message : '';

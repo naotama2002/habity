@@ -84,17 +84,8 @@ supabase migration list --db-url "$DB_URL"
 
 ## 3. 環境変数の設定
 
-デプロイ用の環境変数は `.env.deploy` に設定する（`.env` はローカル開発専用）。
-
-```bash
-# .env.deploy.example をコピー
-cp .env.deploy.example .env.deploy
-```
-
-※ 参考 (drop)
-```bash
- supabase db reset --db-url "$DB_URL"
- ```
+デプロイ用の環境変数は Cloudflare Pages の環境変数で設定する。
+詳細は [08-cloudflare-pages-deploy.md](./08-cloudflare-pages-deploy.md) を参照。
 
 ### 変数一覧
 
@@ -107,11 +98,11 @@ cp .env.deploy.example .env.deploy
 
 ### ローカル開発との違い
 
-| 項目 | ローカル（`.env`） | デプロイ（`.env.deploy`） |
+| 項目 | ローカル（`.env`） | デプロイ（Cloudflare Pages） |
 |------|-------------------|--------------------------|
 | DB 接続 | docker-compose 内の PostgreSQL | Supabase Cloud Pooler（port 6543） |
 | Supabase URL | `http://localhost:54321` | `https://<ref>.supabase.co` |
-| フロントエンドの環境注入 | `EXPO_PUBLIC_*` で直接参照 | `web-entrypoint.sh` がランタイムで置換 |
+| フロントエンドの環境注入 | `EXPO_PUBLIC_*` で直接参照 | Cloudflare Pages の環境変数 |
 
 ---
 
@@ -119,13 +110,6 @@ cp .env.deploy.example .env.deploy
 
 Web フロントエンドのデプロイは **Cloudflare Pages** を推奨。
 詳細は [08-cloudflare-pages-deploy.md](./08-cloudflare-pages-deploy.md) を参照。
-
-Docker でデプロイする場合は `docker-compose.deploy.yml`（web のみ）を使用:
-
-```bash
-# Docker デプロイ用で起動（.env.deploy を読み込む）
-docker compose -f docker-compose.deploy.yml --env-file .env.deploy up -d
-```
 
 ---
 
@@ -179,9 +163,7 @@ Supabase Dashboard → Table Editor で各テーブルの RLS が有効になっ
 
 ### 環境変数
 
-- [ ] `.env.deploy.example` をコピーして `.env.deploy` を作成
-- [ ] Supabase Cloud の値を `.env.deploy` に設定
-- [ ] `DATABASE_URL` は Pooler URI（port 6543）を指定
+- [ ] Cloudflare Pages の環境変数に Supabase Cloud の値を設定
 
 ### 認証
 
