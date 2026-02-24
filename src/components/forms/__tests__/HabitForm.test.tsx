@@ -1,5 +1,5 @@
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react-native';
 import { HabitForm } from '../HabitForm';
 import type { HabitSubmitData } from '../HabitForm';
 
@@ -88,6 +88,22 @@ describe('HabitForm', () => {
       expect(screen.getByDisplayValue('Test Description')).toBeTruthy();
     });
 
+    it('should render start date input with initial value', () => {
+      const { root } = render(
+        <HabitForm
+          initialValues={{
+            name: 'Test Habit',
+            start_date: '2025-06-15',
+          }}
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      const dateInput = root.findAll((node: {type: string | React.ComponentType}) => node.type === 'input')[0];
+      expect(dateInput.props.value).toBe('2025-06-15');
+    });
+
     it('should parse recurrence_rule for editing', () => {
       render(
         <HabitForm
@@ -136,6 +152,40 @@ describe('HabitForm', () => {
       await waitFor(() => {
         expect(screen.getByText('習慣名を入力してください')).toBeTruthy();
       });
+    });
+  });
+
+  describe('start date', () => {
+    it('should update start date when date is changed', async () => {
+      mockOnSubmit.mockResolvedValue(undefined);
+
+      const { root } = render(
+        <HabitForm
+          initialValues={{
+            start_date: '2025-01-01',
+          }}
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Change the date via the native input's onChange handler
+      const dateInput = root.findAll((node: {type: string | React.ComponentType}) => node.type === 'input')[0];
+      act(() => {
+        dateInput.props.onChange({ target: { value: '2025-06-15' } });
+      });
+
+      // Fill in required name field and submit
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Test Habit');
+      fireEvent.press(screen.getByText('Save'));
+
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      const submittedData = mockOnSubmit.mock.calls[0][0];
+      expect(submittedData.start_date).toBe('2025-06-15');
     });
   });
 
