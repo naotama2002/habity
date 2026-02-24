@@ -1,5 +1,5 @@
 import {describe, expect, it} from '@jest/globals';
-import {extractUrls} from '../url';
+import {extractUrls, sanitizeReturnTo} from '../url';
 
 describe('extractUrls', () => {
   it.each([
@@ -66,5 +66,83 @@ describe('extractUrls', () => {
     expect(extractUrls('Visit https://example.com')).toEqual([
       'https://example.com',
     ]);
+  });
+});
+
+describe('sanitizeReturnTo', () => {
+  describe('safe relative paths', () => {
+    const safePaths = [
+      '/(tabs)',
+      '/(tabs)/habits',
+      '/habit/new',
+      '/import/habitify',
+      '/(auth)/login',
+    ];
+
+    it.each(safePaths)('should allow safe relative path: %s', (path) => {
+      expect(sanitizeReturnTo(path)).toBe(path);
+    });
+  });
+
+  describe('encoded safe paths', () => {
+    it('should decode and allow encoded relative path', () => {
+      expect(sanitizeReturnTo(encodeURIComponent('/(tabs)'))).toBe('/(tabs)');
+    });
+  });
+
+  describe('malicious inputs', () => {
+    const maliciousInputs: Array<[string, string]> = [
+      ['https://evil.com', 'absolute URL with https'],
+      ['http://evil.com', 'absolute URL with http'],
+      ['//evil.com', 'protocol-relative URL'],
+      ['javascript:alert(1)', 'javascript protocol'],
+      ['data:text/html,<h1>evil</h1>', 'data URI'],
+      ['ftp://evil.com/file', 'ftp URL'],
+    ];
+
+    it.each(maliciousInputs)(
+      'should reject %s (%s) and return fallback',
+      (input) => {
+        expect(sanitizeReturnTo(input)).toBe('/(tabs)');
+      },
+    );
+
+    it('should reject encoded malicious URL', () => {
+      expect(sanitizeReturnTo(encodeURIComponent('https://evil.com'))).toBe(
+        '/(tabs)',
+      );
+    });
+
+    it('should reject encoded protocol-relative URL', () => {
+      expect(sanitizeReturnTo(encodeURIComponent('//evil.com'))).toBe(
+        '/(tabs)',
+      );
+    });
+  });
+
+  describe('undefined / empty input', () => {
+    it('should return fallback for undefined', () => {
+      expect(sanitizeReturnTo(undefined)).toBe('/(tabs)');
+    });
+
+    it('should return fallback for empty string', () => {
+      expect(sanitizeReturnTo('')).toBe('/(tabs)');
+    });
+  });
+
+  describe('custom fallback', () => {
+    it('should use custom fallback when provided', () => {
+      expect(sanitizeReturnTo(undefined, '/custom')).toBe('/custom');
+    });
+
+    it('should use custom fallback for malicious input', () => {
+      expect(sanitizeReturnTo('https://evil.com', '/custom')).toBe('/custom');
+    });
+  });
+
+  describe('invalid encoding', () => {
+    it('should return fallback for malformed URI encoding', () => {
+      expect(sanitizeReturnTo('%E0%A4%A')).toBe('/(tabs)');
+    });
   });
 });

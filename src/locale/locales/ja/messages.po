@@ -13,18 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/habits/StreakBadge.tsx:27
+#: src/components/habits/StreakBadge.tsx:30
 msgid "{streak} days"
 msgstr "{streak}日"
 
-#: app/(auth)/login.tsx:80
+#: app/(auth)/login.tsx:86
 #: app/(auth)/signup.tsx:118
 msgid "← Back"
 msgstr "← 戻る"
 
 #: app/(auth)/signup.tsx:161
-msgid "6 or more characters"
-msgstr "6文字以上"
+msgid "8+ chars, upper/lower/digit"
+msgstr "8文字以上、大文字・小文字・数字を含む"
 
 #: app/(tabs)/settings.tsx:75
 msgid "About This App"
@@ -36,7 +36,7 @@ msgstr "アクティブ"
 
 #: app/(tabs)/habits.tsx:203
 #: app/(tabs)/habits.tsx:237
-#: app/(tabs)/index.tsx:133
+#: app/(tabs)/index.tsx:142
 msgid "Add a new habit to get started"
 msgstr "新しい習慣を追加して始めましょう"
 
@@ -99,7 +99,7 @@ msgstr "メール内のリンクをクリックしてアカウントを有効化
 msgid "Close"
 msgstr "閉じる"
 
-#: app/(tabs)/index.tsx:195
+#: app/(tabs)/index.tsx:204
 msgid "completed"
 msgstr "完了"
 
@@ -150,7 +150,7 @@ msgstr "破棄"
 msgid "Discard Changes"
 msgstr "変更を破棄"
 
-#: app/(auth)/welcome.tsx:86
+#: app/(auth)/welcome.tsx:87
 msgid "Don't have an account?"
 msgstr "アカウントをお持ちでない方は"
 
@@ -171,12 +171,12 @@ msgstr "編集"
 msgid "Edit Habit"
 msgstr "習慣を編集"
 
-#: app/(auth)/login.tsx:99
+#: app/(auth)/login.tsx:105
 #: app/(auth)/signup.tsx:137
 msgid "Email"
 msgstr "メールアドレス"
 
-#: app/(auth)/login.tsx:57
+#: app/(auth)/login.tsx:63
 msgid "Email or password is incorrect"
 msgstr "メールアドレスまたはパスワードが間違っています"
 
@@ -184,7 +184,7 @@ msgstr "メールアドレスまたはパスワードが間違っています"
 msgid "English"
 msgstr "英語"
 
-#: app/(auth)/login.tsx:84
+#: app/(auth)/login.tsx:90
 msgid "Enter your email and password"
 msgstr "メールアドレスとパスワードを入力してください"
 
@@ -206,7 +206,7 @@ msgid "Export Data"
 msgstr "データエクスポート"
 
 #: app/(tabs)/habits.tsx:144
-#: app/(tabs)/index.tsx:107
+#: app/(tabs)/index.tsx:116
 msgid "Failed to load habits"
 msgstr "習慣の読み込みに失敗しました"
 
@@ -308,7 +308,7 @@ msgstr "言語"
 msgid "Let's create a new account"
 msgstr "新しいアカウントを作成しましょう"
 
-#: app/(auth)/login.tsx:59
+#: app/(auth)/login.tsx:65
 msgid "Login failed. Please try again."
 msgstr "ログインに失敗しました。もう一度お試しください"
 
@@ -320,7 +320,7 @@ msgstr "インポートしたログ"
 msgid "Longest Streak"
 msgstr "最長連続"
 
-#: app/(auth)/welcome.tsx:54
+#: app/(auth)/welcome.tsx:55
 msgid "Make habits simpler"
 msgstr "習慣を、もっとシンプルに"
 
@@ -366,7 +366,7 @@ msgstr "夜"
 
 #: app/(tabs)/habits.tsx:201
 #: app/(tabs)/habits.tsx:232
-#: app/(tabs)/index.tsx:131
+#: app/(tabs)/index.tsx:140
 msgid "No habits yet"
 msgstr "習慣がありません"
 
@@ -386,8 +386,8 @@ msgstr "通知"
 msgid "Optional"
 msgstr "任意"
 
-#: app/(auth)/login.tsx:119
-#: app/(auth)/login.tsx:123
+#: app/(auth)/login.tsx:125
+#: app/(auth)/login.tsx:129
 #: app/(auth)/signup.tsx:157
 msgid "Password"
 msgstr "パスワード"
@@ -396,7 +396,7 @@ msgstr "パスワード"
 msgid "Please sign in"
 msgstr "ログインしてください"
 
-#: app/(tabs)/index.tsx:108
+#: app/(tabs)/index.tsx:117
 msgid "Please try again"
 msgstr "もう一度お試しください"
 
@@ -454,17 +454,17 @@ msgstr "日付を選択してください"
 msgid "Select days of the week"
 msgstr "曜日を選択してください"
 
-#: app/(auth)/login.tsx:82
-#: app/(auth)/login.tsx:148
+#: app/(auth)/login.tsx:88
+#: app/(auth)/login.tsx:163
 #: app/(auth)/signup.tsx:216
 msgid "Sign In"
 msgstr "サインイン"
 
-#: app/(auth)/welcome.tsx:79
+#: app/(auth)/welcome.tsx:80
 msgid "Sign in with Email"
 msgstr "メールでサインイン"
 
-#: app/(auth)/welcome.tsx:71
+#: app/(auth)/welcome.tsx:72
 msgid "Sign in with GitHub"
 msgstr "GitHub でサインイン"
 
@@ -472,7 +472,7 @@ msgstr "GitHub でサインイン"
 msgid "Sign Out"
 msgstr "ログアウト"
 
-#: app/(auth)/welcome.tsx:87
+#: app/(auth)/welcome.tsx:88
 msgid "Sign Up"
 msgstr "新規登録"
 
@@ -530,7 +530,7 @@ msgstr "木"
 msgid "Time of Day"
 msgstr "実行する時間帯"
 
-#: app/(tabs)/index.tsx:59
+#: app/(tabs)/index.tsx:68
 #: src/components/date/DateStrip.tsx:121
 msgid "Today"
 msgstr "今日"
@@ -539,7 +539,11 @@ msgstr "今日"
 msgid "Tomorrow"
 msgstr "明日"
 
-#: app/(auth)/welcome.tsx:60
+#: app/(auth)/login.tsx:146
+msgid "Too many failed attempts. Try again in {remainingSeconds} seconds."
+msgstr "ログイン試行回数が上限に達しました。{remainingSeconds}秒後に再試行してください。"
+
+#: app/(auth)/welcome.tsx:61
 msgid "Track your daily habits and become a better you"
 msgstr "毎日の習慣を記録して、より良い自分を目指しましょう"
 

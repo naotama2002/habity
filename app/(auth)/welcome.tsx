@@ -5,6 +5,7 @@ import { useRouter, useLocalSearchParams, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 import { config } from '@/lib/config';
+import { sanitizeReturnTo } from '@/lib/url';
 
 /**
  * ウェルカム画面
@@ -22,7 +23,7 @@ export default function WelcomeScreen() {
       // NavigationControllerがリダイレクトを処理するが、
       // returnToがある場合はここで明示的に遷移
       if (returnTo) {
-        router.replace(decodeURIComponent(returnTo) as Href);
+        router.replace(sanitizeReturnTo(returnTo) as Href);
       }
     } catch (error) {
       console.error('GitHub sign in failed:', error);

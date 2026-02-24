@@ -37,6 +37,7 @@ export function validateEmail(email: string): ValidationResult {
 
 /**
  * パスワードのバリデーション
+ * 要件: 8文字以上、大文字・小文字・数字を各1文字以上含む
  */
 export function validatePassword(password: string): ValidationResult {
   if (!password) {
@@ -46,10 +47,31 @@ export function validatePassword(password: string): ValidationResult {
     };
   }
 
-  if (password.length < 6) {
+  if (password.length < 8) {
     return {
       isValid: false,
-      error: 'パスワードは6文字以上で入力してください',
+      error: 'Password must be at least 8 characters',
+    };
+  }
+
+  if (!/[a-z]/.test(password)) {
+    return {
+      isValid: false,
+      error: 'Password must include a lowercase letter',
+    };
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return {
+      isValid: false,
+      error: 'Password must include an uppercase letter',
+    };
+  }
+
+  if (!/[0-9]/.test(password)) {
+    return {
+      isValid: false,
+      error: 'Password must include a digit',
     };
   }
 

@@ -3,10 +3,11 @@
  * Ported from: backend/internal/habitify/client.go
  */
 
-import type {
-  HabitifyResponse,
-  HabitifyHabit,
-  HabitifyLog,
+import type { HabitifyHabit, HabitifyLog } from './types';
+import {
+  HabitifyHabitSchema,
+  HabitifyLogSchema,
+  HabitifyResponseSchema,
 } from './types';
 
 const DEFAULT_BASE_URL = 'https://api.habitify.me';
@@ -59,13 +60,16 @@ export async function getHabits(
     throw new Error(`get habits: status ${resp.status}: ${body}`);
   }
 
-  const result: HabitifyResponse<HabitifyHabit[]> = await resp.json();
+  const json: unknown = await resp.json();
+  const result = HabitifyResponseSchema(
+    HabitifyHabitSchema.array().nullable(),
+  ).parse(json);
 
   if (!result.status) {
     throw new Error(`get habits: API returned error: ${result.message}`);
   }
 
-  return result.data;
+  return result.data ?? [];
 }
 
 /** Fetch logs for a specific habit within a date range. */
@@ -91,7 +95,10 @@ export async function getLogs(
     );
   }
 
-  const result: HabitifyResponse<HabitifyLog[]> = await resp.json();
+  const json: unknown = await resp.json();
+  const result = HabitifyResponseSchema(
+    HabitifyLogSchema.array().nullable(),
+  ).parse(json);
 
   if (!result.status) {
     throw new Error(
@@ -99,7 +106,7 @@ export async function getLogs(
     );
   }
 
-  return result.data;
+  return result.data ?? [];
 }
 
 /** Validate an API key by calling getHabits. */

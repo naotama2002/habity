@@ -14,6 +14,8 @@ import { useRouter, useLocalSearchParams, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSessionApi } from '@/state/session';
 import { validateLoginForm } from '@/lib/validation/auth';
+import { sanitizeReturnTo } from '@/lib/url';
+import { useLoginThrottle } from '@/lib/auth/useLoginThrottle';
 
 /**
  * ログイン画面
@@ -25,6 +27,8 @@ export default function LoginScreen() {
   const { signInWithEmail } = useSessionApi();
 
   const passwordRef = useRef<TextInput>(null);
+  const { isLocked, remainingSeconds, recordFailure, reset: resetThrottle } =
+    useLoginThrottle();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,6 +37,10 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     setError(null);
+
+    if (isLocked) {
+      return;
+    }
 
     // バリデーション
     const validationResult = validateLoginForm(email, password);
@@ -44,14 +52,12 @@ export default function LoginScreen() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email.trim(), password);
+      resetThrottle();
       // 成功時にreturnToがあればそこに遷移、なければトップへ
-      if (returnTo) {
-        router.replace(decodeURIComponent(returnTo) as Href);
-      } else {
-        router.replace('/(tabs)');
-      }
+      router.replace(sanitizeReturnTo(returnTo) as Href);
     } catch (err) {
       console.error('Login error:', err);
+      recordFailure();
       const errorMessage = err instanceof Error ? err.message : '';
       if (errorMessage.includes('Invalid login credentials')) {
         setError(_(msg`Email or password is incorrect`));
@@ -133,14 +139,23 @@ export default function LoginScreen() {
               />
             </View>
 
+            {/* ロックメッセージ */}
+            {isLocked && (
+              <View style={styles.lockContainer}>
+                <Text style={styles.lockText}>
+                  {_(msg`Too many failed attempts. Try again in ${remainingSeconds} seconds.`)}
+                </Text>
+              </View>
+            )}
+
             {/* ログインボタン */}
             <Pressable
               style={[
                 styles.loginButton,
-                isSubmitting && styles.loginButtonDisabled,
+                (isSubmitting || isLocked) && styles.loginButtonDisabled,
               ]}
               onPress={handleLogin}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLocked}
             >
               {isSubmitting ? (
                 <ActivityIndicator color="#fff" />
@@ -219,6 +234,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#111827',
     backgroundColor: '#fff',
+  },
+  lockContainer: {
+    backgroundColor: '#fffbeb',
+    borderWidth: 1,
+    borderColor: '#fde68a',
+    borderRadius: 8,
+    padding: 12,
+  },
+  lockText: {
+    color: '#92400e',
+    fontSize: 14,
+    textAlign: 'center',
   },
   loginButton: {
     backgroundColor: '#6366f1',

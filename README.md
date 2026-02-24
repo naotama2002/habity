@@ -67,46 +67,6 @@ pnpm web
 |---------|-----|------|
 | Web フロントエンド | http://localhost:3000 | nginx + Expo Web ビルド |
 
-## デプロイ (EC2 等)
-
-デプロイ環境では Supabase Cloud を利用するため、Docker には Web フロントエンドと Go Backend のみを含めます。
-
-### アーキテクチャ
-
-```
-Browser -> nginx (port 3000)
-  ├── /          -> 静的ファイル (Expo Web ビルド)
-  ├── /api/v1/*  -> Go Backend (Docker 内)
-  └── /health    -> Go Backend (Docker 内)
-
-Supabase API -> 直接 Supabase Cloud (https://xxx.supabase.co)
-```
-
-### セットアップ
-
-```bash
-# 1. 環境変数ファイルを作成
-cp .env.deploy.example .env.deploy
-
-# 2. .env.deploy を編集して Supabase Cloud の情報を設定
-#    - SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_KEY
-#    - DATABASE_URL (Supabase Cloud の PostgreSQL 接続文字列)
-#    - JWT_SECRET
-
-# 3. ビルド & 起動
-docker compose -f docker-compose.deploy.yml --env-file .env.deploy up -d --build
-
-# 4. 停止
-docker compose -f docker-compose.deploy.yml --env-file .env.deploy down
-```
-
-### Docker Compose ファイル構成
-
-| ファイル | 用途 | 含まれるサービス |
-|---------|------|----------------|
-| `docker-compose.yml` | ローカル開発 | Supabase 全スタック + Go Backend (+ Web は `--profile web` で起動) |
-| `docker-compose.deploy.yml` | デプロイ | Go Backend + Web のみ |
-
 ## プロジェクト構成
 
 ```
@@ -121,13 +81,11 @@ habity/
 ├── backend/                # Go バックエンド
 ├── supabase/               # Supabase 設定・マイグレーション
 ├── nginx/                  # nginx 設定
-│   ├── default.conf        # 開発用 (Supabase プロキシあり)
-│   └── deploy.conf         # デプロイ用 (Backend プロキシのみ)
+│   └── default.conf        # 開発用 (Supabase プロキシあり)
 ├── docker/                 # Docker 関連スクリプト
 ├── docs/                   # 仕様ドキュメント
 ├── Dockerfile.web          # Web フロントエンド用 Dockerfile
-├── docker-compose.yml      # 開発環境 (全スタック)
-└── docker-compose.deploy.yml # デプロイ環境 (Web + Backend)
+└── docker-compose.yml      # 開発環境 (全スタック)
 ```
 
 ## ドキュメント
@@ -158,10 +116,6 @@ docker compose logs -f    # ログ確認
 # Docker (開発: Web フロントエンドも含める場合)
 docker compose --profile web up -d
 docker compose --profile web down
-
-# Docker (デプロイ)
-docker compose -f docker-compose.deploy.yml --env-file .env.deploy up -d --build
-docker compose -f docker-compose.deploy.yml --env-file .env.deploy down
 
 # フロントエンド
 pnpm install              # 依存パッケージインストール
