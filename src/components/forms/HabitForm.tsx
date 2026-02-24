@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
-import { Ionicons } from '@expo/vector-icons';
 import {
   Input,
   MultiSelect,
@@ -324,22 +323,30 @@ export function HabitForm({
           required
           error={getFieldError('start_date')}
         >
-          <Pressable
-            style={styles.dateInput}
-            onPress={() => {
-              // TODO: DatePicker を実装
+          <input
+            type="date"
+            value={formData.start_date}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              updateField('start_date', e.target.value);
               touchField('start_date');
             }}
-          >
-            <Ionicons
-              name="calendar-outline"
-              size={20}
-              color={lightTheme.textSecondary}
-            />
-            <Text style={styles.dateText}>
-              {formatDate(formData.start_date)}
-            </Text>
-          </Pressable>
+            style={{
+              backgroundColor: lightTheme.surfaceSecondary,
+              borderRadius: borderRadius.md,
+              paddingTop: spacing.sm,
+              paddingBottom: spacing.sm,
+              paddingLeft: spacing.md,
+              paddingRight: spacing.md,
+              fontSize: 16,
+              lineHeight: '24px',
+              color: lightTheme.text,
+              border: 'none',
+              outline: 'none',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              width: '100%',
+              boxSizing: 'border-box' as const,
+            }}
+          />
         </FormField>
       </ScrollView>
 
@@ -381,18 +388,6 @@ export function HabitForm({
   );
 }
 
-/**
- * 日付をフォーマット
- */
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -407,19 +402,6 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
     paddingTop: spacing.sm,
-  },
-  dateInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: lightTheme.surfaceSecondary,
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-  },
-  dateText: {
-    ...typography.body,
-    color: lightTheme.text,
   },
   footer: {
     flexDirection: 'row',
