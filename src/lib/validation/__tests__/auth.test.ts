@@ -54,8 +54,13 @@ describe('auth validation', () => {
   });
 
   describe('validatePassword', () => {
-    // 有効なパスワード
-    const validPasswords = ['123456', 'password', 'a1b2c3d4', 'longerpassword'];
+    // 有効なパスワード（8文字以上、大文字・小文字・数字含む）
+    const validPasswords = [
+      'Abcdef1x',
+      'Password1',
+      'myPass99',
+      'LongerPassword123',
+    ];
 
     it.each(validPasswords)('should accept valid password: %s', (password) => {
       const result = validatePassword(password);
@@ -66,9 +71,11 @@ describe('auth validation', () => {
     // 無効なパスワード
     const invalidPasswords: Array<[string, string]> = [
       ['', 'パスワードを入力してください'],
-      ['12345', 'パスワードは6文字以上で入力してください'],
-      ['a', 'パスワードは6文字以上で入力してください'],
-      ['abc', 'パスワードは6文字以上で入力してください'],
+      ['Ab1', 'Password must be at least 8 characters'],
+      ['Short1A', 'Password must be at least 8 characters'],
+      ['UPPERCASE1', 'Password must include a lowercase letter'],
+      ['lowercase1', 'Password must include an uppercase letter'],
+      ['Abcdefgh', 'Password must include a digit'],
     ];
 
     it.each(invalidPasswords)(
@@ -83,19 +90,19 @@ describe('auth validation', () => {
 
   describe('validatePasswordConfirmation', () => {
     it('should accept matching passwords', () => {
-      const result = validatePasswordConfirmation('password123', 'password123');
+      const result = validatePasswordConfirmation('Password1', 'Password1');
       expect(result.isValid).toBe(true);
       expect(result.error).toBeNull();
     });
 
     it('should reject non-matching passwords', () => {
-      const result = validatePasswordConfirmation('password123', 'different');
+      const result = validatePasswordConfirmation('Password1', 'Different1');
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('パスワードが一致しません');
     });
 
     it('should handle empty passwords', () => {
-      const result = validatePasswordConfirmation('password123', '');
+      const result = validatePasswordConfirmation('Password1', '');
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('パスワードが一致しません');
     });
@@ -137,15 +144,15 @@ describe('auth validation', () => {
     it('should accept valid signup data', () => {
       const result = validateSignupForm(
         'test@example.com',
-        'password123',
-        'password123'
+        'Password1',
+        'Password1'
       );
       expect(result.isValid).toBe(true);
       expect(result.error).toBeNull();
     });
 
     it('should reject empty email', () => {
-      const result = validateSignupForm('', 'password123', 'password123');
+      const result = validateSignupForm('', 'Password1', 'Password1');
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('メールアドレスを入力してください');
     });
@@ -153,8 +160,8 @@ describe('auth validation', () => {
     it('should reject invalid email format', () => {
       const result = validateSignupForm(
         'invalid',
-        'password123',
-        'password123'
+        'Password1',
+        'Password1'
       );
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('有効なメールアドレスを入力してください');
@@ -167,16 +174,26 @@ describe('auth validation', () => {
     });
 
     it('should reject short password', () => {
-      const result = validateSignupForm('test@example.com', 'abc', 'abc');
+      const result = validateSignupForm('test@example.com', 'Ab1', 'Ab1');
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('パスワードは6文字以上で入力してください');
+      expect(result.error).toBe('Password must be at least 8 characters');
+    });
+
+    it('should reject password without lowercase', () => {
+      const result = validateSignupForm(
+        'test@example.com',
+        'ALLCAPS12',
+        'ALLCAPS12'
+      );
+      expect(result.isValid).toBe(false);
+      expect(result.error).toBe('Password must include a lowercase letter');
     });
 
     it('should reject non-matching passwords', () => {
       const result = validateSignupForm(
         'test@example.com',
-        'password123',
-        'different'
+        'Password1',
+        'Different1'
       );
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('パスワードが一致しません');
@@ -190,14 +207,14 @@ describe('auth validation', () => {
 
     it('should validate in order: password second', () => {
       const result = validateSignupForm('test@example.com', 'ab', 'different');
-      expect(result.error).toBe('パスワードは6文字以上で入力してください');
+      expect(result.error).toBe('Password must be at least 8 characters');
     });
 
     it('should validate in order: confirmation last', () => {
       const result = validateSignupForm(
         'test@example.com',
-        'password123',
-        'different'
+        'Password1',
+        'Different1'
       );
       expect(result.error).toBe('パスワードが一致しません');
     });

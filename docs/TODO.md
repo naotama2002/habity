@@ -164,7 +164,7 @@
 - [ ] スケジュール設定
 - [ ] 時間帯設定
 - [ ] カテゴリ選択
-- [ ] バリデーション (Zod)
+- [ ] バリデーション (Zod)（※ Habitify API レスポンス検証は types.ts で導入済み）
 
 ### 1.7 Statistics 画面
 参照: docs/04-ui-design.md「5. Statistics 画面」

@@ -13,18 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/habits/StreakBadge.tsx:27
+#: src/components/habits/StreakBadge.tsx:30
 msgid "{streak} days"
 msgstr "{streak} days"
 
-#: app/(auth)/login.tsx:80
+#: app/(auth)/login.tsx:86
 #: app/(auth)/signup.tsx:118
 msgid "← Back"
 msgstr "← Back"
 
 #: app/(auth)/signup.tsx:161
-msgid "6 or more characters"
-msgstr "6 or more characters"
+msgid "8+ chars, upper/lower/digit"
+msgstr "8+ chars, upper/lower/digit"
 
 #: app/(tabs)/settings.tsx:75
 msgid "About This App"
@@ -36,7 +36,7 @@ msgstr "Active"
 
 #: app/(tabs)/habits.tsx:203
 #: app/(tabs)/habits.tsx:237
-#: app/(tabs)/index.tsx:133
+#: app/(tabs)/index.tsx:142
 msgid "Add a new habit to get started"
 msgstr "Add a new habit to get started"
 
@@ -99,7 +99,7 @@ msgstr "Click the link in the email to activate your account."
 msgid "Close"
 msgstr "Close"
 
-#: app/(tabs)/index.tsx:195
+#: app/(tabs)/index.tsx:204
 msgid "completed"
 msgstr "completed"
 
@@ -150,7 +150,7 @@ msgstr "Discard"
 msgid "Discard Changes"
 msgstr "Discard Changes"
 
-#: app/(auth)/welcome.tsx:86
+#: app/(auth)/welcome.tsx:87
 msgid "Don't have an account?"
 msgstr "Don't have an account?"
 
@@ -171,12 +171,12 @@ msgstr "Edit"
 msgid "Edit Habit"
 msgstr "Edit Habit"
 
-#: app/(auth)/login.tsx:99
+#: app/(auth)/login.tsx:105
 #: app/(auth)/signup.tsx:137
 msgid "Email"
 msgstr "Email"
 
-#: app/(auth)/login.tsx:57
+#: app/(auth)/login.tsx:63
 msgid "Email or password is incorrect"
 msgstr "Email or password is incorrect"
 
@@ -184,7 +184,7 @@ msgstr "Email or password is incorrect"
 msgid "English"
 msgstr "English"
 
-#: app/(auth)/login.tsx:84
+#: app/(auth)/login.tsx:90
 msgid "Enter your email and password"
 msgstr "Enter your email and password"
 
@@ -206,7 +206,7 @@ msgid "Export Data"
 msgstr "Export Data"
 
 #: app/(tabs)/habits.tsx:144
-#: app/(tabs)/index.tsx:107
+#: app/(tabs)/index.tsx:116
 msgid "Failed to load habits"
 msgstr "Failed to load habits"
 
@@ -308,7 +308,7 @@ msgstr "Language"
 msgid "Let's create a new account"
 msgstr "Let's create a new account"
 
-#: app/(auth)/login.tsx:59
+#: app/(auth)/login.tsx:65
 msgid "Login failed. Please try again."
 msgstr "Login failed. Please try again."
 
@@ -320,7 +320,7 @@ msgstr "Logs imported"
 msgid "Longest Streak"
 msgstr "Longest Streak"
 
-#: app/(auth)/welcome.tsx:54
+#: app/(auth)/welcome.tsx:55
 msgid "Make habits simpler"
 msgstr "Make habits simpler"
 
@@ -366,7 +366,7 @@ msgstr "Night"
 
 #: app/(tabs)/habits.tsx:201
 #: app/(tabs)/habits.tsx:232
-#: app/(tabs)/index.tsx:131
+#: app/(tabs)/index.tsx:140
 msgid "No habits yet"
 msgstr "No habits yet"
 
@@ -386,8 +386,8 @@ msgstr "Notifications"
 msgid "Optional"
 msgstr "Optional"
 
-#: app/(auth)/login.tsx:119
-#: app/(auth)/login.tsx:123
+#: app/(auth)/login.tsx:125
+#: app/(auth)/login.tsx:129
 #: app/(auth)/signup.tsx:157
 msgid "Password"
 msgstr "Password"
@@ -396,7 +396,7 @@ msgstr "Password"
 msgid "Please sign in"
 msgstr "Please sign in"
 
-#: app/(tabs)/index.tsx:108
+#: app/(tabs)/index.tsx:117
 msgid "Please try again"
 msgstr "Please try again"
 
@@ -454,17 +454,17 @@ msgstr "Select days of the month"
 msgid "Select days of the week"
 msgstr "Select days of the week"
 
-#: app/(auth)/login.tsx:82
-#: app/(auth)/login.tsx:148
+#: app/(auth)/login.tsx:88
+#: app/(auth)/login.tsx:163
 #: app/(auth)/signup.tsx:216
 msgid "Sign In"
 msgstr "Sign In"
 
-#: app/(auth)/welcome.tsx:79
+#: app/(auth)/welcome.tsx:80
 msgid "Sign in with Email"
 msgstr "Sign in with Email"
 
-#: app/(auth)/welcome.tsx:71
+#: app/(auth)/welcome.tsx:72
 msgid "Sign in with GitHub"
 msgstr "Sign in with GitHub"
 
@@ -472,7 +472,7 @@ msgstr "Sign in with GitHub"
 msgid "Sign Out"
 msgstr "Sign Out"
 
-#: app/(auth)/welcome.tsx:87
+#: app/(auth)/welcome.tsx:88
 msgid "Sign Up"
 msgstr "Sign Up"
 
@@ -530,7 +530,7 @@ msgstr "Thu"
 msgid "Time of Day"
 msgstr "Time of Day"
 
-#: app/(tabs)/index.tsx:59
+#: app/(tabs)/index.tsx:68
 #: src/components/date/DateStrip.tsx:121
 msgid "Today"
 msgstr "Today"
@@ -539,7 +539,11 @@ msgstr "Today"
 msgid "Tomorrow"
 msgstr "Tomorrow"
 
-#: app/(auth)/welcome.tsx:60
+#: app/(auth)/login.tsx:146
+msgid "Too many failed attempts. Try again in {remainingSeconds} seconds."
+msgstr "Too many failed attempts. Try again in {remainingSeconds} seconds."
+
+#: app/(auth)/welcome.tsx:61
 msgid "Track your daily habits and become a better you"
 msgstr "Track your daily habits and become a better you"
 

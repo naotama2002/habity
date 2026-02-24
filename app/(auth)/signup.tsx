@@ -158,7 +158,7 @@ export default function SignupScreen() {
                 <TextInput
                   ref={passwordRef}
                   style={styles.input}
-                  placeholder={_(msg`6 or more characters`)}
+                  placeholder={_(msg`8+ chars, upper/lower/digit`)}
                   placeholderTextColor="#9ca3af"
                   value={password}
                   onChangeText={setPassword}

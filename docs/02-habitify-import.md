@@ -149,12 +149,14 @@ Habitify API へのアクセスはクライアントサイドで直接行う。
 ```
 src/lib/habitify/
 ├── client.ts           # Habitify API クライアント
-├── types.ts            # Habitify API 型定義
-├── mapper.ts           # Habitify → Habity データ変換
-├── importer.ts         # インポートサービス（Supabase 保存）
-├── validator.ts        # API キーバリデーション
+├── types.ts            # Habitify API 型定義（Zod スキーマ + z.infer）
+├── transform.ts        # Habitify → Habity データ変換
+├── import-service.ts   # インポートサービス（Supabase 保存）
 └── __tests__/
-    └── client.test.ts  # テスト
+    ├── client.test.ts          # API クライアントテスト
+    ├── types.test.ts           # Zod スキーマテスト
+    ├── transform.test.ts       # データ変換テスト
+    └── import-service.test.ts  # インポートサービステスト
 ```
 
 ### API クライアント

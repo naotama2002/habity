@@ -118,6 +118,26 @@ describe('Habitify API client', () => {
         getHabits('test-api-key', 'http://localhost:9999'),
       ).rejects.toThrow('get habits: API returned error: Invalid API key');
     });
+
+    it('should throw on malformed habit data (Zod validation)', async () => {
+      mockFetch.mockResolvedValue(
+        jsonResponse({
+          message: 'OK',
+          data: [
+            {
+              // missing required fields like id, name, etc.
+              is_archived: 'not-a-boolean',
+            },
+          ],
+          status: true,
+          version: 'v1.2',
+        }),
+      );
+
+      await expect(
+        getHabits('test-api-key', 'http://localhost:9999'),
+      ).rejects.toThrow();
+    });
   });
 
   describe('getLogs', () => {
@@ -204,6 +224,35 @@ describe('Habitify API client', () => {
       ).rejects.toThrow(
         'get logs for habit habit-1: API returned error: Not found',
       );
+    });
+
+    it('should throw on malformed log data (Zod validation)', async () => {
+      mockFetch.mockResolvedValue(
+        jsonResponse({
+          message: 'OK',
+          data: [
+            {
+              id: 'log-1',
+              // missing habit_id, value is wrong type
+              value: 'not-a-number',
+              created_date: '2024-01-15T10:30:00+00:00',
+              unit_type: 'count',
+            },
+          ],
+          status: true,
+          version: 'v1.2',
+        }),
+      );
+
+      await expect(
+        getLogs(
+          'test-api-key',
+          'habit-1',
+          new Date(),
+          new Date(),
+          'http://localhost:9999',
+        ),
+      ).rejects.toThrow();
     });
   });
 
