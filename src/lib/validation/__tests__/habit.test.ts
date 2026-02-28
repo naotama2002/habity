@@ -5,6 +5,7 @@ import {
   validateRecurrence,
   validateTimeOfDay,
   validateStartDate,
+  validateEndDate,
   validateHabitForm,
   validateHabitFormFields,
   getDefaultHabitFormData,
@@ -231,6 +232,60 @@ describe('habit validation', () => {
     });
   });
 
+  describe('validateEndDate', () => {
+    const startDate = '2024-01-15';
+
+    it('should accept null (indefinite habit)', () => {
+      const result = validateEndDate(null, startDate);
+      expect(result.isValid).toBe(true);
+      expect(result.error).toBeNull();
+    });
+
+    it('should accept undefined (indefinite habit)', () => {
+      const result = validateEndDate(undefined, startDate);
+      expect(result.isValid).toBe(true);
+      expect(result.error).toBeNull();
+    });
+
+    it('should accept empty string (indefinite habit)', () => {
+      const result = validateEndDate('', startDate);
+      expect(result.isValid).toBe(true);
+      expect(result.error).toBeNull();
+    });
+
+    it('should accept end_date equal to start_date', () => {
+      const result = validateEndDate('2024-01-15', startDate);
+      expect(result.isValid).toBe(true);
+      expect(result.error).toBeNull();
+    });
+
+    it('should accept end_date after start_date', () => {
+      const result = validateEndDate('2024-06-30', startDate);
+      expect(result.isValid).toBe(true);
+      expect(result.error).toBeNull();
+    });
+
+    it('should reject end_date before start_date', () => {
+      const result = validateEndDate('2024-01-01', startDate);
+      expect(result.isValid).toBe(false);
+      expect(result.error).toBe('終了日は開始日以降の日付を指定してください');
+    });
+
+    const invalidFormats = ['2024/01/01', '01-01-2024', '2024-1-1', 'invalid'];
+
+    it.each(invalidFormats)('should reject invalid format: %s', (date) => {
+      const result = validateEndDate(date, startDate);
+      expect(result.isValid).toBe(false);
+      expect(result.error).toBe('有効な日付形式で入力してください（YYYY-MM-DD）');
+    });
+
+    it('should reject invalid date value', () => {
+      const result = validateEndDate('2024-13-01', startDate);
+      expect(result.isValid).toBe(false);
+      expect(result.error).toBe('有効な日付を入力してください');
+    });
+  });
+
   describe('validateHabitForm', () => {
     const validFormData: HabitFormData = {
       name: '読書',
@@ -285,6 +340,32 @@ describe('habit validation', () => {
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('日付を1つ以上選択してください');
     });
+
+    it('should accept form with valid end_date', () => {
+      const result = validateHabitForm({
+        ...validFormData,
+        end_date: '2024-12-31',
+      });
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should accept form with null end_date', () => {
+      const result = validateHabitForm({
+        ...validFormData,
+        end_date: null,
+      });
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should reject form with end_date before start_date', () => {
+      const result = validateHabitForm({
+        ...validFormData,
+        start_date: '2024-06-01',
+        end_date: '2024-01-01',
+      });
+      expect(result.isValid).toBe(false);
+      expect(result.error).toBe('終了日は開始日以降の日付を指定してください');
+    });
   });
 
   describe('validateHabitFormFields', () => {
@@ -306,6 +387,7 @@ describe('habit validation', () => {
       expect(errors.recurrence).toBeNull();
       expect(errors.time_of_day).toBeNull();
       expect(errors.start_date).toBeNull();
+      expect(errors.end_date).toBeNull();
     });
 
     it('should return errors for multiple invalid fields', () => {
@@ -352,6 +434,7 @@ describe('habit validation', () => {
       expect(defaultData.recurrence_monthdays).toEqual([]);
       expect(defaultData.recurrence_interval).toBe(1);
       expect(defaultData.time_of_day).toEqual(['anytime']);
+      expect(defaultData.end_date).toBeNull();
       expect(defaultData.status).toBe('active');
     });
 

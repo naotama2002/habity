@@ -220,6 +220,7 @@ interface HabityHabitRow {
   time_of_day: string[];
   reminder_enabled: boolean;
   start_date: string;
+  end_date: string | null;
   status: string;
   sort_order: number;
   external_id: string;

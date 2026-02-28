@@ -22,6 +22,7 @@ export interface StreakLogEntry {
 export interface StreakHabitInfo {
   recurrence_rule: string | null;
   start_date: string;
+  end_date?: string | null;
 }
 
 export interface StreakResult {
@@ -85,6 +86,15 @@ export function calculateStreak(
     : new Date();
   // 時間部分をリセット
   currentDate.setHours(0, 0, 0, 0);
+
+  // end_date が過去なら end_date から走査開始
+  if (habit.end_date) {
+    const endDate = new Date(habit.end_date + 'T00:00:00');
+    endDate.setHours(0, 0, 0, 0);
+    if (endDate < currentDate) {
+      currentDate.setTime(endDate.getTime());
+    }
+  }
 
   const startDate = new Date(habit.start_date + 'T00:00:00');
   startDate.setHours(0, 0, 0, 0);

@@ -58,6 +58,7 @@ function createMockHabit(overrides: Partial<Habit> = {}): Habit {
     reminder_times: null,
     reminder_enabled: false,
     start_date: '2024-01-01',
+    end_date: null,
     status: 'active',
     sort_order: 0,
     external_id: null,
@@ -358,6 +359,77 @@ describe('habits queries', () => {
 
         // Monday 2024-01-01 matches MO, but is before start_date
         const result = (await executeQueryFn('2024-01-01')) as Array<{id: string}>;
+        expect(result).toHaveLength(0);
+      });
+    });
+
+    describe('end_date filtering', () => {
+      it('should include habits before their end_date', async () => {
+        const habit = createMockHabit({
+          id: 'habit-end',
+          start_date: '2024-01-01',
+          end_date: '2024-06-30',
+          recurrence_rule: null,
+        });
+        setupMockChain({data: [habit], error: null}, {data: [], error: null});
+
+        const result = (await executeQueryFn('2024-03-15')) as Array<{id: string}>;
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe('habit-end');
+      });
+
+      it('should include habits on their end_date', async () => {
+        const habit = createMockHabit({
+          id: 'habit-end',
+          start_date: '2024-01-01',
+          end_date: '2024-06-30',
+          recurrence_rule: null,
+        });
+        setupMockChain({data: [habit], error: null}, {data: [], error: null});
+
+        const result = (await executeQueryFn('2024-06-30')) as Array<{id: string}>;
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe('habit-end');
+      });
+
+      it('should exclude habits after their end_date', async () => {
+        const habit = createMockHabit({
+          id: 'habit-end',
+          start_date: '2024-01-01',
+          end_date: '2024-06-30',
+          recurrence_rule: null,
+        });
+        setupMockChain({data: [habit], error: null}, {data: [], error: null});
+
+        const result = (await executeQueryFn('2024-07-01')) as Array<{id: string}>;
+        expect(result).toHaveLength(0);
+      });
+
+      it('should always show habits with null end_date (indefinite)', async () => {
+        const habit = createMockHabit({
+          id: 'habit-forever',
+          start_date: '2024-01-01',
+          end_date: null,
+          recurrence_rule: null,
+        });
+        setupMockChain({data: [habit], error: null}, {data: [], error: null});
+
+        const result = (await executeQueryFn('2030-12-31')) as Array<{id: string}>;
+        expect(result).toHaveLength(1);
+      });
+
+      it('should combine end_date and recurrence_rule filtering', async () => {
+        // Habit with weekly recurrence and end_date
+        const habit = createMockHabit({
+          id: 'habit-weekly-end',
+          start_date: '2024-01-01',
+          end_date: '2024-06-30',
+          recurrence_rule: 'RRULE:FREQ=WEEKLY;BYDAY=MO',
+        });
+        setupMockChain({data: [habit], error: null}, {data: [], error: null});
+
+        // 2024-07-01 is Monday but after end_date → should be excluded
+        const result = (await executeQueryFn('2024-07-01')) as Array<{id: string}>;
         expect(result).toHaveLength(0);
       });
     });
