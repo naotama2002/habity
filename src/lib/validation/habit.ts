@@ -21,6 +21,7 @@ export interface HabitFormData {
   recurrence_interval: number;
   time_of_day: TimeOfDay[];
   start_date: string;
+  end_date?: string | null;
   category_id?: string | null;
   reminder_times?: string[] | null;
   reminder_enabled?: boolean;
@@ -155,6 +156,22 @@ export function validateTimeOfDay(timeOfDay: TimeOfDay[]): ValidationResult {
 }
 
 /**
+ * YYYY-MM-DD 文字列が実在するカレンダー日付かを厳密に判定する。
+ * new Date('2024-02-31') のようなロールオーバーも検出して reject する。
+ */
+function isValidCalendarDate(dateStr: string): boolean {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return false;
+  // UTC パース結果が元の年月日と一致するか確認（ロールオーバー検出）
+  return (
+    date.getUTCFullYear() === y &&
+    date.getUTCMonth() + 1 === m &&
+    date.getUTCDate() === d
+  );
+}
+
+/**
  * 開始日のバリデーション
  */
 export function validateStartDate(startDate: string): ValidationResult {
@@ -174,12 +191,54 @@ export function validateStartDate(startDate: string): ValidationResult {
     };
   }
 
-  // 実際に有効な日付かチェック
-  const date = new Date(startDate);
-  if (isNaN(date.getTime())) {
+  // 実際に有効な日付かチェック（ロールオーバーも検出）
+  if (!isValidCalendarDate(startDate)) {
     return {
       isValid: false,
       error: '有効な日付を入力してください',
+    };
+  }
+
+  return {
+    isValid: true,
+    error: null,
+  };
+}
+
+/**
+ * 終了日のバリデーション
+ */
+export function validateEndDate(endDate: string | null | undefined, startDate: string): ValidationResult {
+  // NULL/空 → valid（無期限）
+  if (!endDate) {
+    return {
+      isValid: true,
+      error: null,
+    };
+  }
+
+  // ISO 8601形式（YYYY-MM-DD）のチェック
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(endDate)) {
+    return {
+      isValid: false,
+      error: '有効な日付形式で入力してください（YYYY-MM-DD）',
+    };
+  }
+
+  // 実際に有効な日付かチェック（ロールオーバーも検出）
+  if (!isValidCalendarDate(endDate)) {
+    return {
+      isValid: false,
+      error: '有効な日付を入力してください',
+    };
+  }
+
+  // end_date >= start_date チェック
+  if (startDate && endDate < startDate) {
+    return {
+      isValid: false,
+      error: '終了日は開始日以降の日付を指定してください',
     };
   }
 
@@ -232,6 +291,12 @@ export function validateHabitForm(data: HabitFormData): ValidationResult {
     return startDateResult;
   }
 
+  // 終了日
+  const endDateResult = validateEndDate(data.end_date, data.start_date);
+  if (!endDateResult.isValid) {
+    return endDateResult;
+  }
+
   return {
     isValid: true,
     error: null,
@@ -253,6 +318,7 @@ export function validateHabitFormFields(data: HabitFormData): Record<string, str
     ).error,
     time_of_day: validateTimeOfDay(data.time_of_day).error,
     start_date: validateStartDate(data.start_date).error,
+    end_date: validateEndDate(data.end_date, data.start_date).error,
   };
 }
 
@@ -271,6 +337,7 @@ export function getDefaultHabitFormData(): HabitFormData {
     recurrence_interval: 1,
     time_of_day: ['anytime'],
     start_date: today,
+    end_date: null,
     category_id: null,
     reminder_times: null,
     reminder_enabled: false,

@@ -20,6 +20,7 @@ export interface HabityHabit {
   time_of_day: string[];
   reminder_enabled: boolean;
   start_date: string;
+  end_date: string | null;
   status: string;
   sort_order: number;
   external_id: string;
@@ -70,6 +71,7 @@ export function transformHabit(
     time_of_day: timeOfDay,
     reminder_enabled: false,
     start_date: startDate,
+    end_date: null,
     status,
     sort_order: safePriorityToInt(h.priority),
     external_id: h.id,

@@ -70,11 +70,11 @@ msgstr "アーカイブする"
 msgid "Archived"
 msgstr "アーカイブ"
 
-#: app/habit/[id]/edit.tsx:87
+#: app/habit/[id]/edit.tsx:88
 msgid "Back"
 msgstr "戻る"
 
-#: src/components/forms/HabitForm.tsx:353
+#: src/components/forms/HabitForm.tsx:395
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -115,7 +115,7 @@ msgstr "習慣別達成率"
 msgid "Confirm Password"
 msgstr "パスワード（確認）"
 
-#: src/components/forms/HabitForm.tsx:375
+#: src/components/forms/HabitForm.tsx:417
 msgid "Continue Editing"
 msgstr "編集を続ける"
 
@@ -138,15 +138,15 @@ msgstr "データ"
 msgid "days"
 msgstr "日ごと"
 
-#: src/components/forms/HabitForm.tsx:261
+#: src/components/forms/HabitForm.tsx:262
 msgid "Description"
 msgstr "説明"
 
-#: src/components/forms/HabitForm.tsx:374
+#: src/components/forms/HabitForm.tsx:416
 msgid "Discard"
 msgstr "破棄"
 
-#: src/components/forms/HabitForm.tsx:372
+#: src/components/forms/HabitForm.tsx:414
 msgid "Discard Changes"
 msgstr "変更を破棄"
 
@@ -158,7 +158,7 @@ msgstr "アカウントをお持ちでない方は"
 msgid "Done"
 msgstr "完了"
 
-#: src/components/forms/HabitForm.tsx:253
+#: src/components/forms/HabitForm.tsx:254
 msgid "e.g., Reading, Exercise, Meditation"
 msgstr "例: 読書、運動、瞑想"
 
@@ -166,8 +166,8 @@ msgstr "例: 読書、運動、瞑想"
 msgid "Edit"
 msgstr "編集"
 
-#: app/habit/[id]/edit.tsx:81
-#: app/habit/[id]/edit.tsx:115
+#: app/habit/[id]/edit.tsx:82
+#: app/habit/[id]/edit.tsx:117
 msgid "Edit Habit"
 msgstr "習慣を編集"
 
@@ -179,6 +179,10 @@ msgstr "メールアドレス"
 #: app/(auth)/login.tsx:63
 msgid "Email or password is incorrect"
 msgstr "メールアドレスまたはパスワードが間違っています"
+
+#: src/components/forms/HabitForm.tsx:356
+msgid "End Date"
+msgstr "終了日"
 
 #: app/(tabs)/settings.tsx:24
 msgid "English"
@@ -192,7 +196,7 @@ msgstr "メールアドレスとパスワードを入力してください"
 msgid "Enter your Habitify API key"
 msgstr "Habitify の API キーを入力"
 
-#: src/components/forms/HabitForm.tsx:207
+#: src/components/forms/HabitForm.tsx:208
 msgid "Error"
 msgstr "エラー"
 
@@ -210,7 +214,7 @@ msgstr "データエクスポート"
 msgid "Failed to load habits"
 msgstr "習慣の読み込みに失敗しました"
 
-#: src/components/forms/HabitForm.tsx:201
+#: src/components/forms/HabitForm.tsx:202
 msgid "Failed to save. Please try again."
 msgstr "保存に失敗しました。もう一度お試しください。"
 
@@ -235,11 +239,11 @@ msgstr "サインインへ"
 msgid "Guest User"
 msgstr "ゲストユーザー"
 
-#: src/components/forms/HabitForm.tsx:245
+#: src/components/forms/HabitForm.tsx:246
 msgid "Habit Name"
 msgstr "習慣名"
 
-#: app/habit/[id]/edit.tsx:85
+#: app/habit/[id]/edit.tsx:86
 msgid "Habit not found"
 msgstr "習慣が見つかりません"
 
@@ -351,11 +355,11 @@ msgstr "毎月"
 msgid "Morning"
 msgstr "朝"
 
-#: src/components/forms/HabitForm.tsx:312
+#: src/components/forms/HabitForm.tsx:313
 msgid "Multiple selection allowed"
 msgstr "複数選択可"
 
-#: app/habit/new.tsx:67
+#: app/habit/new.tsx:68
 msgid "New Habit"
 msgstr "新しい習慣"
 
@@ -374,7 +378,7 @@ msgstr "習慣がありません"
 msgid "No search results"
 msgstr "検索結果がありません"
 
-#: src/components/forms/HabitForm.tsx:263
+#: src/components/forms/HabitForm.tsx:264
 msgid "Note the purpose or rules of the habit"
 msgstr "習慣の目的やルールをメモ"
 
@@ -382,9 +386,13 @@ msgstr "習慣の目的やルールをメモ"
 msgid "Notifications"
 msgstr "通知"
 
-#: src/components/forms/HabitForm.tsx:269
+#: src/components/forms/HabitForm.tsx:270
 msgid "Optional"
 msgstr "任意"
+
+#: src/components/forms/HabitForm.tsx:358
+msgid "Optional. Leave empty for an ongoing habit."
+msgstr "任意。設定しない場合、習慣は無期限に続きます。"
 
 #: app/(auth)/login.tsx:125
 #: app/(auth)/login.tsx:129
@@ -404,7 +412,7 @@ msgstr "もう一度お試しください"
 msgid "Re-enter password"
 msgstr "パスワードを再入力"
 
-#: src/components/forms/HabitForm.tsx:279
+#: src/components/forms/HabitForm.tsx:280
 msgid "Recurrence"
 msgstr "繰り返し"
 
@@ -425,11 +433,11 @@ msgstr "スキップを解除"
 msgid "Sat"
 msgstr "土"
 
-#: src/components/forms/HabitForm.tsx:364
+#: src/components/forms/HabitForm.tsx:406
 msgid "Save"
 msgstr "保存"
 
-#: src/components/forms/HabitForm.tsx:364
+#: src/components/forms/HabitForm.tsx:406
 msgid "Saving..."
 msgstr "保存中..."
 
@@ -488,7 +496,7 @@ msgstr "スキップ済み"
 msgid "Some items could not be imported"
 msgstr "一部のデータをインポートできませんでした"
 
-#: src/components/forms/HabitForm.tsx:323
+#: src/components/forms/HabitForm.tsx:324
 msgid "Start Date"
 msgstr "開始日"
 
@@ -526,7 +534,7 @@ msgstr "このメールアドレスは既に登録されています"
 msgid "Thu"
 msgstr "木"
 
-#: src/components/forms/HabitForm.tsx:309
+#: src/components/forms/HabitForm.tsx:310
 msgid "Time of Day"
 msgstr "実行する時間帯"
 
@@ -586,6 +594,6 @@ msgstr "毎週"
 msgid "Weekly Completion Rate"
 msgstr "週間達成率"
 
-#: src/components/forms/HabitForm.tsx:373
+#: src/components/forms/HabitForm.tsx:415
 msgid "Your input will not be saved. Are you sure?"
 msgstr "入力した内容は保存されません。よろしいですか？"

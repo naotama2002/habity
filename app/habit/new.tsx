@@ -31,6 +31,7 @@ export default function NewHabitScreen() {
       goal_period: data.goal_period,
       time_of_day: data.time_of_day,
       start_date: data.start_date,
+      end_date: data.end_date,
       category_id: data.category_id,
       recurrence_rule: data.recurrence_rule,
       reminder_times: data.reminder_times,

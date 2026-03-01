@@ -326,6 +326,94 @@ describe('HabitForm', () => {
     });
   });
 
+  describe('end date', () => {
+    it('should render End Date field', () => {
+      render(
+        <HabitForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      expect(screen.getByText('End Date')).toBeTruthy();
+      expect(screen.getByText('Optional. Leave empty for an ongoing habit.')).toBeTruthy();
+    });
+
+    it('should render end date input with initial value', () => {
+      const { root } = render(
+        <HabitForm
+          initialValues={{
+            name: 'Test Habit',
+            start_date: '2025-01-01',
+            end_date: '2025-12-31',
+          }}
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Find date inputs (start_date and end_date)
+      const dateInputs = root.findAll((node: {type: string | React.ComponentType}) => node.type === 'input');
+      const endDateInput = dateInputs[1]; // second date input
+      expect(endDateInput.props.value).toBe('2025-12-31');
+    });
+
+    it('should submit null when end date is not set', async () => {
+      mockOnSubmit.mockResolvedValue(undefined);
+
+      render(
+        <HabitForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Test Habit');
+      fireEvent.press(screen.getByText('Save'));
+
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      const submittedData = mockOnSubmit.mock.calls[0][0];
+      expect(submittedData.end_date).toBeNull();
+    });
+
+    it('should submit end_date value when set', async () => {
+      mockOnSubmit.mockResolvedValue(undefined);
+
+      const { root } = render(
+        <HabitForm
+          initialValues={{
+            start_date: '2025-01-01',
+          }}
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Test Habit');
+
+      // Set end date
+      const dateInputs = root.findAll((node: {type: string | React.ComponentType}) => node.type === 'input');
+      const endDateInput = dateInputs[1];
+      act(() => {
+        endDateInput.props.onChange({ target: { value: '2025-06-30' } });
+      });
+
+      fireEvent.press(screen.getByText('Save'));
+
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      const submittedData = mockOnSubmit.mock.calls[0][0];
+      expect(submittedData.end_date).toBe('2025-06-30');
+    });
+  });
+
   describe('recurrence picker integration', () => {
     it('should switch to weekly mode when Weekly is pressed', () => {
       render(

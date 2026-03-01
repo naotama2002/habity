@@ -73,6 +73,8 @@ export function useHabitsWithLog(date?: string) {
       const filteredHabits = habits.filter(h => {
         // 開始日より前の日付では表示しない
         if (targetDate < h.start_date) return false;
+        // 終了日を超えた日付では表示しない（end_date当日は表示する）
+        if (h.end_date && targetDate > h.end_date) return false;
         if (!h.recurrence_rule) return true;
         return isDateMatchingRRule(
           h.recurrence_rule,

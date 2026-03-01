@@ -46,6 +46,7 @@ describe('transformHabit', () => {
     expect(result.category_id).toBe('cat-uuid-1');
     expect(result.recurrence_rule).toBe('RRULE:FREQ=DAILY');
     expect(result.time_of_day).toEqual(['morning']);
+    expect(result.end_date).toBeNull();
     expect(result.sort_order).toBe(2);
   });
 

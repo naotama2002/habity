@@ -42,6 +42,7 @@ export interface HabitSubmitData {
   recurrence_rule: string;
   time_of_day: TimeOfDay[];
   start_date: string;
+  end_date: string | null;
   category_id: string | null;
   reminder_times: string[] | null;
   reminder_enabled: boolean;
@@ -187,6 +188,7 @@ export function HabitForm({
       }),
       time_of_day: formData.time_of_day,
       start_date: formData.start_date,
+      end_date: formData.end_date || null,
       category_id: formData.category_id || null,
       reminder_times: formData.reminder_times || null,
       reminder_enabled: formData.reminder_enabled ?? false,
@@ -329,6 +331,39 @@ export function HabitForm({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               updateField('start_date', e.target.value);
               touchField('start_date');
+            }}
+            style={{
+              backgroundColor: lightTheme.surfaceSecondary,
+              borderRadius: borderRadius.md,
+              paddingTop: spacing.sm,
+              paddingBottom: spacing.sm,
+              paddingLeft: spacing.md,
+              paddingRight: spacing.md,
+              fontSize: 16,
+              lineHeight: '24px',
+              color: lightTheme.text,
+              border: 'none',
+              outline: 'none',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              width: '100%',
+              boxSizing: 'border-box' as const,
+            }}
+          />
+        </FormField>
+
+        {/* 終了日 */}
+        <FormField
+          label={_(msg`End Date`)}
+          error={getFieldError('end_date')}
+          hint={_(msg`Optional. Leave empty for an ongoing habit.`)}
+        >
+          <input
+            type="date"
+            value={formData.end_date ?? ''}
+            min={formData.start_date}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              updateField('end_date', e.target.value || null);
+              touchField('end_date');
             }}
             style={{
               backgroundColor: lightTheme.surfaceSecondary,

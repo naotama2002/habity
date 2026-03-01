@@ -162,6 +162,66 @@ describe('calculateStreak', () => {
   });
 });
 
+  describe('end_date handling', () => {
+    it('end_date が過去 → end_date から走査開始', () => {
+      const habit: StreakHabitInfo = {
+        recurrence_rule: null,
+        start_date: '2024-01-01',
+        end_date: '2024-03-03',
+      };
+      const logs = makeConsecutiveLogs('2024-03-03', 3);
+      // today = 2024-03-10 だが end_date=3/3 なので 3/3 から走査
+      const result = calculateStreak(logs, habit, '2024-03-10');
+      expect(result).toEqual({count: 3, from: '2024-03-01'});
+    });
+
+    it('end_date が今日 → 通常通り', () => {
+      const habit: StreakHabitInfo = {
+        recurrence_rule: null,
+        start_date: '2024-01-01',
+        end_date: '2024-03-05',
+      };
+      const logs = makeConsecutiveLogs('2024-03-05', 3);
+      const result = calculateStreak(logs, habit, '2024-03-05');
+      expect(result).toEqual({count: 3, from: '2024-03-03'});
+    });
+
+    it('end_date が未来 → 通常通り', () => {
+      const habit: StreakHabitInfo = {
+        recurrence_rule: null,
+        start_date: '2024-01-01',
+        end_date: '2024-12-31',
+      };
+      const logs = makeConsecutiveLogs('2024-03-05', 3);
+      const result = calculateStreak(logs, habit, '2024-03-05');
+      expect(result).toEqual({count: 3, from: '2024-03-03'});
+    });
+
+    it('end_date = null → 通常通り（既存動作）', () => {
+      const habit: StreakHabitInfo = {
+        recurrence_rule: null,
+        start_date: '2024-01-01',
+        end_date: null,
+      };
+      const logs = makeConsecutiveLogs('2024-03-05', 3);
+      const result = calculateStreak(logs, habit, '2024-03-05');
+      expect(result).toEqual({count: 3, from: '2024-03-03'});
+    });
+
+    it('end_date = start_date（1日だけの習慣）', () => {
+      const habit: StreakHabitInfo = {
+        recurrence_rule: null,
+        start_date: '2024-03-01',
+        end_date: '2024-03-01',
+      };
+      const logs: StreakLogEntry[] = [
+        {target_date: '2024-03-01', status: 'completed'},
+      ];
+      const result = calculateStreak(logs, habit, '2024-03-10');
+      expect(result).toEqual({count: 1, from: '2024-03-01'});
+    });
+  });
+
 describe('calculateStreaks', () => {
   it('複数習慣のストリークを一括計算', () => {
     const logsByHabit: Record<string, StreakLogEntry[]> = {

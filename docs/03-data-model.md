@@ -36,6 +36,7 @@ Supabase PostgreSQL をデータベースとして使用。Row Level Security (R
                       │   │ time_of_day     │                 │
                       │   │ reminder_times  │                 │
                       │   │ start_date      │                 │
+                      │   │ end_date        │                 │
                       │   │ status          │                 │
                       │   │ sort_order      │                 │
                       │   │ external_id     │                 │
@@ -137,6 +138,7 @@ CREATE TABLE habits (
 
   -- 状態
   start_date DATE DEFAULT CURRENT_DATE,
+  end_date DATE DEFAULT NULL,             -- 終了日（NULLは無期限）
   status habit_status DEFAULT 'active',
   sort_order INTEGER DEFAULT 0,
 
@@ -146,7 +148,10 @@ CREATE TABLE habits (
 
   -- タイムスタンプ
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  -- CHECK制約
+  CONSTRAINT chk_habits_end_date_after_start CHECK (end_date IS NULL OR end_date >= start_date)
 );
 
 -- インデックス
@@ -412,6 +417,7 @@ export interface Habit {
   reminder_times: string[] | null;
   reminder_enabled: boolean;
   start_date: string;
+  end_date: string | null;
   status: HabitStatus;
   sort_order: number;
   external_id: string | null;

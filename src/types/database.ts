@@ -35,6 +35,7 @@ export interface Habit {
   reminder_times: string[] | null;
   reminder_enabled: boolean;
   start_date: string;
+  end_date: string | null;
   status: HabitStatus;
   sort_order: number;
   external_id: string | null;

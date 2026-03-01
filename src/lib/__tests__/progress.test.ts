@@ -20,6 +20,7 @@ function createHabit(
     reminder_times: null,
     reminder_enabled: false,
     start_date: '2024-01-01',
+    end_date: null,
     status: 'active',
     sort_order: 0,
     external_id: null,
