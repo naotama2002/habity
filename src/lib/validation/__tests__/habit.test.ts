@@ -230,6 +230,15 @@ describe('habit validation', () => {
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('有効な日付を入力してください');
     });
+
+    it.each(['2024-02-31', '2024-04-31', '2024-06-31'])(
+      'should reject rollover date: %s',
+      (date) => {
+        const result = validateStartDate(date);
+        expect(result.isValid).toBe(false);
+        expect(result.error).toBe('有効な日付を入力してください');
+      },
+    );
   });
 
   describe('validateEndDate', () => {
@@ -284,6 +293,15 @@ describe('habit validation', () => {
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('有効な日付を入力してください');
     });
+
+    it.each(['2024-02-31', '2024-04-31', '2024-06-31'])(
+      'should reject rollover date: %s',
+      (date) => {
+        const result = validateEndDate(date, '2024-01-01');
+        expect(result.isValid).toBe(false);
+        expect(result.error).toBe('有効な日付を入力してください');
+      },
+    );
   });
 
   describe('validateHabitForm', () => {

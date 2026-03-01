@@ -156,6 +156,22 @@ export function validateTimeOfDay(timeOfDay: TimeOfDay[]): ValidationResult {
 }
 
 /**
+ * YYYY-MM-DD 文字列が実在するカレンダー日付かを厳密に判定する。
+ * new Date('2024-02-31') のようなロールオーバーも検出して reject する。
+ */
+function isValidCalendarDate(dateStr: string): boolean {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return false;
+  // UTC パース結果が元の年月日と一致するか確認（ロールオーバー検出）
+  return (
+    date.getUTCFullYear() === y &&
+    date.getUTCMonth() + 1 === m &&
+    date.getUTCDate() === d
+  );
+}
+
+/**
  * 開始日のバリデーション
  */
 export function validateStartDate(startDate: string): ValidationResult {
@@ -175,9 +191,8 @@ export function validateStartDate(startDate: string): ValidationResult {
     };
   }
 
-  // 実際に有効な日付かチェック
-  const date = new Date(startDate);
-  if (isNaN(date.getTime())) {
+  // 実際に有効な日付かチェック（ロールオーバーも検出）
+  if (!isValidCalendarDate(startDate)) {
     return {
       isValid: false,
       error: '有効な日付を入力してください',
@@ -211,9 +226,8 @@ export function validateEndDate(endDate: string | null | undefined, startDate: s
     };
   }
 
-  // 実際に有効な日付かチェック
-  const date = new Date(endDate);
-  if (isNaN(date.getTime())) {
+  // 実際に有効な日付かチェック（ロールオーバーも検出）
+  if (!isValidCalendarDate(endDate)) {
     return {
       isValid: false,
       error: '有効な日付を入力してください',

@@ -148,7 +148,10 @@ CREATE TABLE habits (
 
   -- タイムスタンプ
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  -- CHECK制約
+  CONSTRAINT chk_habits_end_date_after_start CHECK (end_date IS NULL OR end_date >= start_date)
 );
 
 -- インデックス
