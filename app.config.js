@@ -28,6 +28,7 @@ export default {
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
       enableSignup: process.env.EXPO_PUBLIC_ENABLE_SIGNUP,
+      vapidPublicKey: process.env.EXPO_PUBLIC_VAPID_PUBLIC_KEY,
     }
   }
 };

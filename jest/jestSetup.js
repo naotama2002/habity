@@ -28,6 +28,7 @@ jest.mock('expo-constants', () => ({
     extra: {
       supabaseUrl: 'http://localhost:54321',
       supabaseAnonKey: 'test-anon-key',
+      vapidPublicKey: 'test-vapid-public-key',
     },
   },
 }));
@@ -90,6 +91,16 @@ jest.mock('@/locale/i18n', () => ({
   activateLanguage: jest.fn(),
   initI18n: jest.fn(),
 }));
+
+// Service Worker & Notification API モック
+Object.defineProperty(globalThis, 'navigator', {
+  value: {
+    ...globalThis.navigator,
+    serviceWorker: undefined,
+  },
+  writable: true,
+  configurable: true,
+});
 
 // @lingui/macro - i18n マクロ
 jest.mock('@lingui/macro', () => ({

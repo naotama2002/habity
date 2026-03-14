@@ -46,7 +46,9 @@ export default function SettingsScreen() {
               label={_(msg`Appearance`)}
               value={_(msg`System`)}
             />
-            <MenuItem icon="notifications-outline" label={_(msg`Notifications`)} />
+            <Pressable onPress={() => router.navigate('/settings/notifications')}>
+              <MenuItem icon="notifications-outline" label={_(msg`Notifications`)} />
+            </Pressable>
             <MenuItem icon="language-outline" label={_(msg`Language`)} value={currentLanguage} />
             <MenuItem icon="calendar-outline" label={_(msg`Week Starts On`)} value={_(msg`Monday`)} />
           </View>

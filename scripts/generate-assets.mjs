@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ASSETS_DIR = join(__dirname, '..', 'assets');
+const PUBLIC_ASSETS_DIR = join(__dirname, '..', 'public', 'assets');
 
 // Habity のブランドカラー
 const PRIMARY_COLOR = '#6366f1';
@@ -126,9 +127,42 @@ async function generateNotificationIcon(size, filename) {
   console.log(`Created: ${filename} (${size}x${size})`);
 }
 
+/**
+ * PWA アイコンを生成
+ */
+async function generatePwaIcon(size, filename) {
+  const cornerRadius = Math.floor(size * 0.2);
+  const fontSize = Math.floor(size * 0.5);
+
+  const svg = `
+    <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="${size}" height="${size}" rx="${cornerRadius}" fill="${PRIMARY_COLOR}"/>
+      <text
+        x="50%"
+        y="50%"
+        dominant-baseline="central"
+        text-anchor="middle"
+        font-family="system-ui, -apple-system, sans-serif"
+        font-size="${fontSize}"
+        font-weight="bold"
+        fill="${WHITE}"
+      >
+        H
+      </text>
+    </svg>
+  `;
+
+  await sharp(Buffer.from(svg))
+    .png()
+    .toFile(join(PUBLIC_ASSETS_DIR, filename));
+
+  console.log(`Created: public/assets/${filename} (${size}x${size})`);
+}
+
 async function main() {
-  // assets ディレクトリを作成
+  // ディレクトリを作成
   await mkdir(ASSETS_DIR, { recursive: true });
+  await mkdir(PUBLIC_ASSETS_DIR, { recursive: true });
 
   console.log('Generating Habity assets...\n');
 
@@ -151,7 +185,11 @@ async function main() {
   // 通知アイコン (96x96)
   await generateNotificationIcon(96, 'notification-icon.png');
 
-  console.log('\nDone! Assets generated in ./assets/');
+  // PWA アイコン
+  await generatePwaIcon(192, 'icon-192.png');
+  await generatePwaIcon(512, 'icon-512.png');
+
+  console.log('\nDone! Assets generated in ./assets/ and ./public/assets/');
 }
 
 main().catch(console.error);

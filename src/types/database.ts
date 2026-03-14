@@ -65,7 +65,19 @@ export interface UserSettings {
   week_start: number;
   notifications_enabled: boolean;
   daily_reminder_time: string;
+  notification_times: string[];
   last_sync_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PushSubscription {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  user_agent: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -26,13 +26,17 @@ msgstr "← Back"
 msgid "8+ chars, upper/lower/digit"
 msgstr "8+ chars, upper/lower/digit"
 
-#: app/(tabs)/settings.tsx:75
+#: app/(tabs)/settings.tsx:77
 msgid "About This App"
 msgstr "About This App"
 
 #: app/(tabs)/habits.tsx:49
 msgid "Active"
 msgstr "Active"
+
+#: app/settings/notifications.tsx:179
+msgid "Add"
+msgstr "Add"
 
 #: app/(tabs)/habits.tsx:203
 #: app/(tabs)/habits.tsx:237
@@ -129,7 +133,7 @@ msgstr "Create Account"
 msgid "Daily"
 msgstr "Daily"
 
-#: app/(tabs)/settings.tsx:57
+#: app/(tabs)/settings.tsx:59
 msgid "Data"
 msgstr "Data"
 
@@ -205,7 +209,7 @@ msgstr "Error"
 msgid "Evening"
 msgstr "Evening"
 
-#: app/(tabs)/settings.tsx:63
+#: app/(tabs)/settings.tsx:65
 msgid "Export Data"
 msgstr "Export Data"
 
@@ -218,7 +222,7 @@ msgstr "Failed to load habits"
 msgid "Failed to save. Please try again."
 msgstr "Failed to save. Please try again."
 
-#: app/(tabs)/settings.tsx:72
+#: app/(tabs)/settings.tsx:74
 msgid "Feedback"
 msgstr "Feedback"
 
@@ -230,6 +234,10 @@ msgstr "Fri"
 #: app/(tabs)/settings.tsx:42
 msgid "General"
 msgstr "General"
+
+#: app/settings/notifications.tsx:99
+msgid "Get reminded about incomplete habits"
+msgstr "Get reminded about incomplete habits"
 
 #: app/(auth)/signup.tsx:97
 msgid "Go to Sign In"
@@ -259,7 +267,7 @@ msgstr "Habits"
 msgid "Habits imported"
 msgstr "Habits imported"
 
-#: app/(tabs)/settings.tsx:71
+#: app/(tabs)/settings.tsx:73
 msgid "Help"
 msgstr "Help"
 
@@ -275,7 +283,7 @@ msgstr "Import"
 msgid "Import Complete"
 msgstr "Import Complete"
 
-#: app/(tabs)/settings.tsx:61
+#: app/(tabs)/settings.tsx:63
 #: app/import/habitify.tsx:78
 msgid "Import from Habitify"
 msgstr "Import from Habitify"
@@ -304,7 +312,7 @@ msgstr "Interval"
 msgid "Japanese"
 msgstr "Japanese"
 
-#: app/(tabs)/settings.tsx:50
+#: app/(tabs)/settings.tsx:52
 msgid "Language"
 msgstr "Language"
 
@@ -328,7 +336,7 @@ msgstr "Longest Streak"
 msgid "Make habits simpler"
 msgstr "Make habits simpler"
 
-#: app/(tabs)/settings.tsx:59
+#: app/(tabs)/settings.tsx:61
 msgid "Manage Categories"
 msgstr "Manage Categories"
 
@@ -341,7 +349,7 @@ msgstr "Mark as incomplete"
 msgid "Mon"
 msgstr "Mon"
 
-#: app/(tabs)/settings.tsx:51
+#: app/(tabs)/settings.tsx:53
 msgid "Monday"
 msgstr "Monday"
 
@@ -382,9 +390,18 @@ msgstr "No search results"
 msgid "Note the purpose or rules of the habit"
 msgstr "Note the purpose or rules of the habit"
 
-#: app/(tabs)/settings.tsx:49
+#: app/settings/notifications.tsx:134
+msgid "Notification Times"
+msgstr "Notification Times"
+
+#: app/(tabs)/settings.tsx:50
+#: app/settings/notifications.tsx:86
 msgid "Notifications"
 msgstr "Notifications"
+
+#: app/settings/notifications.tsx:115
+msgid "Notifications are blocked. Please enable them in your browser settings."
+msgstr "Notifications are blocked. Please enable them in your browser settings."
 
 #: src/components/forms/HabitForm.tsx:270
 msgid "Optional"
@@ -407,6 +424,14 @@ msgstr "Please sign in"
 #: app/(tabs)/index.tsx:117
 msgid "Please try again"
 msgstr "Please try again"
+
+#: app/settings/notifications.tsx:96
+msgid "Push Notifications"
+msgstr "Push Notifications"
+
+#: app/settings/notifications.tsx:124
+msgid "Push notifications are not supported in this browser."
+msgstr "Push notifications are not supported in this browser."
 
 #: app/(auth)/signup.tsx:181
 msgid "Re-enter password"
@@ -476,7 +501,7 @@ msgstr "Sign in with Email"
 msgid "Sign in with GitHub"
 msgstr "Sign in with GitHub"
 
-#: app/(tabs)/settings.tsx:83
+#: app/(tabs)/settings.tsx:85
 msgid "Sign Out"
 msgstr "Sign Out"
 
@@ -513,7 +538,7 @@ msgstr "Streak will not be broken"
 msgid "Sun"
 msgstr "Sun"
 
-#: app/(tabs)/settings.tsx:69
+#: app/(tabs)/settings.tsx:71
 msgid "Support"
 msgstr "Support"
 
@@ -581,7 +606,7 @@ msgstr "We sent you a confirmation email."
 msgid "Wed"
 msgstr "Wed"
 
-#: app/(tabs)/settings.tsx:51
+#: app/(tabs)/settings.tsx:53
 msgid "Week Starts On"
 msgstr "Week Starts On"
 
@@ -593,6 +618,10 @@ msgstr "Weekly"
 #: app/(tabs)/stats.tsx:33
 msgid "Weekly Completion Rate"
 msgstr "Weekly Completion Rate"
+
+#: app/settings/notifications.tsx:186
+msgid "You can set up to 5 notification times."
+msgstr "You can set up to 5 notification times."
 
 #: src/components/forms/HabitForm.tsx:415
 msgid "Your input will not be saved. Are you sure?"

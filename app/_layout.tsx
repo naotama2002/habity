@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/react-query';
 import { SessionProvider, useSession } from '@/state/session';
 import { I18nProvider } from '@/locale';
+import { registerServiceWorker, clearAppBadge } from '@/lib/service-worker';
 
 /**
  * ナビゲーション制御コンポーネント
@@ -47,6 +48,11 @@ function NavigationController({ children }: { children: React.ReactNode }) {
  * メインレイアウトコンポーネント
  */
 function MainLayout() {
+  useEffect(() => {
+    registerServiceWorker();
+    clearAppBadge();
+  }, []);
+
   return (
     <NavigationController>
       <Stack
@@ -74,6 +80,12 @@ function MainLayout() {
           name="import/habitify"
           options={{
             presentation: 'modal',
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="settings/notifications"
+          options={{
             headerShown: false,
           }}
         />

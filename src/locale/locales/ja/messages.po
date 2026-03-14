@@ -26,13 +26,17 @@ msgstr "← 戻る"
 msgid "8+ chars, upper/lower/digit"
 msgstr "8文字以上、大文字・小文字・数字を含む"
 
-#: app/(tabs)/settings.tsx:75
+#: app/(tabs)/settings.tsx:77
 msgid "About This App"
 msgstr "このアプリについて"
 
 #: app/(tabs)/habits.tsx:49
 msgid "Active"
 msgstr "アクティブ"
+
+#: app/settings/notifications.tsx:179
+msgid "Add"
+msgstr "追加"
 
 #: app/(tabs)/habits.tsx:203
 #: app/(tabs)/habits.tsx:237
@@ -129,7 +133,7 @@ msgstr "アカウント作成"
 msgid "Daily"
 msgstr "毎日"
 
-#: app/(tabs)/settings.tsx:57
+#: app/(tabs)/settings.tsx:59
 msgid "Data"
 msgstr "データ"
 
@@ -205,7 +209,7 @@ msgstr "エラー"
 msgid "Evening"
 msgstr "夕方"
 
-#: app/(tabs)/settings.tsx:63
+#: app/(tabs)/settings.tsx:65
 msgid "Export Data"
 msgstr "データエクスポート"
 
@@ -218,7 +222,7 @@ msgstr "習慣の読み込みに失敗しました"
 msgid "Failed to save. Please try again."
 msgstr "保存に失敗しました。もう一度お試しください。"
 
-#: app/(tabs)/settings.tsx:72
+#: app/(tabs)/settings.tsx:74
 msgid "Feedback"
 msgstr "フィードバック"
 
@@ -230,6 +234,10 @@ msgstr "金"
 #: app/(tabs)/settings.tsx:42
 msgid "General"
 msgstr "一般"
+
+#: app/settings/notifications.tsx:99
+msgid "Get reminded about incomplete habits"
+msgstr "未完了の習慣をリマインドします"
 
 #: app/(auth)/signup.tsx:97
 msgid "Go to Sign In"
@@ -259,7 +267,7 @@ msgstr "習慣数"
 msgid "Habits imported"
 msgstr "インポートした習慣"
 
-#: app/(tabs)/settings.tsx:71
+#: app/(tabs)/settings.tsx:73
 msgid "Help"
 msgstr "ヘルプ"
 
@@ -275,7 +283,7 @@ msgstr "インポート"
 msgid "Import Complete"
 msgstr "インポート完了"
 
-#: app/(tabs)/settings.tsx:61
+#: app/(tabs)/settings.tsx:63
 #: app/import/habitify.tsx:78
 msgid "Import from Habitify"
 msgstr "Habitify からインポート"
@@ -304,7 +312,7 @@ msgstr "間隔"
 msgid "Japanese"
 msgstr "日本語"
 
-#: app/(tabs)/settings.tsx:50
+#: app/(tabs)/settings.tsx:52
 msgid "Language"
 msgstr "言語"
 
@@ -328,7 +336,7 @@ msgstr "最長連続"
 msgid "Make habits simpler"
 msgstr "習慣を、もっとシンプルに"
 
-#: app/(tabs)/settings.tsx:59
+#: app/(tabs)/settings.tsx:61
 msgid "Manage Categories"
 msgstr "カテゴリ管理"
 
@@ -341,7 +349,7 @@ msgstr "未完了にする"
 msgid "Mon"
 msgstr "月"
 
-#: app/(tabs)/settings.tsx:51
+#: app/(tabs)/settings.tsx:53
 msgid "Monday"
 msgstr "月曜"
 
@@ -382,9 +390,18 @@ msgstr "検索結果がありません"
 msgid "Note the purpose or rules of the habit"
 msgstr "習慣の目的やルールをメモ"
 
-#: app/(tabs)/settings.tsx:49
+#: app/settings/notifications.tsx:134
+msgid "Notification Times"
+msgstr "通知時刻"
+
+#: app/(tabs)/settings.tsx:50
+#: app/settings/notifications.tsx:86
 msgid "Notifications"
 msgstr "通知"
+
+#: app/settings/notifications.tsx:115
+msgid "Notifications are blocked. Please enable them in your browser settings."
+msgstr "通知がブロックされています。ブラウザの設定から有効にしてください。"
 
 #: src/components/forms/HabitForm.tsx:270
 msgid "Optional"
@@ -407,6 +424,14 @@ msgstr "ログインしてください"
 #: app/(tabs)/index.tsx:117
 msgid "Please try again"
 msgstr "もう一度お試しください"
+
+#: app/settings/notifications.tsx:96
+msgid "Push Notifications"
+msgstr "プッシュ通知"
+
+#: app/settings/notifications.tsx:124
+msgid "Push notifications are not supported in this browser."
+msgstr "このブラウザではプッシュ通知に対応していません。"
 
 #: app/(auth)/signup.tsx:181
 msgid "Re-enter password"
@@ -476,7 +501,7 @@ msgstr "メールでサインイン"
 msgid "Sign in with GitHub"
 msgstr "GitHub でサインイン"
 
-#: app/(tabs)/settings.tsx:83
+#: app/(tabs)/settings.tsx:85
 msgid "Sign Out"
 msgstr "ログアウト"
 
@@ -513,7 +538,7 @@ msgstr "ストリークは途切れません"
 msgid "Sun"
 msgstr "日"
 
-#: app/(tabs)/settings.tsx:69
+#: app/(tabs)/settings.tsx:71
 msgid "Support"
 msgstr "サポート"
 
@@ -581,7 +606,7 @@ msgstr "確認メールを送信しました。"
 msgid "Wed"
 msgstr "水"
 
-#: app/(tabs)/settings.tsx:51
+#: app/(tabs)/settings.tsx:53
 msgid "Week Starts On"
 msgstr "週の開始日"
 
@@ -593,6 +618,10 @@ msgstr "毎週"
 #: app/(tabs)/stats.tsx:33
 msgid "Weekly Completion Rate"
 msgstr "週間達成率"
+
+#: app/settings/notifications.tsx:186
+msgid "You can set up to 5 notification times."
+msgstr "通知時刻は最大5件まで設定できます。"
 
 #: src/components/forms/HabitForm.tsx:415
 msgid "Your input will not be saved. Are you sure?"
