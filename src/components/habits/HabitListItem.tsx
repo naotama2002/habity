@@ -6,14 +6,11 @@ import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
 import {spacing, borderRadius, shadows} from '@/lib/spacing';
 import {parseRRule} from '@/lib/recurrence';
-import {StreakBadge} from './StreakBadge';
 import type {Habit} from '@/types/database';
 
 interface HabitListItemProps {
   /** 習慣データ */
   habit: Habit;
-  /** ストリーク日数 */
-  streak?: number;
   /** タップ時のコールバック */
   onPress?: (habit: Habit) => void;
   /** 編集モード */
@@ -34,7 +31,6 @@ interface HabitListItemProps {
  */
 export function HabitListItem({
   habit,
-  streak = 0,
   onPress,
   editMode = false,
   isArchived = false,
@@ -117,8 +113,6 @@ export function HabitListItem({
 
         {!editMode && (
           <View style={styles.right}>
-            {streak > 0 && <StreakBadge streak={streak} />}
-
             {/* アクションメニュー（⋮ボタン） */}
             <View style={styles.actionAnchor}>
               <Pressable

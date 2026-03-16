@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,6 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useHabits, useReorderHabits, useArchiveHabit, useUnarchiveHabit } from '@/state/queries/habits';
-import { useHabitStreaks } from '@/state/queries/streaks';
 import { HabitListItem } from '@/components/habits';
 import { SearchInput, SegmentedControl, SortableList } from '@/components/ui';
 import { colors, lightTheme } from '@/lib/colors';
@@ -55,18 +54,6 @@ export default function HabitsScreen() {
     filter === 'all' ? undefined : filter === 'active' ? 'active' : 'archived';
 
   const { data: habits, isLoading, error } = useHabits(statusFilter);
-
-  // ストリーク計算用データ
-  const habitIds = useMemo(() =>
-    habits?.map(h => h.id) ?? [], [habits]);
-  const {data: streaks} = useHabitStreaks(habitIds);
-
-  // ストリークデータを安定化（クエリ再取得中の一時的な undefined を防ぐ）
-  const lastStreaksRef = useRef(streaks);
-  if (streaks) {
-    lastStreaksRef.current = streaks;
-  }
-  const stableStreaks = streaks ?? lastStreaksRef.current;
 
   // 検索フィルタリング
   const filteredHabits = useMemo(() => {
@@ -255,7 +242,6 @@ export default function HabitsScreen() {
                       >
                         <HabitListItem
                           habit={habit}
-                          streak={stableStreaks?.[habit.id]?.count ?? 0}
                           onPress={handlePressHabit}
                           isArchived={habit.status === 'archived'}
                           onArchive={() => archiveHabit.mutate(habit.id)}
@@ -290,7 +276,6 @@ export default function HabitsScreen() {
                       >
                         <HabitListItem
                           habit={habit}
-                          streak={stableStreaks?.[habit.id]?.count ?? 0}
                           onPress={handlePressHabit}
                           isArchived={habit.status === 'archived'}
                           onArchive={() => archiveHabit.mutate(habit.id)}
