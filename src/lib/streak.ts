@@ -10,6 +10,9 @@
  * - 対象日に completed ログあり → streak++
  * - 対象日に skipped ログあり → ストリーク維持（インクリメントなし）
  * - 対象日にログなし → ストリーク途切れ（終了）
+ *
+ * Today 画面のプレビュー表示では、今日以降の未記録日をまたいで
+ * 「直近の継続中ストリーク」を薄表示するための補助関数も提供する。
  */
 
 import {isDateMatchingRRule} from './recurrence';
@@ -50,6 +53,12 @@ function formatDate(date: Date): string {
  */
 function subtractOneDay(date: Date): void {
   date.setDate(date.getDate() - 1);
+}
+
+function atStartOfDay(date: Date): Date {
+  const clone = new Date(date);
+  clone.setHours(0, 0, 0, 0);
+  return clone;
 }
 
 /**
@@ -134,6 +143,53 @@ export function calculateStreak(
   }
 
   return {count: streak, from: streak > 0 ? fromDate : null};
+}
+
+/**
+ * Today 画面向けの表示用ストリーク計算
+ *
+ * selectedDate が今日以降で、かつその日にまだログがない場合は、
+ * 未記録の対象日を現在日まで遡ってスキップし、直近の継続中ストリークを返す。
+ */
+export function calculateDisplayStreak(
+  logs: StreakLogEntry[],
+  habit: StreakHabitInfo,
+  selectedDate: string,
+  actualToday?: string,
+): StreakResult {
+  const logMap = new Map<string, 'completed' | 'skipped'>();
+  for (const log of logs) {
+    logMap.set(log.target_date, log.status);
+  }
+
+  const currentDate = atStartOfDay(
+    actualToday ? new Date(actualToday + 'T00:00:00') : new Date(),
+  );
+  const previewDate = atStartOfDay(new Date(selectedDate + 'T00:00:00'));
+  const startDate = atStartOfDay(new Date(habit.start_date + 'T00:00:00'));
+
+  if (habit.end_date) {
+    const endDate = atStartOfDay(new Date(habit.end_date + 'T00:00:00'));
+    if (endDate < previewDate) {
+      previewDate.setTime(endDate.getTime());
+    }
+  }
+
+  while (previewDate >= currentDate && previewDate >= startDate) {
+    const dateStr = formatDate(previewDate);
+    if (!isScheduledDate(previewDate, habit)) {
+      subtractOneDay(previewDate);
+      continue;
+    }
+
+    if (logMap.has(dateStr)) {
+      break;
+    }
+
+    subtractOneDay(previewDate);
+  }
+
+  return calculateStreak(logs, habit, formatDate(previewDate));
 }
 
 /**

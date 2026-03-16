@@ -43,7 +43,13 @@ export default function TodayScreen() {
   // ストリーク計算用データ
   const habitIds = useMemo(() =>
     habits?.map(h => h.id) ?? [], [habits]);
-  const {data: streaks} = useHabitStreaks(habitIds);
+  const todayDate = format(new Date(), 'yyyy-MM-dd');
+  const shouldPreviewPendingStreak = selectedDate >= todayDate;
+  const {data: streaks} = useHabitStreaks(
+    habitIds,
+    selectedDate,
+    shouldPreviewPendingStreak,
+  );
 
   // ストリークデータを安定化（クエリ再取得中の一時的な undefined を防ぐ）
   const lastStreaksRef = useRef(streaks);

@@ -10,8 +10,14 @@ export type {StreakResult};
 
 export const streakKeys = {
   all: ['streaks'] as const,
-  byHabits: (habitIds: string[]) =>
-    [...streakKeys.all, 'byHabits', ...habitIds.sort()] as const,
+  byHabits: (habitIds: string[], referenceDate: string, previewPending: boolean) =>
+    [
+      ...streakKeys.all,
+      'byHabits',
+      referenceDate,
+      previewPending ? 'preview' : 'strict',
+      ...habitIds.sort(),
+    ] as const,
 };
 
 // ===========================================
@@ -28,13 +34,18 @@ function formatLocalDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-export function useHabitStreaks(habitIds: string[]) {
+export function useHabitStreaks(
+  habitIds: string[],
+  referenceDate = formatLocalDate(new Date()),
+  previewPending = false,
+) {
   return useQuery({
-    queryKey: streakKeys.byHabits(habitIds),
+    queryKey: streakKeys.byHabits(habitIds, referenceDate, previewPending),
     queryFn: async () => {
       const {data, error} = await supabase.rpc('calculate_streaks', {
         p_habit_ids: habitIds,
-        p_today: formatLocalDate(new Date()),
+        p_today: referenceDate,
+        p_preview_pending: previewPending,
       });
       if (error) throw error;
 
