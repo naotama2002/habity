@@ -114,8 +114,8 @@ mise install
 # 環境変数設定
 cp .env.example .env
 
-# Docker で全サービス起動
-docker compose up -d
+# Supabase 起動
+supabase start
 
 # 依存パッケージインストール
 pnpm install

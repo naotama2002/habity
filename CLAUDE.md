@@ -83,15 +83,18 @@
 # 環境セットアップ
 mise install
 pnpm install
-docker compose up -d
+supabase start
 
 # 開発サーバー
 pnpm web       # Web
 
+# Supabase 停止
+supabase stop
+
 # マイグレーション
-supabase migration new <name>                                                    # 新規作成
-supabase db push --db-url "postgresql://postgres:postgres@localhost:5432/postgres" # ローカル適用
-supabase migration list --db-url "postgresql://postgres:postgres@localhost:5432/postgres" # 状態確認
+supabase migration new <name>       # 新規作成
+supabase db push --local            # ローカル適用
+supabase migration list --local     # 状態確認
 
 # 品質チェック
 pnpm lint

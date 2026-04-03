@@ -13,6 +13,7 @@ web-build/
 
 # Environment variables
 .env
+.envrc
 .env.deploy
 .env.local
 .env.*.local
@@ -43,6 +44,7 @@ temp/
 
 # Supabase CLI
 supabase/.temp/
+supabase/.branches/
 
 # Claude Code
 .claude/*

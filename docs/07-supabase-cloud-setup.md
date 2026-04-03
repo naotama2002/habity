@@ -2,7 +2,7 @@
 
 ## 概要
 
-ローカル開発環境では docker-compose で Supabase の全サービス（PostgreSQL, Auth, REST, Realtime, Storage, Studio, Kong）を動かしている。
+ローカル開発環境では `supabase start` で Supabase の全サービス（PostgreSQL, Auth, REST, Realtime, Storage, Studio）を動かしている。
 本番環境や共有開発環境では、Supabase をクラウド（Supabase Cloud またはセルフホスト）に外だしする。
 Web フロントエンドは Cloudflare Pages にデプロイする（詳細は [08-cloudflare-pages-deploy.md](./08-cloudflare-pages-deploy.md)）。
 
@@ -10,7 +10,7 @@ Web フロントエンドは Cloudflare Pages にデプロイする（詳細は 
 
 ```
 [ローカル開発 - 現在]
-docker-compose: DB + Auth + REST + Realtime + Storage + Kong + Studio
+supabase start: DB + Auth + REST + Realtime + Storage + Studio
 Web App:        localhost を参照
 
 [本番デプロイ]
@@ -77,8 +77,8 @@ supabase migration list --db-url "$DB_URL"
 ### 2-3. 注意事項
 
 - 直接接続（`db.xxx.supabase.co:5432`）は IPv6 環境で失敗する場合がある。**Pooler URI（port 6543）を使うこと**。
-- ローカルの `supabase/post-init.sh` で行っているロールのパスワード設定・auth 関数の所有権修正は **不要**。Supabase Cloud が管理する。
-- `docker-entrypoint-initdb.d` の仕組みも関係ない。マイグレーションは `supabase db push` のみで管理する。
+- ローカルで `supabase start` が自動設定するロールやスキーマは Supabase Cloud が管理するため設定不要。
+- マイグレーションは `supabase db push` のみで管理する。
 
 ---
 
@@ -100,7 +100,7 @@ supabase migration list --db-url "$DB_URL"
 
 | 項目 | ローカル（`.env`） | デプロイ（Cloudflare Pages） |
 |------|-------------------|--------------------------|
-| DB 接続 | docker-compose 内の PostgreSQL | Supabase Cloud Pooler（port 6543） |
+| DB 接続 | `supabase start` の PostgreSQL | Supabase Cloud Pooler（port 6543） |
 | Supabase URL | `http://localhost:54321` | `https://<ref>.supabase.co` |
 | フロントエンドの環境注入 | `EXPO_PUBLIC_*` で直接参照 | Cloudflare Pages の環境変数 |
 

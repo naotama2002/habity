@@ -436,8 +436,8 @@ pnpm install
 # 4. 環境変数設定
 cp .env.example .env
 
-# 5. Docker で全サービス起動
-docker compose up -d
+# 5. Supabase 起動
+supabase start
 
 # 6. 開発サーバー起動
 pnpm web          # Web 版

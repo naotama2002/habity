@@ -61,9 +61,8 @@
 - [x] .mise.toml (mise / Supabase CLI 含む)
 - [x] .env.example
 
-### Docker / インフラ
-- [x] docker-compose.yml (Supabase フルスタック)
-- [x] supabase/kong.yml (API Gateway設定)
+### Supabase ローカル環境
+- [x] supabase/config.toml (Supabase CLI 設定)
 
 ### データベース
 - [x] supabase/migrations/20240101000000_init.sql
