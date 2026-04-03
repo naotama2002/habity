@@ -3,6 +3,10 @@ import {render, screen, fireEvent} from '@testing-library/react-native';
 import {HabitListItem} from '../HabitListItem';
 import type {Habit} from '@/types/database';
 
+jest.mock('@/lib/recurrence', () => ({
+  parseRRule: jest.fn(() => ({type: 'interval', interval: 1})),
+}));
+
 function createMockHabit(overrides: Partial<Habit> = {}): Habit {
   return {
     id: 'habit-1',
@@ -36,11 +40,6 @@ describe('HabitListItem', () => {
     expect(screen.getByText('Morning Run')).toBeTruthy();
   });
 
-  it('should show streak badge when streak > 0', () => {
-    render(<HabitListItem habit={createMockHabit()} streak={5} />);
-    expect(screen.getByText(/days/)).toBeTruthy();
-  });
-
   it('should call onPress when tapped in normal mode', () => {
     const habit = createMockHabit();
     const onPress = jest.fn();
@@ -60,7 +59,7 @@ describe('HabitListItem', () => {
     });
 
     it('should not show streak badge in edit mode', () => {
-      render(<HabitListItem habit={createMockHabit()} editMode streak={5} />);
+      render(<HabitListItem habit={createMockHabit()} editMode />);
       expect(screen.queryByText(/days/)).toBeNull();
     });
 

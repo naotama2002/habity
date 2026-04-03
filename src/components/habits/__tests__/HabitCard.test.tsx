@@ -1,6 +1,6 @@
 import {describe, expect, it, jest} from '@jest/globals';
 import {render, screen, fireEvent, waitFor} from '@testing-library/react-native';
-import {Linking} from 'react-native';
+import {Linking, StyleSheet} from 'react-native';
 import {HabitCard} from '../HabitCard';
 import type {HabitWithLog} from '@/types/database';
 
@@ -122,6 +122,28 @@ describe('HabitCard', () => {
 
     // サーバー応答前にチェックマークが即座に表示される
     expect(screen.getByText('✓')).toBeTruthy();
+  });
+
+  it('should render streak badge as inactive when today is not completed', () => {
+    const habit = createMockHabitWithLog({is_completed: false, is_skipped: false});
+    render(<HabitCard habit={habit} streak={5} />);
+
+    const streakText = screen.getByTestId('habit-streak-badge-text');
+    expect(StyleSheet.flatten(streakText.props.style)).toMatchObject({
+      color: '#9ca3af',
+    });
+  });
+
+  it('should render streak badge as active immediately after checking today', () => {
+    const habit = createMockHabitWithLog({is_completed: false, is_skipped: false});
+    render(<HabitCard habit={habit} streak={5} onToggle={jest.fn()} />);
+
+    fireEvent.press(screen.getByTestId('habit-checkbox'));
+
+    const streakText = screen.getByTestId('habit-streak-badge-text');
+    expect(StyleSheet.flatten(streakText.props.style)).toMatchObject({
+      color: '#f97316',
+    });
   });
 
   it('should hide checkmark immediately on uncomplete toggle (optimistic update)', () => {

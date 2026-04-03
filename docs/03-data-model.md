@@ -345,7 +345,7 @@ const logs = await supabase.from('habit_logs').select('*').in('habit_id', habitI
 ### ストリーク計算（サーバーサイド RPC）
 
 ストリーク計算はサーバーサイド RPC `calculate_streaks()` で実行される。
-クライアント側（`src/state/queries/streaks.ts` の `useHabitStreaks()`）は RPC を呼び出し、結果をマッピングする。
+クライアント側（`src/state/queries/streaks.ts` の `useHabitStreaks()`）は、表示対象の日付とプレビュー要否を渡して RPC を呼び出し、結果をマッピングする。
 
 `src/lib/streak.ts` のクライアント側実装は、アルゴリズムの参照用およびテスト目的のみ。
 
@@ -361,7 +361,8 @@ LANGUAGE plpgsql IMMUTABLE;
 -- メイン RPC: 複数習慣のストリーク一括計算
 CREATE OR REPLACE FUNCTION calculate_streaks(
   p_habit_ids UUID[],
-  p_today DATE DEFAULT CURRENT_DATE
+  p_today DATE DEFAULT CURRENT_DATE,
+  p_preview_pending BOOLEAN DEFAULT FALSE
 ) RETURNS TABLE(habit_id UUID, streak_count INT, streak_from DATE)
 LANGUAGE plpgsql
 SECURITY INVOKER;  -- RLS 適用
@@ -374,9 +375,14 @@ SECURITY INVOKER;  -- RLS 適用
   - completed → count++, from 更新
   - skipped → from 更新（count はそのまま）
   - ログなし → break
+- `p_preview_pending = TRUE` の場合、Today 画面向けプレビューとして、今日以降の未記録なスケジュール日を直近のログがある日まで巻き戻してから走査する
 - 安全制限: 36500日（100年）
 
-詳細は `supabase/migrations/20260222120331_calculate_streaks_rpc.sql` を参照。
+用途:
+- 通常のストリーク計算: `p_preview_pending = FALSE`
+- Today 画面の今日/未来日プレビュー: `p_preview_pending = TRUE`
+
+詳細は `supabase/migrations/20260228150029_update_streaks_rpc_end_date.sql` および `supabase/migrations/20260316224000_preview_pending_streaks.sql` を参照。
 
 ---
 

@@ -1,6 +1,32 @@
-import {describe, expect, it} from '@jest/globals';
-import {calculateStreak, calculateStreaks} from '../streak';
+import {describe, expect, it, jest} from '@jest/globals';
+import {calculateDisplayStreak, calculateStreak, calculateStreaks} from '../streak';
 import type {StreakLogEntry, StreakHabitInfo} from '../streak';
+
+jest.mock('../recurrence', () => ({
+  isDateMatchingRRule: (
+    rule: string,
+    date: Date,
+    startDate: Date,
+  ) => {
+    if (rule === 'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR') {
+      return [1, 3, 5].includes(date.getDay());
+    }
+
+    if (rule === 'RRULE:FREQ=DAILY;INTERVAL=2') {
+      const oneDayMs = 24 * 60 * 60 * 1000;
+      const normalizedDate = new Date(date);
+      normalizedDate.setHours(0, 0, 0, 0);
+      const normalizedStart = new Date(startDate);
+      normalizedStart.setHours(0, 0, 0, 0);
+      const diffDays = Math.round(
+        (normalizedDate.getTime() - normalizedStart.getTime()) / oneDayMs,
+      );
+      return diffDays >= 0 && diffDays % 2 === 0;
+    }
+
+    return true;
+  },
+}));
 
 /**
  * ヘルパー: 連続する日付のログを生成
@@ -159,6 +185,38 @@ describe('calculateStreak', () => {
     ];
     const result = calculateStreak(logs, weeklyHabit, '2024-03-09');
     expect(result).toEqual({count: 2, from: '2024-03-06'});
+  });
+});
+
+describe('calculateDisplayStreak', () => {
+  it('今日が未記録なら昨日までのストリークを返す', () => {
+    const logs: StreakLogEntry[] = [
+      {target_date: '2024-03-01', status: 'completed'},
+      {target_date: '2024-02-29', status: 'completed'},
+    ];
+
+    const result = calculateDisplayStreak(logs, dailyHabit, '2024-03-02', '2024-03-02');
+    expect(result).toEqual({count: 2, from: '2024-02-29'});
+  });
+
+  it('未来日と今日が未記録でも直近の継続中ストリークを返す', () => {
+    const logs: StreakLogEntry[] = [
+      {target_date: '2024-03-01', status: 'completed'},
+      {target_date: '2024-02-29', status: 'completed'},
+    ];
+
+    const result = calculateDisplayStreak(logs, dailyHabit, '2024-03-03', '2024-03-02');
+    expect(result).toEqual({count: 2, from: '2024-02-29'});
+  });
+
+  it('過去日の未記録は通常通りストリーク切れとして扱う', () => {
+    const logs: StreakLogEntry[] = [
+      {target_date: '2024-03-01', status: 'completed'},
+      {target_date: '2024-02-29', status: 'completed'},
+    ];
+
+    const result = calculateDisplayStreak(logs, dailyHabit, '2024-03-02', '2024-03-05');
+    expect(result).toEqual({count: 0, from: null});
   });
 });
 

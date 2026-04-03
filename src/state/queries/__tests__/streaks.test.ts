@@ -22,9 +22,13 @@ import {streakKeys, useHabitStreaks} from '../streaks';
 const mockedUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
 
 // テスト用ヘルパー: useQuery に渡された queryFn を取得して実行
-function getQueryFn(habitIds: string[]) {
+function getQueryFn(
+  habitIds: string[],
+  referenceDate = '2026-03-16',
+  previewPending = false,
+) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  useHabitStreaks(habitIds);
+  useHabitStreaks(habitIds, referenceDate, previewPending);
   const call = mockedUseQuery.mock.calls[mockedUseQuery.mock.calls.length - 1];
   const opts = call[0] as unknown as {queryFn: () => Promise<unknown>};
   return opts.queryFn;
@@ -38,18 +42,22 @@ describe('streaks queries', () => {
   describe('streakKeys', () => {
     it('should generate correct query keys', () => {
       expect(streakKeys.all).toEqual(['streaks']);
-      expect(streakKeys.byHabits(['b', 'a'])).toEqual([
+      expect(streakKeys.byHabits(['b', 'a'], '2026-03-16', false)).toEqual([
         'streaks',
         'byHabits',
+        '2026-03-16',
+        'strict',
         'a',
         'b',
       ]);
     });
 
     it('should sort habit IDs for consistent cache keys', () => {
-      expect(streakKeys.byHabits(['z', 'a', 'm'])).toEqual([
+      expect(streakKeys.byHabits(['z', 'a', 'm'], '2026-03-16', true)).toEqual([
         'streaks',
         'byHabits',
+        '2026-03-16',
+        'preview',
         'a',
         'm',
         'z',
@@ -58,15 +66,16 @@ describe('streaks queries', () => {
   });
 
   describe('useHabitStreaks', () => {
-    it('should call RPC with habit_ids and today', async () => {
+    it('should call RPC with habit_ids, date, and preview flag', async () => {
       mockRpc.mockResolvedValue({data: [], error: null});
 
-      const queryFn = getQueryFn(['habit-1']);
+      const queryFn = getQueryFn(['habit-1'], '2026-03-17', true);
       await queryFn();
 
       expect(mockRpc).toHaveBeenCalledWith('calculate_streaks', {
         p_habit_ids: ['habit-1'],
-        p_today: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        p_today: '2026-03-17',
+        p_preview_pending: true,
       });
     });
 
@@ -115,7 +124,7 @@ describe('streaks queries', () => {
       mockRpc.mockResolvedValue({data: [], error: null});
 
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useHabitStreaks([]);
+      useHabitStreaks([], '2026-03-16', false);
 
       const call = mockedUseQuery.mock.calls[mockedUseQuery.mock.calls.length - 1];
       const opts = call[0] as unknown as {enabled: boolean};
@@ -126,7 +135,7 @@ describe('streaks queries', () => {
       mockRpc.mockResolvedValue({data: [], error: null});
 
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useHabitStreaks(['habit-1']);
+      useHabitStreaks(['habit-1'], '2026-03-16', false);
 
       const call = mockedUseQuery.mock.calls[mockedUseQuery.mock.calls.length - 1];
       const opts = call[0] as unknown as {staleTime: number};

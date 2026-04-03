@@ -308,7 +308,11 @@ export function HabitCard({
         )}
 
         {/* ストリーク */}
-        <StreakBadge streak={streak} inactive={!isCompleted && !isSkipped} />
+        <StreakBadge
+          testID="habit-streak-badge"
+          streak={streak}
+          inactive={!optimisticCompleted && !isSkipped}
+        />
 
         {/* アクションメニュー（⋮ボタン） */}
         <View style={styles.actionAnchor}>

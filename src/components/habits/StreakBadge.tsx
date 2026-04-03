@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet } from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import { msg } from '@lingui/macro';
-import { useLingui } from '@lingui/react';
-import { colors } from '@/lib/colors';
-import { typography } from '@/lib/typography';
+import {useLingui} from '@lingui/react';
+import {colors} from '@/lib/colors';
+import {typography} from '@/lib/typography';
 
 interface StreakBadgeProps {
   /** ストリーク日数 */
@@ -11,6 +11,8 @@ interface StreakBadgeProps {
   size?: 'sm' | 'md';
   /** 未完了状態（グレー表示） */
   inactive?: boolean;
+  /** テストID */
+  testID?: string;
 }
 
 /**
@@ -18,15 +20,28 @@ interface StreakBadgeProps {
  * 連続達成日数を炎アイコンと共に表示
  * inactive=true の場合はグレー表示（未チェック状態）
  */
-export function StreakBadge({ streak, size = 'sm', inactive = false }: StreakBadgeProps) {
-  const { _ } = useLingui();
+export function StreakBadge({
+  streak,
+  size = 'sm',
+  inactive = false,
+  testID,
+}: StreakBadgeProps) {
+  const {_} = useLingui();
 
   if (streak <= 0) return null;
 
   return (
-    <View style={[styles.container, size === 'md' && styles.containerMd]}>
-      <Text style={[styles.icon, size === 'md' && styles.iconMd, inactive && styles.iconInactive]}>🔥</Text>
-      <Text style={[styles.text, size === 'md' && styles.textMd, inactive && styles.textInactive]}>
+    <View testID={testID} style={[styles.container, size === 'md' && styles.containerMd]}>
+      <Text
+        testID={testID ? `${testID}-icon` : undefined}
+        style={[styles.icon, size === 'md' && styles.iconMd, inactive && styles.iconInactive]}
+      >
+        🔥
+      </Text>
+      <Text
+        testID={testID ? `${testID}-text` : undefined}
+        style={[styles.text, size === 'md' && styles.textMd, inactive && styles.textInactive]}
+      >
         {_(msg`${streak} days`)}
       </Text>
     </View>
