@@ -26,7 +26,7 @@ mise install
 - Node.js 24.13.0 (Active LTS)
 - pnpm 10.28.0
 - Go 1.25.6
-- Supabase CLI 2.75.0
+- Supabase CLI
 
 ### 2. 環境変数設定
 
@@ -34,10 +34,10 @@ mise install
 cp .env.example .env
 ```
 
-### 3. Docker 起動
+### 3. Supabase 起動
 
 ```bash
-docker compose up -d
+supabase start
 ```
 
 起動後のサービス:
@@ -46,8 +46,7 @@ docker compose up -d
 |---------|-----|------|
 | Supabase API | http://localhost:54321 | REST/Auth/Realtime |
 | Supabase Studio | http://localhost:54323 | 管理 UI |
-| Go Backend | http://localhost:8088 | カスタム API |
-| Inbucket | http://localhost:54324 | メールテスト |
+| Mailpit | http://localhost:54324 | メールテスト |
 
 ### 4. フロントエンド起動
 
@@ -58,14 +57,6 @@ pnpm install
 # Web 版
 pnpm web
 ```
-
-### 5. Web フロントエンド (Docker)
-
-開発環境では Web フロントエンドも Docker で配信できます。`docker compose up` に含まれる `web` サービスが nginx 経由で Expo Web ビルドを配信し、Supabase API と Go Backend へのリバースプロキシも行います。
-
-| サービス | URL | 説明 |
-|---------|-----|------|
-| Web フロントエンド | http://localhost:3000 | nginx + Expo Web ビルド |
 
 ## プロジェクト構成
 
@@ -80,12 +71,9 @@ habity/
 │   └── types/              # 型定義
 ├── backend/                # Go バックエンド
 ├── supabase/               # Supabase 設定・マイグレーション
-├── nginx/                  # nginx 設定
-│   └── default.conf        # 開発用 (Supabase プロキシあり)
-├── docker/                 # Docker 関連スクリプト
-├── docs/                   # 仕様ドキュメント
-├── Dockerfile.web          # Web フロントエンド用 Dockerfile
-└── docker-compose.yml      # 開発環境 (全スタック)
+│   ├── config.toml         # Supabase CLI 設定
+│   └── migrations/         # DB マイグレーション
+└── docs/                   # 仕様ドキュメント
 ```
 
 ## ドキュメント
@@ -108,14 +96,15 @@ habity/
 # ツール管理
 mise install              # ツールインストール
 
-# Docker (開発: Supabase + Backend)
-docker compose up -d      # 起動
-docker compose down       # 停止
-docker compose logs -f    # ログ確認
+# Supabase (ローカル開発)
+supabase start            # 起動
+supabase stop             # 停止
+supabase db reset         # DB リセット（全マイグレーション再適用）
 
-# Docker (開発: Web フロントエンドも含める場合)
-docker compose --profile web up -d
-docker compose --profile web down
+# マイグレーション
+supabase migration new <name>   # 新規作成
+supabase db push --local        # ローカル適用
+supabase migration list --local # 状態確認
 
 # フロントエンド
 pnpm install              # 依存パッケージインストール
