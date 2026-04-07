@@ -4,7 +4,7 @@ import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 global.fetch = mockFetch;
 
-import { getHabits, getLogs, validate, formatHabitifyDate } from '../client';
+import { getHabits, getStatistics, validate, formatDate } from '../client';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {
@@ -15,54 +15,70 @@ function jsonResponse(body: unknown, status = 200): Response {
   } as Response;
 }
 
-describe('Habitify API client', () => {
+const sampleHabitV2 = {
+  id: 'habit-1',
+  name: 'Morning Run',
+  icon: null,
+  colorHex: '#FF6B6B',
+  type: 'good',
+  description: null,
+  occurrence: { type: 'daily' },
+  startDate: '2024-01-01',
+  createdAt: '2024-01-01T00:00:00Z',
+  isArchived: false,
+  logMethod: 'manual',
+  goals: [
+    {
+      id: 'goal-1',
+      createdAt: '2024-01-01T00:00:00Z',
+      periodicity: 'daily',
+      value: 1,
+      unit: 'rep',
+      isActive: true,
+    },
+  ],
+  areas: [{ id: 'area-1', name: 'Health' }],
+  timeOfDays: [{ id: 'tod-1', name: 'Morning' }],
+};
+
+describe('Habitify API v2 client', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('getHabits', () => {
-    it('should fetch habits with correct auth header', async () => {
-      mockFetch.mockResolvedValue(
-        jsonResponse({
-          message: 'OK',
-          data: [
-            {
-              id: 'habit-1',
-              name: 'Morning Run',
-              is_archived: false,
-              start_date: '2024-01-01T00:00:00+00:00',
-              time_of_day: ['morning'],
-              area: { id: 'area-1', name: 'Health' },
-              recurrence: 'RRULE:FREQ=DAILY',
-              goal: { unit_type: 'count', value: 1, periodicity: 'daily' },
-              log_method: 'check',
-              priority: 1,
-              created_date: '2024-01-01T00:00:00+00:00',
-            },
-          ],
-          status: true,
-          version: 'v1.2',
-        }),
-      );
+    it('should fetch habits with X-API-Key header', async () => {
+      // First call: active habits, second call: archived habits
+      mockFetch
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [sampleHabitV2],
+            pagination: { total: 1, limit: 100, offset: 0 },
+          }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [],
+            pagination: { total: 0, limit: 100, offset: 0 },
+          }),
+        );
 
       const habits = await getHabits('test-api-key', 'http://localhost:9999');
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:9999/habits', {
-        method: 'GET',
-        headers: { Authorization: 'test-api-key' },
-      });
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('http://localhost:9999/habits?'),
+        {
+          method: 'GET',
+          headers: { 'X-API-Key': 'test-api-key' },
+        },
+      );
 
       expect(habits).toHaveLength(1);
       expect(habits[0].id).toBe('habit-1');
       expect(habits[0].name).toBe('Morning Run');
-      expect(habits[0].is_archived).toBe(false);
-      expect(habits[0].area).toEqual({ id: 'area-1', name: 'Health' });
-      expect(habits[0].goal).toEqual({
-        unit_type: 'count',
-        value: 1,
-        periodicity: 'daily',
-      });
-      expect(habits[0].log_method).toBe('check');
+      expect(habits[0].isArchived).toBe(false);
+      expect(habits[0].areas).toEqual([{ id: 'area-1', name: 'Health' }]);
+      expect(habits[0].goals).toHaveLength(1);
     });
 
     it('should throw on unauthorized response', async () => {
@@ -73,64 +89,80 @@ describe('Habitify API client', () => {
       ).rejects.toThrow('get habits: status 401');
     });
 
-    it('should handle null area and null goal', async () => {
-      mockFetch.mockResolvedValue(
-        jsonResponse({
-          message: 'OK',
-          data: [
-            {
-              id: 'habit-1',
-              name: 'Read',
-              is_archived: false,
-              start_date: '2024-01-01T00:00:00+00:00',
-              time_of_day: [],
-              area: null,
-              recurrence: 'RRULE:FREQ=DAILY',
-              goal: null,
-              log_method: 'check',
-              priority: 0,
-              created_date: '2024-01-01T00:00:00+00:00',
-            },
-          ],
-          status: true,
-          version: 'v1.2',
-        }),
-      );
+    it('should handle pagination (multiple pages)', async () => {
+      // Page 1 of active habits: 100 items
+      const page1 = Array.from({ length: 100 }, (_, i) => ({
+        ...sampleHabitV2,
+        id: `habit-${i}`,
+      }));
+      // Page 2 of active habits: 10 items
+      const page2 = Array.from({ length: 10 }, (_, i) => ({
+        ...sampleHabitV2,
+        id: `habit-${100 + i}`,
+      }));
+
+      mockFetch
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: page1,
+            pagination: { total: 110, limit: 100, offset: 0 },
+          }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: page2,
+            pagination: { total: 110, limit: 100, offset: 100 },
+          }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [],
+            pagination: { total: 0, limit: 100, offset: 0 },
+          }),
+        );
 
       const habits = await getHabits('test-api-key', 'http://localhost:9999');
 
-      expect(habits).toHaveLength(1);
-      expect(habits[0].area).toBeNull();
-      expect(habits[0].goal).toBeNull();
+      expect(habits).toHaveLength(110);
+      expect(mockFetch).toHaveBeenCalledTimes(3); // 2 pages active + 1 page archived
     });
 
-    it('should throw on API error (status false)', async () => {
-      mockFetch.mockResolvedValue(
-        jsonResponse({
-          message: 'Invalid API key',
-          data: null,
-          status: false,
-          version: 'v1.2',
-        }),
-      );
+    it('should fetch both active and archived habits', async () => {
+      const activeHabit = { ...sampleHabitV2, id: 'active-1', isArchived: false };
+      const archivedHabit = { ...sampleHabitV2, id: 'archived-1', isArchived: true };
 
-      await expect(
-        getHabits('test-api-key', 'http://localhost:9999'),
-      ).rejects.toThrow('get habits: API returned error: Invalid API key');
+      mockFetch
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [activeHabit],
+            pagination: { total: 1, limit: 100, offset: 0 },
+          }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [archivedHabit],
+            pagination: { total: 1, limit: 100, offset: 0 },
+          }),
+        );
+
+      const habits = await getHabits('test-api-key', 'http://localhost:9999');
+
+      expect(habits).toHaveLength(2);
+      expect(habits[0].id).toBe('active-1');
+      expect(habits[1].id).toBe('archived-1');
+
+      // Verify first call is for active, second for archived
+      const url1 = (mockFetch.mock.calls[0] as [string])[0];
+      const url2 = (mockFetch.mock.calls[1] as [string])[0];
+      expect(url1).toContain('archived=false');
+      expect(url2).toContain('archived=true');
     });
 
     it('should throw on malformed habit data (Zod validation)', async () => {
       mockFetch.mockResolvedValue(
         jsonResponse({
-          message: 'OK',
-          data: [
-            {
-              // missing required fields like id, name, etc.
-              is_archived: 'not-a-boolean',
-            },
-          ],
-          status: true,
-          version: 'v1.2',
+          data: [{ is_archived: 'not-a-boolean' }],
+          pagination: { total: 1, limit: 100, offset: 0 },
         }),
       );
 
@@ -140,132 +172,81 @@ describe('Habitify API client', () => {
     });
   });
 
-  describe('getLogs', () => {
-    it('should fetch logs with correct path and query parameters', async () => {
-      mockFetch.mockResolvedValue(
-        jsonResponse({
-          message: 'OK',
-          data: [
-            {
-              id: 'log-1',
-              habit_id: 'habit-1',
-              value: 1,
-              created_date: '2024-01-15T10:30:00+00:00',
-              unit_type: 'count',
-            },
-            {
-              id: 'log-2',
-              habit_id: 'habit-1',
-              value: 2.5,
-              created_date: '2024-01-16T08:00:00+00:00',
-              unit_type: 'count',
-            },
-          ],
-          status: true,
-          version: 'v1.2',
-        }),
-      );
+  describe('getStatistics', () => {
+    const sampleStats = {
+      id: 'habit-1',
+      name: 'Morning Run',
+      type: 'good',
+      totalLogs: 10,
+      skips: 2,
+      fails: 1,
+      completions: 7,
+      unit: { id: 'unit-1', name: 'Repetition', symbol: 'rep' },
+      periodicity: 'daily',
+      avg: 1.5,
+      dailyProgress: [
+        { date: '2024-01-15', totalLog: 1, status: 'completed' },
+        { date: '2024-01-16', totalLog: 0, status: 'skipped' },
+      ],
+    };
 
-      const from = new Date('2024-01-01T00:00:00Z');
-      const to = new Date('2024-01-31T00:00:00Z');
+    it('should fetch statistics with correct path', async () => {
+      mockFetch.mockResolvedValue(jsonResponse({ data: sampleStats }));
 
-      const logs = await getLogs(
+      const stats = await getStatistics(
         'test-api-key',
         'habit-1',
-        from,
-        to,
+        '2024-01-01',
+        '2024-01-31',
         'http://localhost:9999',
       );
 
-      expect(mockFetch).toHaveBeenCalledTimes(1);
       const calledUrl = (mockFetch.mock.calls[0] as [string])[0];
-      expect(calledUrl).toContain('http://localhost:9999/logs/habit-1?');
-      expect(calledUrl).toContain('from=');
-      expect(calledUrl).toContain('to=');
+      expect(calledUrl).toContain('/habits/habit-1/statistics');
+      expect(calledUrl).toContain('startDate=2024-01-01');
+      expect(calledUrl).toContain('endDate=2024-01-31');
 
-      expect(logs).toHaveLength(2);
-      expect(logs[0].id).toBe('log-1');
-      expect(logs[0].value).toBe(1);
-      expect(logs[1].value).toBe(2.5);
+      expect(stats.dailyProgress).toHaveLength(2);
+      expect(stats.completions).toBe(7);
+    });
+
+    it('should work without date parameters', async () => {
+      mockFetch.mockResolvedValue(jsonResponse({ data: sampleStats }));
+
+      await getStatistics('test-api-key', 'habit-1', undefined, undefined, 'http://localhost:9999');
+
+      const calledUrl = (mockFetch.mock.calls[0] as [string])[0];
+      expect(calledUrl).toBe('http://localhost:9999/habits/habit-1/statistics');
     });
 
     it('should throw on error response', async () => {
       mockFetch.mockResolvedValue(jsonResponse('', 500));
 
       await expect(
-        getLogs(
-          'test-api-key',
-          'habit-1',
-          new Date(),
-          new Date(),
-          'http://localhost:9999',
-        ),
-      ).rejects.toThrow('get logs for habit habit-1: status 500');
+        getStatistics('test-api-key', 'habit-1', undefined, undefined, 'http://localhost:9999'),
+      ).rejects.toThrow('get statistics for habit habit-1: status 500');
     });
 
-    it('should throw on API error (status false)', async () => {
+    it('should throw on malformed statistics data', async () => {
       mockFetch.mockResolvedValue(
-        jsonResponse({
-          message: 'Not found',
-          data: null,
-          status: false,
-          version: 'v1.2',
-        }),
+        jsonResponse({ data: { id: 'h-1' } }),
       );
 
       await expect(
-        getLogs(
-          'test-api-key',
-          'habit-1',
-          new Date(),
-          new Date(),
-          'http://localhost:9999',
-        ),
-      ).rejects.toThrow(
-        'get logs for habit habit-1: API returned error: Not found',
-      );
-    });
-
-    it('should throw on malformed log data (Zod validation)', async () => {
-      mockFetch.mockResolvedValue(
-        jsonResponse({
-          message: 'OK',
-          data: [
-            {
-              id: 'log-1',
-              // missing habit_id, value is wrong type
-              value: 'not-a-number',
-              created_date: '2024-01-15T10:30:00+00:00',
-              unit_type: 'count',
-            },
-          ],
-          status: true,
-          version: 'v1.2',
-        }),
-      );
-
-      await expect(
-        getLogs(
-          'test-api-key',
-          'habit-1',
-          new Date(),
-          new Date(),
-          'http://localhost:9999',
-        ),
+        getStatistics('test-api-key', 'habit-1', undefined, undefined, 'http://localhost:9999'),
       ).rejects.toThrow();
     });
   });
 
   describe('validate', () => {
     it('should succeed when getHabits succeeds', async () => {
-      mockFetch.mockResolvedValue(
-        jsonResponse({
-          message: 'OK',
-          data: [],
-          status: true,
-          version: 'v1.2',
-        }),
-      );
+      mockFetch
+        .mockResolvedValueOnce(
+          jsonResponse({ data: [], pagination: { total: 0, limit: 100, offset: 0 } }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({ data: [], pagination: { total: 0, limit: 100, offset: 0 } }),
+        );
 
       await expect(
         validate('test-api-key', 'http://localhost:9999'),
@@ -281,14 +262,15 @@ describe('Habitify API client', () => {
     });
   });
 
-  describe('formatHabitifyDate', () => {
-    it('should format a UTC date with +00:00 offset (not Z)', () => {
-      const date = new Date('2024-01-15T10:30:00Z');
-      const formatted = formatHabitifyDate(date);
-      // Should not contain "Z"
-      expect(formatted).not.toContain('Z');
-      // Should contain ±hh:mm offset
-      expect(formatted).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}/);
+  describe('formatDate', () => {
+    it('should format a date as YYYY-MM-DD', () => {
+      const date = new Date(2024, 0, 15); // Jan 15, 2024
+      expect(formatDate(date)).toBe('2024-01-15');
+    });
+
+    it('should pad single-digit month and day', () => {
+      const date = new Date(2024, 2, 5); // Mar 5, 2024
+      expect(formatDate(date)).toBe('2024-03-05');
     });
   });
 });

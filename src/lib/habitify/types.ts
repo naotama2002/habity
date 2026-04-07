@@ -1,62 +1,122 @@
 /**
- * Habitify API types — Zod schemas with inferred TypeScript types
- * Ported from: backend/internal/habitify/types.go
+ * Habitify API v2 types — Zod schemas with inferred TypeScript types
+ * API docs: https://api-docs.habitify.me/api#description/introduction
  */
 
 import { z } from 'zod';
+
+// ─── Shared / embedded objects ────────────────────────
 
 /** An area (category) embedded in a Habit. */
 export const HabitifyAreaSchema = z.object({
   id: z.string(),
   name: z.string(),
+  colorHex: z.string().nullable().optional(),
+  icon: z.string().nullable().optional(),
+  createdAt: z.string().optional(),
 });
 export type HabitifyArea = z.infer<typeof HabitifyAreaSchema>;
 
-/** A habit's goal configuration. */
+/** A habit's goal configuration (v2). */
 export const HabitifyGoalSchema = z.object({
-  unit_type: z.string(),
-  value: z.number(),
+  id: z.string(),
+  createdAt: z.string(),
   periodicity: z.string(),
+  value: z.number(),
+  unit: z.string(),
+  isActive: z.boolean(),
 });
 export type HabitifyGoal = z.infer<typeof HabitifyGoalSchema>;
 
-/** A habit from the Habitify API. */
+/** Occurrence — discriminated union for scheduling. */
+export const HabitifyOccurrenceSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('daily') }),
+  z.object({ type: z.literal('weekDays'), days: z.array(z.number()) }),
+  z.object({ type: z.literal('intervalDays'), interval: z.number() }),
+]);
+export type HabitifyOccurrence = z.infer<typeof HabitifyOccurrenceSchema>;
+
+/** Time-of-day period embedded in a habit. */
+export const HabitifyTimeOfDaySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  icon: z.string().nullable().optional(),
+  startTime: z.string().optional(),
+  endTime: z.string().optional(),
+  colorHex: z.string().nullable().optional(),
+});
+export type HabitifyTimeOfDay = z.infer<typeof HabitifyTimeOfDaySchema>;
+
+// ─── Habit ────────────────────────────────────────────
+
+/** A habit from the Habitify API v2. */
 export const HabitifyHabitSchema = z.object({
   id: z.string(),
   name: z.string(),
-  is_archived: z.boolean(),
-  start_date: z.string(),
-  time_of_day: z.array(z.string()),
-  area: HabitifyAreaSchema.nullable(),
-  recurrence: z.string(),
-  goal: HabitifyGoalSchema.nullable(),
-  log_method: z.string(),
-  priority: z.number(),
-  created_date: z.string(),
+  icon: z.string().nullable().optional(),
+  colorHex: z.string().optional(),
+  type: z.string().optional(),
+  description: z.string().nullable().optional(),
+  occurrence: HabitifyOccurrenceSchema,
+  startDate: z.string(),
+  createdAt: z.string(),
+  isArchived: z.boolean(),
+  logMethod: z.string(),
+  goals: z.array(HabitifyGoalSchema),
+  areas: z.array(HabitifyAreaSchema),
+  timeOfDays: z.array(HabitifyTimeOfDaySchema),
 });
 export type HabitifyHabit = z.infer<typeof HabitifyHabitSchema>;
 
-/** A log entry from the Habitify API. */
-export const HabitifyLogSchema = z.object({
-  id: z.string(),
-  habit_id: z.string(),
-  value: z.number(),
-  created_date: z.string(),
-  unit_type: z.string(),
-});
-export type HabitifyLog = z.infer<typeof HabitifyLogSchema>;
+// ─── Statistics / DailyProgress ───────────────────────
 
-/** Generic wrapper for Habitify API responses. */
-export const HabitifyResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+/** A single day's progress from the statistics endpoint. */
+export const HabitifyDailyProgressSchema = z.object({
+  date: z.string(),
+  totalLog: z.number(),
+  status: z.string(),
+});
+export type HabitifyDailyProgress = z.infer<typeof HabitifyDailyProgressSchema>;
+
+/** Statistics unit object. */
+export const HabitifyStatisticsUnitSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  symbol: z.string(),
+});
+
+/** Response data from GET /habits/{habitId}/statistics. */
+export const HabitifyStatisticsSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string().optional(),
+  totalLogs: z.number(),
+  skips: z.number(),
+  fails: z.number(),
+  completions: z.number(),
+  unit: HabitifyStatisticsUnitSchema.nullable().optional(),
+  periodicity: z.string().optional(),
+  avg: z.number().optional(),
+  dailyProgress: z.array(HabitifyDailyProgressSchema),
+});
+export type HabitifyStatistics = z.infer<typeof HabitifyStatisticsSchema>;
+
+// ─── v2 Response wrappers ─────────────────────────────
+
+/** Pagination info returned by v2 list endpoints. */
+export const HabitifyPaginationSchema = z.object({
+  total: z.number(),
+  limit: z.number(),
+  offset: z.number(),
+});
+
+/** Generic wrapper for Habitify API v2 responses. */
+export const HabitifyV2ResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
-    message: z.string(),
     data: dataSchema,
-    status: z.boolean(),
-    version: z.string(),
+    pagination: HabitifyPaginationSchema.optional(),
   });
-export type HabitifyResponse<T> = {
-  message: string;
+export type HabitifyV2Response<T> = {
   data: T;
-  status: boolean;
-  version: string;
+  pagination?: { total: number; limit: number; offset: number };
 };
