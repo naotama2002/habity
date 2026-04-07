@@ -49,6 +49,23 @@ describe('HabitListItem', () => {
     expect(onPress).toHaveBeenCalledWith(habit);
   });
 
+  describe('frequency text', () => {
+    it('should show "Daily" for daily habits without recurrence', () => {
+      render(<HabitListItem habit={createMockHabit({goal_period: 'daily'})} />);
+      expect(screen.getByText('Daily')).toBeTruthy();
+    });
+
+    it('should show "3times per week" for weekly habits', () => {
+      render(<HabitListItem habit={createMockHabit({goal_period: 'weekly', goal_value: 3})} />);
+      expect(screen.getByText('3times per week')).toBeTruthy();
+    });
+
+    it('should show "7times per month" for monthly habits', () => {
+      render(<HabitListItem habit={createMockHabit({goal_period: 'monthly', goal_value: 7})} />);
+      expect(screen.getByText('7times per month')).toBeTruthy();
+    });
+  });
+
   describe('editMode', () => {
     it('should not call onPress when tapped', () => {
       const onPress = jest.fn();

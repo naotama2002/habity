@@ -3,6 +3,7 @@ import {
   validateHabitName,
   validateDescription,
   validateRecurrence,
+  validateGoalValue,
   validateTimeOfDay,
   validateStartDate,
   validateEndDate,
@@ -153,6 +154,51 @@ describe('habit validation', () => {
       const result = validateRecurrence('invalid' as any, [], [], 1);
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('有効な繰り返しタイプを選択してください');
+    });
+  });
+
+  describe('validateGoalValue', () => {
+    it('should always accept daily (value is ignored)', () => {
+      expect(validateGoalValue(1, 'daily').isValid).toBe(true);
+      expect(validateGoalValue(0, 'daily').isValid).toBe(true);
+    });
+
+    describe('weekly', () => {
+      it.each([1, 3, 5, 7])('should accept valid value: %i', (value) => {
+        expect(validateGoalValue(value, 'weekly').isValid).toBe(true);
+      });
+
+      it('should reject 0', () => {
+        const result = validateGoalValue(0, 'weekly');
+        expect(result.isValid).toBe(false);
+        expect(result.error).toBe('目標回数は1以上の整数を入力してください');
+      });
+
+      it('should reject negative', () => {
+        expect(validateGoalValue(-1, 'weekly').isValid).toBe(false);
+      });
+
+      it('should reject non-integer', () => {
+        expect(validateGoalValue(2.5, 'weekly').isValid).toBe(false);
+      });
+
+      it('should reject > 7', () => {
+        const result = validateGoalValue(8, 'weekly');
+        expect(result.isValid).toBe(false);
+        expect(result.error).toBe('週の目標回数は7以下にしてください');
+      });
+    });
+
+    describe('monthly', () => {
+      it.each([1, 15, 31])('should accept valid value: %i', (value) => {
+        expect(validateGoalValue(value, 'monthly').isValid).toBe(true);
+      });
+
+      it('should reject > 31', () => {
+        const result = validateGoalValue(32, 'monthly');
+        expect(result.isValid).toBe(false);
+        expect(result.error).toBe('月の目標回数は31以下にしてください');
+      });
     });
   });
 
@@ -308,6 +354,8 @@ describe('habit validation', () => {
     const validFormData: HabitFormData = {
       name: '読書',
       description: '毎日30分読む',
+      goal_period: 'daily',
+      goal_value: 1,
       recurrence_type: 'interval',
       recurrence_weekdays: [],
       recurrence_monthdays: [],
@@ -320,6 +368,15 @@ describe('habit validation', () => {
       const result = validateHabitForm(validFormData);
       expect(result.isValid).toBe(true);
       expect(result.error).toBeNull();
+    });
+
+    it('should accept valid weekly goal form data', () => {
+      const result = validateHabitForm({
+        ...validFormData,
+        goal_period: 'weekly',
+        goal_value: 3,
+      });
+      expect(result.isValid).toBe(true);
     });
 
     it('should validate in order: name first', () => {
@@ -391,6 +448,8 @@ describe('habit validation', () => {
       const validFormData: HabitFormData = {
         name: '読書',
         description: '毎日30分読む',
+        goal_period: 'daily',
+        goal_value: 1,
         recurrence_type: 'interval',
         recurrence_weekdays: [],
         recurrence_monthdays: [],
@@ -402,6 +461,7 @@ describe('habit validation', () => {
       const errors = validateHabitFormFields(validFormData);
       expect(errors.name).toBeNull();
       expect(errors.description).toBeNull();
+      expect(errors.goal_value).toBeNull();
       expect(errors.recurrence).toBeNull();
       expect(errors.time_of_day).toBeNull();
       expect(errors.start_date).toBeNull();
@@ -412,6 +472,8 @@ describe('habit validation', () => {
       const invalidFormData: HabitFormData = {
         name: '',
         description: 'a'.repeat(501),
+        goal_period: 'weekly',
+        goal_value: 0,
         recurrence_type: 'weekly',
         recurrence_weekdays: [],
         recurrence_monthdays: [],
@@ -447,6 +509,8 @@ describe('habit validation', () => {
     it('should have expected default values', () => {
       const defaultData = getDefaultHabitFormData();
       expect(defaultData.name).toBe('');
+      expect(defaultData.goal_period).toBe('daily');
+      expect(defaultData.goal_value).toBe(1);
       expect(defaultData.recurrence_type).toBe('interval');
       expect(defaultData.recurrence_weekdays).toEqual([]);
       expect(defaultData.recurrence_monthdays).toEqual([]);

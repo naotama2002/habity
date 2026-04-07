@@ -96,6 +96,8 @@ export default function EditHabitScreen() {
   const initialValues = {
     name: habit.name,
     description: habit.description,
+    goal_period: habit.goal_period,
+    goal_value: habit.goal_value,
     time_of_day: habit.time_of_day,
     start_date: habit.start_date,
     end_date: habit.end_date,

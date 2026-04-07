@@ -90,7 +90,14 @@ describe('habits queries', () => {
   });
 
   describe('useHabitsWithLog', () => {
-    function setupMockChain(habitsResponse: unknown, logsResponse?: unknown) {
+    let logCallCount: number;
+
+    function setupMockChain(
+      habitsResponse: unknown,
+      logsResponse?: unknown,
+      periodLogsResponse?: unknown,
+    ) {
+      logCallCount = 0;
       mockFrom.mockImplementation((...args: unknown[]) => {
         const table = args[0] as string;
         if (table === 'habits') {
@@ -105,17 +112,36 @@ describe('habits queries', () => {
           };
         }
         if (table === 'habit_logs') {
-          return {
-            select: jest.fn().mockReturnValue({
-              in: jest.fn().mockReturnValue({
-                eq: jest
-                  .fn<() => Promise<unknown>>()
-                  .mockResolvedValue(
-                    logsResponse ?? {data: [], error: null},
-                  ),
+          logCallCount++;
+          if (logCallCount === 1) {
+            // 1st call: today's logs (select().in().eq(target_date))
+            return {
+              select: jest.fn().mockReturnValue({
+                in: jest.fn().mockReturnValue({
+                  eq: jest
+                    .fn<() => Promise<unknown>>()
+                    .mockResolvedValue(
+                      logsResponse ?? {data: [], error: null},
+                    ),
+                }),
               }),
-            }),
-          };
+            };
+          } else {
+            // 2nd call: period logs (select().in().gte().lte())
+            return {
+              select: jest.fn().mockReturnValue({
+                in: jest.fn().mockReturnValue({
+                  gte: jest.fn().mockReturnValue({
+                    lte: jest
+                      .fn<() => Promise<unknown>>()
+                      .mockResolvedValue(
+                        periodLogsResponse ?? {data: [], error: null},
+                      ),
+                  }),
+                }),
+              }),
+            };
+          }
         }
         return {};
       });
@@ -499,6 +525,115 @@ describe('habits queries', () => {
         // Day 0 (Jan 1) should match
         const result1 = (await executeQueryFn('2024-01-01')) as Array<{id: string}>;
         expect(result1).toHaveLength(1);
+      });
+    });
+
+    describe('weekly/monthly habit completion', () => {
+      it('weekly habit: is_completed reflects today log, not period goal', async () => {
+        // weekly 習慣: goal_period='weekly', goal_value=3
+        const habit = createMockHabit({
+          id: 'habit-weekly',
+          goal_period: 'weekly',
+          goal_value: 3,
+          start_date: '2024-01-01',
+        });
+        // 今日のログはなし
+        const todayLogs: unknown[] = [];
+        // 期間中に3日分のログあり（目標達成）
+        const periodLogs = [
+          {habit_id: 'habit-weekly', target_date: '2024-04-01', status: 'completed'},
+          {habit_id: 'habit-weekly', target_date: '2024-04-02', status: 'completed'},
+          {habit_id: 'habit-weekly', target_date: '2024-04-03', status: 'completed'},
+        ];
+
+        setupMockChain(
+          {data: [habit], error: null},
+          {data: todayLogs, error: null},
+          {data: periodLogs, error: null},
+        );
+
+        // 4/5 (今日) にはログがないが、期間目標は達成済み
+        const result = (await executeQueryFn('2024-04-05')) as Array<{
+          id: string;
+          is_completed: boolean;
+          is_period_completed: boolean;
+          period_completed_count: number;
+        }>;
+
+        expect(result).toHaveLength(1);
+        expect(result[0].is_completed).toBe(false); // 今日のログなし
+        expect(result[0].is_period_completed).toBe(true); // 期間目標達成
+        expect(result[0].period_completed_count).toBe(3);
+      });
+
+      it('weekly habit: today checked does not affect other days', async () => {
+        const habit = createMockHabit({
+          id: 'habit-weekly',
+          goal_period: 'weekly',
+          goal_value: 7,
+          start_date: '2024-04-01',
+        });
+        // 今日(4/3)だけログあり
+        const todayLog = {
+          id: 'log-1',
+          habit_id: 'habit-weekly',
+          value: 1,
+          status: 'completed',
+          completed_at: '2024-04-03T10:00:00Z',
+          note: null,
+          target_date: '2024-04-03',
+        };
+        const periodLogs = [
+          {habit_id: 'habit-weekly', target_date: '2024-04-03', status: 'completed'},
+        ];
+
+        setupMockChain(
+          {data: [habit], error: null},
+          {data: [todayLog], error: null},
+          {data: periodLogs, error: null},
+        );
+
+        // 4/3 を見たとき
+        const result = (await executeQueryFn('2024-04-03')) as Array<{
+          id: string;
+          is_completed: boolean;
+          is_period_completed: boolean;
+          period_completed_count: number;
+        }>;
+
+        expect(result[0].is_completed).toBe(true); // 今日はログあり
+        expect(result[0].is_period_completed).toBe(false); // 1/7 で未達成
+        expect(result[0].period_completed_count).toBe(1);
+      });
+
+      it('daily habit: is_completed and is_period_completed are the same', async () => {
+        const habit = createMockHabit({
+          id: 'habit-daily',
+          goal_period: 'daily',
+          goal_value: 1,
+        });
+        const log = {
+          id: 'log-1',
+          habit_id: 'habit-daily',
+          value: 1,
+          status: 'completed',
+          completed_at: '2024-04-03T10:00:00Z',
+          note: null,
+          target_date: '2024-04-03',
+        };
+
+        setupMockChain(
+          {data: [habit], error: null},
+          {data: [log], error: null},
+        );
+
+        const result = (await executeQueryFn('2024-04-03')) as Array<{
+          is_completed: boolean;
+          is_period_completed: boolean;
+        }>;
+
+        expect(result[0].is_completed).toBe(true);
+        expect(result[0].is_period_completed).toBe(true);
       });
     });
   });

@@ -307,6 +307,18 @@ export function HabitCard({
           </View>
         )}
 
+        {/* 期間進捗 (weekly/monthly) */}
+        {habit.goal_period !== 'daily' && (
+          <View testID="period-progress" style={styles.periodProgress}>
+            <Text style={[
+              styles.periodProgressText,
+              isCompleted && styles.periodProgressTextCompleted,
+            ]}>
+              {habit.period_completed_count}/{habit.goal_value}
+            </Text>
+          </View>
+        )}
+
         {/* ストリーク */}
         <StreakBadge
           testID="habit-streak-badge"
@@ -422,6 +434,19 @@ const styles = StyleSheet.create({
   skipLabel: {
     ...typography.bodySmall,
     color: colors.gray[400],
+  },
+  periodProgress: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.primary[50],
+  },
+  periodProgressText: {
+    ...typography.bodySmallMedium,
+    color: colors.primary[600],
+  },
+  periodProgressTextCompleted: {
+    color: colors.success[600],
   },
   linkAnchor: {
     position: 'relative',

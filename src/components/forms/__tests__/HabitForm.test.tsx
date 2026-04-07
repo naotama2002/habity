@@ -31,7 +31,7 @@ describe('HabitForm', () => {
       expect(screen.getByText('Start Date')).toBeTruthy();
     });
 
-    it('should not render removed tracking/goal fields', () => {
+    it('should render Goal Frequency section', () => {
       render(
         <HabitForm
           onSubmit={mockOnSubmit}
@@ -39,9 +39,9 @@ describe('HabitForm', () => {
         />
       );
 
-      expect(screen.queryByText('Tracking Method')).toBeNull();
-      expect(screen.queryByText('Goal Period')).toBeNull();
-      expect(screen.queryByText('Goal Value')).toBeNull();
+      expect(screen.getByText('Goal Frequency')).toBeTruthy();
+      // Daily is selected by default in goal frequency
+      expect(screen.getByText('Daily')).toBeTruthy();
     });
 
     it('should render submit and cancel buttons', () => {
@@ -64,9 +64,9 @@ describe('HabitForm', () => {
         />
       );
 
-      // Default type segments should be visible
-      expect(screen.getByText('Weekly')).toBeTruthy();
-      expect(screen.getByText('Monthly')).toBeTruthy();
+      // Weekly/Monthly appear in both Goal Frequency and Recurrence sections
+      expect(screen.getAllByText('Weekly').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Monthly').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('Interval')).toBeTruthy();
     });
   });
@@ -414,8 +414,8 @@ describe('HabitForm', () => {
     });
   });
 
-  describe('recurrence picker integration', () => {
-    it('should switch to weekly mode when Weekly is pressed', () => {
+  describe('goal frequency', () => {
+    it('should show goal value input when Weekly is selected in goal frequency', () => {
       render(
         <HabitForm
           onSubmit={mockOnSubmit}
@@ -423,7 +423,110 @@ describe('HabitForm', () => {
         />
       );
 
-      fireEvent.press(screen.getByText('Weekly'));
+      // Goal Frequency section — first "Weekly" is the goal frequency one
+      const weeklyButtons = screen.getAllByText('Weekly');
+      fireEvent.press(weeklyButtons[0]);
+
+      expect(screen.getByText('times per week')).toBeTruthy();
+    });
+
+    it('should submit weekly goal data correctly', async () => {
+      mockOnSubmit.mockResolvedValue(undefined);
+
+      render(
+        <HabitForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Fill in name
+      const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
+      fireEvent.changeText(nameInput, 'Golf Practice');
+
+      // Select Weekly in goal frequency
+      const weeklyButtons = screen.getAllByText('Weekly');
+      fireEvent.press(weeklyButtons[0]);
+
+      // Submit
+      fireEvent.press(screen.getByText('Save'));
+
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      const submittedData = mockOnSubmit.mock.calls[0][0];
+      expect(submittedData.goal_period).toBe('weekly');
+      expect(submittedData.goal_value).toBe(3); // default for weekly
+    });
+
+    it('should populate goal fields from initial values', () => {
+      render(
+        <HabitForm
+          initialValues={{
+            name: 'Existing Habit',
+            goal_period: 'weekly',
+            goal_value: 5,
+          }}
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      expect(screen.getByDisplayValue('5')).toBeTruthy();
+      expect(screen.getByText('times per week')).toBeTruthy();
+    });
+
+    it('should not show goal value input for daily', () => {
+      render(
+        <HabitForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      expect(screen.queryByText('times per week')).toBeNull();
+      expect(screen.queryByText('times per month')).toBeNull();
+    });
+
+    it('should clamp goal_value when switching from monthly to weekly', () => {
+      render(
+        <HabitForm
+          initialValues={{
+            name: 'Test',
+            goal_period: 'monthly',
+            goal_value: 15,
+          }}
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Currently 15/month
+      expect(screen.getByDisplayValue('15')).toBeTruthy();
+
+      // Switch to Weekly — value should clamp to 7
+      const weeklyButtons = screen.getAllByText('Weekly');
+      fireEvent.press(weeklyButtons[0]);
+
+      expect(screen.getByDisplayValue('7')).toBeTruthy();
+      expect(screen.getByText('times per week')).toBeTruthy();
+    });
+  });
+
+  describe('recurrence picker integration', () => {
+    it('should switch to weekly mode when Weekly is pressed in recurrence', () => {
+      render(
+        <HabitForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
+
+      // Weekly appears in both Goal Frequency and Recurrence sections
+      // The second one is the recurrence picker's Weekly button
+      const weeklyButtons = screen.getAllByText('Weekly');
+      fireEvent.press(weeklyButtons[weeklyButtons.length - 1]);
 
       expect(screen.getByText('Select days of the week')).toBeTruthy();
     });

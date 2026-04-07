@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { isDateMatchingRRule } from '@/lib/recurrence';
+import { getPeriodRange, getCompletedCountInPeriod } from '@/lib/period';
 import type {
   Habit,
   HabitWithLog,
@@ -42,7 +43,7 @@ export function useHabits(status: string = 'active') {
   });
 }
 
-export function useHabitsWithLog(date?: string) {
+export function useHabitsWithLog(date?: string, weekStart: number = 1) {
   const targetDate = date ?? new Date().toISOString().split('T')[0];
 
   return useQuery({
@@ -68,6 +69,42 @@ export function useHabitsWithLog(date?: string) {
 
       if (logsError) throw logsError;
 
+      // 非 daily 習慣の期間ログを取得
+      const nonDailyHabits = habits.filter(h => h.goal_period !== 'daily');
+      const periodLogMap = new Map<string, {target_date: string; status: string}[]>();
+
+      if (nonDailyHabits.length > 0) {
+        // 各期間タイプごとの最大期間範囲を計算
+        const allRanges = nonDailyHabits.map(h =>
+          getPeriodRange(targetDate, h.goal_period, weekStart),
+        );
+        const earliestStart = allRanges.reduce(
+          (min, r) => (r.start < min ? r.start : min),
+          allRanges[0].start,
+        );
+        const latestEnd = allRanges.reduce(
+          (max, r) => (r.end > max ? r.end : max),
+          allRanges[0].end,
+        );
+
+        const nonDailyIds = nonDailyHabits.map(h => h.id);
+        const {data: periodLogs, error: periodLogsError} = await supabase
+          .from('habit_logs')
+          .select('habit_id, target_date, status')
+          .in('habit_id', nonDailyIds)
+          .gte('target_date', earliestStart)
+          .lte('target_date', latestEnd);
+
+        if (periodLogsError) throw periodLogsError;
+
+        // habit_id ごとにグループ化
+        for (const log of periodLogs ?? []) {
+          const existing = periodLogMap.get(log.habit_id) ?? [];
+          existing.push({target_date: log.target_date, status: log.status});
+          periodLogMap.set(log.habit_id, existing);
+        }
+      }
+
       // 開始日・繰り返しルールに基づいてフィルタリング
       const targetDateObj = new Date(targetDate);
       const filteredHabits = habits.filter(h => {
@@ -75,6 +112,8 @@ export function useHabitsWithLog(date?: string) {
         if (targetDate < h.start_date) return false;
         // 終了日を超えた日付では表示しない（end_date当日は表示する）
         if (h.end_date && targetDate > h.end_date) return false;
+        // daily 以外の習慣は recurrence_rule に関わらず期間中は毎日表示
+        if (h.goal_period !== 'daily') return true;
         if (!h.recurrence_rule) return true;
         return isDateMatchingRRule(
           h.recurrence_rule,
@@ -89,6 +128,24 @@ export function useHabitsWithLog(date?: string) {
       return filteredHabits.map(h => {
         const log = logMap.get(h.id) ?? null;
         const logStatus: LogStatus | null = (log?.status as LogStatus) ?? null;
+
+        // is_completed / is_skipped は常にその日のログで判定
+        const isCompleted = log !== null && logStatus === 'completed';
+
+        // 期間内の completed カウント（weekly/monthly 習慣用）
+        let periodCompletedCount = 0;
+        if (h.goal_period === 'daily') {
+          periodCompletedCount = isCompleted ? 1 : 0;
+        } else {
+          const range = getPeriodRange(targetDate, h.goal_period, weekStart);
+          const habitPeriodLogs = periodLogMap.get(h.id) ?? [];
+          periodCompletedCount = getCompletedCountInPeriod(
+            habitPeriodLogs,
+            range.start,
+            range.end,
+          );
+        }
+
         return {
           ...h,
           log_id: log?.id ?? null,
@@ -96,8 +153,12 @@ export function useHabitsWithLog(date?: string) {
           log_completed_at: log?.completed_at ?? null,
           log_note: log?.note ?? null,
           log_status: logStatus,
-          is_completed: log !== null && logStatus === 'completed',
+          is_completed: isCompleted,
           is_skipped: logStatus === 'skipped',
+          period_completed_count: periodCompletedCount,
+          is_period_completed: h.goal_period === 'daily'
+            ? isCompleted
+            : periodCompletedCount >= h.goal_value,
         } as HabitWithLog;
       });
     },

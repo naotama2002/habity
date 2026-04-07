@@ -76,6 +76,15 @@ export function HabitListItem({
 
   // 頻度の表示テキストを生成
   const getFrequencyText = () => {
+    // goal_period ベースの表示（weekly/monthly）
+    if (habit.goal_period === 'weekly') {
+      return `${habit.goal_value}${_(msg`times per week`)}`;
+    }
+    if (habit.goal_period === 'monthly') {
+      return `${habit.goal_value}${_(msg`times per month`)}`;
+    }
+
+    // daily: recurrence_rule ベースの表示
     if (!habit.recurrence_rule) {
       return _(msg`Daily`);
     }

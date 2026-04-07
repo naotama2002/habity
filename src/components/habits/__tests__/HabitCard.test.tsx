@@ -36,6 +36,8 @@ function createMockHabitWithLog(
     log_status: null,
     is_completed: false,
     is_skipped: false,
+    period_completed_count: 0,
+    is_period_completed: false,
     ...overrides,
   };
 }
@@ -83,6 +85,46 @@ describe('HabitCard', () => {
     render(<HabitCard habit={habit} />);
     // No goal progress text should be visible
     expect(screen.queryByText(/\/.*times/)).toBeNull();
+  });
+
+  describe('period progress', () => {
+    it('should not show period progress for daily habits', () => {
+      const habit = createMockHabitWithLog({goal_period: 'daily'});
+      render(<HabitCard habit={habit} />);
+      expect(screen.queryByTestId('period-progress')).toBeNull();
+    });
+
+    it('should show period progress for weekly habits', () => {
+      const habit = createMockHabitWithLog({
+        goal_period: 'weekly',
+        goal_value: 3,
+        period_completed_count: 2,
+      });
+      render(<HabitCard habit={habit} />);
+      expect(screen.getByTestId('period-progress')).toBeTruthy();
+      expect(screen.getByText('2/3')).toBeTruthy();
+    });
+
+    it('should show period progress for monthly habits', () => {
+      const habit = createMockHabitWithLog({
+        goal_period: 'monthly',
+        goal_value: 10,
+        period_completed_count: 5,
+      });
+      render(<HabitCard habit={habit} />);
+      expect(screen.getByText('5/10')).toBeTruthy();
+    });
+
+    it('should show exceeded count (5/3)', () => {
+      const habit = createMockHabitWithLog({
+        goal_period: 'weekly',
+        goal_value: 3,
+        period_completed_count: 5,
+        is_completed: true,
+      });
+      render(<HabitCard habit={habit} />);
+      expect(screen.getByText('5/3')).toBeTruthy();
+    });
   });
 
   it('should call onToggle when checkbox is pressed for non-skipped habit', async () => {
