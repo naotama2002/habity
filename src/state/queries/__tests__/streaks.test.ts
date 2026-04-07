@@ -76,6 +76,7 @@ describe('streaks queries', () => {
         p_habit_ids: ['habit-1'],
         p_today: '2026-03-17',
         p_preview_pending: true,
+        p_week_start: 1,
       });
     });
 

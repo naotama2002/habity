@@ -4,8 +4,22 @@
 
 import type {
   TimeOfDay,
+  GoalPeriod,
 } from '@/types/database';
 import type {RecurrenceType} from '@/lib/recurrence';
+
+// ===========================================
+// Goal 定数
+// ===========================================
+
+/** 週の目標回数の上限 */
+export const GOAL_MAX_WEEKLY = 7;
+/** 月の目標回数の上限 */
+export const GOAL_MAX_MONTHLY = 31;
+/** Weekly 選択時のデフォルト目標回数 */
+export const GOAL_DEFAULT_WEEKLY = 3;
+/** Monthly 選択時のデフォルト目標回数 */
+export const GOAL_DEFAULT_MONTHLY = 10;
 
 export interface ValidationResult {
   isValid: boolean;
@@ -15,6 +29,8 @@ export interface ValidationResult {
 export interface HabitFormData {
   name: string;
   description?: string | null;
+  goal_period: GoalPeriod;
+  goal_value: number;
   recurrence_type: RecurrenceType;
   recurrence_weekdays: number[];
   recurrence_monthdays: number[];
@@ -126,6 +142,42 @@ export function validateRecurrence(
         error: '有効な繰り返しタイプを選択してください',
       };
   }
+}
+
+/**
+ * 目標回数のバリデーション
+ */
+export function validateGoalValue(
+  value: number,
+  period: GoalPeriod,
+): ValidationResult {
+  if (period === 'daily') {
+    // daily は固定1なのでバリデーション不要
+    return {isValid: true, error: null};
+  }
+
+  if (!Number.isInteger(value) || value < 1) {
+    return {
+      isValid: false,
+      error: '目標回数は1以上の整数を入力してください',
+    };
+  }
+
+  if (period === 'weekly' && value > GOAL_MAX_WEEKLY) {
+    return {
+      isValid: false,
+      error: `週の目標回数は${GOAL_MAX_WEEKLY}以下にしてください`,
+    };
+  }
+
+  if (period === 'monthly' && value > GOAL_MAX_MONTHLY) {
+    return {
+      isValid: false,
+      error: `月の目標回数は${GOAL_MAX_MONTHLY}以下にしてください`,
+    };
+  }
+
+  return {isValid: true, error: null};
 }
 
 /**
@@ -268,6 +320,12 @@ export function validateHabitForm(data: HabitFormData): ValidationResult {
     return descriptionResult;
   }
 
+  // 目標回数
+  const goalResult = validateGoalValue(data.goal_value, data.goal_period);
+  if (!goalResult.isValid) {
+    return goalResult;
+  }
+
   // 繰り返し
   const recurrenceResult = validateRecurrence(
     data.recurrence_type,
@@ -310,6 +368,7 @@ export function validateHabitFormFields(data: HabitFormData): Record<string, str
   return {
     name: validateHabitName(data.name).error,
     description: validateDescription(data.description).error,
+    goal_value: validateGoalValue(data.goal_value, data.goal_period).error,
     recurrence: validateRecurrence(
       data.recurrence_type,
       data.recurrence_weekdays,
@@ -331,6 +390,8 @@ export function getDefaultHabitFormData(): HabitFormData {
   return {
     name: '',
     description: null,
+    goal_period: 'daily',
+    goal_value: 1,
     recurrence_type: 'interval',
     recurrence_weekdays: [],
     recurrence_monthdays: [],

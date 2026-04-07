@@ -14,6 +14,7 @@ import {
   MultiSelect,
   FormField,
   ConfirmDialog,
+  SegmentedControl,
 } from '@/components/ui';
 import { RecurrencePicker } from './RecurrencePicker';
 import { colors, lightTheme } from '@/lib/colors';
@@ -22,11 +23,14 @@ import { spacing, borderRadius } from '@/lib/spacing';
 import {
   validateHabitFormFields,
   getDefaultHabitFormData,
+  GOAL_MAX_WEEKLY,
+  GOAL_DEFAULT_WEEKLY,
+  GOAL_DEFAULT_MONTHLY,
   type HabitFormData,
 } from '@/lib/validation/habit';
 import { buildRRule, parseRRule } from '@/lib/recurrence';
 import type { RecurrenceType } from '@/lib/recurrence';
-import type { TimeOfDay } from '@/types/database';
+import type { TimeOfDay, GoalPeriod } from '@/types/database';
 
 /**
  * HabitForm に渡す onSubmit のデータ型
@@ -36,9 +40,9 @@ export interface HabitSubmitData {
   name: string;
   description: string | null;
   tracking_type: 'boolean';
-  goal_value: 1;
-  goal_unit: 'times';
-  goal_period: 'daily';
+  goal_value: number;
+  goal_unit: string;
+  goal_period: GoalPeriod;
   recurrence_rule: string;
   time_of_day: TimeOfDay[];
   start_date: string;
@@ -52,7 +56,7 @@ export interface HabitSubmitData {
 
 interface HabitFormProps {
   /** 初期値（編集時） */
-  initialValues?: Partial<HabitFormData> & { recurrence_rule?: string | null };
+  initialValues?: Partial<HabitFormData> & { recurrence_rule?: string | null; goal_period?: GoalPeriod; goal_value?: number };
   /** 送信時のコールバック */
   onSubmit: (data: HabitSubmitData) => Promise<void>;
   /** キャンセル時のコールバック */
@@ -174,13 +178,14 @@ export function HabitForm({
     }
 
     // フォームデータを DB 保存用に変換
+    const goalPeriod = formData.goal_period ?? 'daily';
     const submitData: HabitSubmitData = {
       name: formData.name.trim(),
       description: formData.description?.trim() || null,
       tracking_type: 'boolean',
-      goal_value: 1,
+      goal_value: goalPeriod === 'daily' ? 1 : formData.goal_value,
       goal_unit: 'times',
-      goal_period: 'daily',
+      goal_period: goalPeriod,
       recurrence_rule: buildRRule(formData.recurrence_type, {
         weekdays: formData.recurrence_weekdays,
         monthdays: formData.recurrence_monthdays,
@@ -273,6 +278,53 @@ export function HabitForm({
             maxLength={500}
             style={styles.textArea}
           />
+        </FormField>
+
+        {/* 目標頻度 */}
+        <FormField
+          label={_(msg`Goal Frequency`)}
+          error={getFieldError('goal_value')}
+        >
+          <SegmentedControl
+            segments={[
+              {value: 'daily', label: _(msg`Daily`)},
+              {value: 'weekly', label: _(msg`Weekly`)},
+              {value: 'monthly', label: _(msg`Monthly`)},
+            ]}
+            value={formData.goal_period ?? 'daily'}
+            onChange={(value) => {
+              updateField('goal_period', value as GoalPeriod);
+              if (value === 'daily') {
+                updateField('goal_value', 1);
+              } else if (formData.goal_value <= 1) {
+                // daily から切り替え時にデフォルト値を設定
+                updateField('goal_value', value === 'weekly' ? GOAL_DEFAULT_WEEKLY : GOAL_DEFAULT_MONTHLY);
+              } else if (value === 'weekly' && formData.goal_value > GOAL_MAX_WEEKLY) {
+                // monthly → weekly で上限を超える場合はクランプ
+                updateField('goal_value', GOAL_MAX_WEEKLY);
+              }
+              touchField('goal_value');
+            }}
+          />
+          {formData.goal_period !== 'daily' && (
+            <View style={styles.goalValueRow}>
+              <Input
+                value={String(formData.goal_value)}
+                onChangeText={(text) => {
+                  const num = parseInt(text, 10);
+                  updateField('goal_value', isNaN(num) ? 0 : num);
+                }}
+                onBlur={() => touchField('goal_value')}
+                keyboardType="number-pad"
+                style={styles.goalValueInput}
+              />
+              <Text style={styles.goalValueLabel}>
+                {formData.goal_period === 'weekly'
+                  ? _(msg`times per week`)
+                  : _(msg`times per month`)}
+              </Text>
+            </View>
+          )}
         </FormField>
 
         {/* 繰り返し */}
@@ -437,6 +489,20 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
     paddingTop: spacing.sm,
+  },
+  goalValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  goalValueInput: {
+    width: 72,
+    textAlign: 'center',
+  },
+  goalValueLabel: {
+    ...typography.body,
+    color: lightTheme.textSecondary,
   },
   footer: {
     flexDirection: 'row',

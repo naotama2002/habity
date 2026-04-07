@@ -80,8 +80,13 @@ export interface HabitWithLog extends Habit {
   log_completed_at: string | null;
   log_note: string | null;
   log_status: LogStatus | null;
+  /** その日に completed ログがあるか */
   is_completed: boolean;
   is_skipped: boolean;
+  /** 期間内の completed ログ数 (weekly/monthly 習慣用) */
+  period_completed_count: number;
+  /** 期間目標を達成しているか (weekly/monthly: count >= goal_value, daily: is_completed と同じ) */
+  is_period_completed: boolean;
 }
 
 /** @deprecated Use HabitWithLog */

@@ -10,6 +10,7 @@ import {ja, enUS} from 'date-fns/locale';
 import {useHabitsWithLog} from '@/state/queries/habits';
 import {useToggleHabitLog, useSkipHabitLog, useUnskipHabitLog} from '@/state/queries/habit-logs';
 import {useHabitStreaks} from '@/state/queries/streaks';
+import {useWeekStart} from '@/state/queries/user-settings';
 import {calculateProgress, sortByCompletion} from '@/lib/progress';
 import {HabitCard, TimeOfDaySection} from '@/components/habits';
 import {DateStrip} from '@/components/date/DateStrip';
@@ -34,8 +35,9 @@ export default function TodayScreen() {
     format(new Date(), 'yyyy-MM-dd'),
   );
   const [openMenuHabitId, setOpenMenuHabitId] = useState<string | null>(null);
+  const weekStart = useWeekStart();
 
-  const {data: habits, isLoading, isFetching, error, refetch} = useHabitsWithLog(selectedDate);
+  const {data: habits, isLoading, isFetching, error, refetch} = useHabitsWithLog(selectedDate, weekStart);
   const toggleLog = useToggleHabitLog();
   const skipLog = useSkipHabitLog();
   const unskipLog = useUnskipHabitLog();
@@ -49,6 +51,7 @@ export default function TodayScreen() {
     habitIds,
     selectedDate,
     shouldPreviewPendingStreak,
+    weekStart,
   );
 
   // ストリークデータを安定化（クエリ再取得中の一時的な undefined を防ぐ）

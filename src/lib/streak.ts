@@ -16,6 +16,8 @@
  */
 
 import {isDateMatchingRRule} from './recurrence';
+import {getPeriodRange, getCompletedCountInPeriod} from './period';
+import type {GoalPeriod} from '@/types/database';
 
 export interface StreakLogEntry {
   target_date: string; // 'YYYY-MM-DD'
@@ -26,6 +28,8 @@ export interface StreakHabitInfo {
   recurrence_rule: string | null;
   start_date: string;
   end_date?: string | null;
+  goal_period?: GoalPeriod;
+  goal_value?: number;
 }
 
 export interface StreakResult {
@@ -77,13 +81,88 @@ function isScheduledDate(
 }
 
 /**
+ * 週/月単位のストリーク計算
+ * 連続する期間で goal_value 以上の completed がある期間をカウント
+ *
+ * previewPending=true の場合、今期が未達成でもスキップして
+ * 前の期間からストリークを計算する（Today 画面のプレビュー用）
+ */
+function calculatePeriodStreak(
+  logs: StreakLogEntry[],
+  habit: StreakHabitInfo,
+  today?: string,
+  weekStart: number = 1,
+  previewPending: boolean = false,
+): StreakResult {
+  const goalPeriod = habit.goal_period!;
+  const goalValue = habit.goal_value ?? 1;
+
+  const currentDate = today
+    ? new Date(today + 'T00:00:00')
+    : new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  // end_date が過去なら end_date から開始
+  if (habit.end_date) {
+    const endDate = new Date(habit.end_date + 'T00:00:00');
+    endDate.setHours(0, 0, 0, 0);
+    if (endDate < currentDate) {
+      currentDate.setTime(endDate.getTime());
+    }
+  }
+
+  let streak = 0;
+  let fromDate: string | null = null;
+  let periodsChecked = 0;
+  const maxPeriods = goalPeriod === 'weekly' ? 5200 : 1200; // ~100 years
+
+  // 現在の期間から過去方向に走査
+  let checkDate = formatDate(currentDate);
+
+  while (periodsChecked < maxPeriods) {
+    const range = getPeriodRange(checkDate, goalPeriod, weekStart);
+
+    // 期間の開始が habit の start_date より前なら終了
+    if (range.end < habit.start_date) break;
+
+    const completedCount = getCompletedCountInPeriod(logs, range.start, range.end);
+
+    if (completedCount >= goalValue) {
+      streak++;
+      fromDate = range.start;
+    } else if (previewPending && periodsChecked === 0) {
+      // プレビューモード: 今期が未達成でもスキップして前の期間へ
+      // (最初の期間のみスキップ)
+    } else {
+      // 目標未達 → ストリーク切れ
+      break;
+    }
+
+    // 前の期間へ移動
+    const prevDate = new Date(range.start + 'T00:00:00');
+    prevDate.setDate(prevDate.getDate() - 1);
+    checkDate = formatDate(prevDate);
+    periodsChecked++;
+  }
+
+  return {count: streak, from: streak > 0 ? fromDate : null};
+}
+
+/**
  * 単一習慣のストリーク計算
  */
 export function calculateStreak(
   logs: StreakLogEntry[],
   habit: StreakHabitInfo,
   today?: string,
+  weekStart: number = 1,
+  previewPending: boolean = false,
 ): StreakResult {
+  // 週/月単位の習慣は期間ベースの計算を使用
+  if (habit.goal_period && habit.goal_period !== 'daily') {
+    return calculatePeriodStreak(logs, habit, today, weekStart, previewPending);
+  }
+
   // ログを Map に変換して O(1) ルックアップ
   const logMap = new Map<string, 'completed' | 'skipped'>();
   for (const log of logs) {
@@ -156,7 +235,14 @@ export function calculateDisplayStreak(
   habit: StreakHabitInfo,
   selectedDate: string,
   actualToday?: string,
+  weekStart: number = 1,
 ): StreakResult {
+  // weekly/monthly 習慣: previewPending=true で期間ストリーク計算
+  if (habit.goal_period && habit.goal_period !== 'daily') {
+    return calculateStreak(logs, habit, selectedDate, weekStart, true);
+  }
+
+  // daily 習慣: 既存ロジック（未記録日をスキップして直近のログまで巻き戻す）
   const logMap = new Map<string, 'completed' | 'skipped'>();
   for (const log of logs) {
     logMap.set(log.target_date, log.status);
@@ -199,12 +285,13 @@ export function calculateStreaks(
   logsByHabit: Record<string, StreakLogEntry[]>,
   habits: Record<string, StreakHabitInfo>,
   today?: string,
+  weekStart: number = 1,
 ): Record<string, StreakResult> {
   const result: Record<string, StreakResult> = {};
 
   for (const habitId of Object.keys(habits)) {
     const logs = logsByHabit[habitId] ?? [];
-    result[habitId] = calculateStreak(logs, habits[habitId], today);
+    result[habitId] = calculateStreak(logs, habits[habitId], today, weekStart);
   }
 
   return result;

@@ -12,7 +12,7 @@ export function calculateProgress(habits: HabitWithLog[]): {
   percentage: number;
 } {
   const totalCount = habits.length;
-  const completedCount = habits.filter(h => h.is_completed).length;
+  const completedCount = habits.filter(h => h.is_period_completed).length;
   const skippedCount = habits.filter(h => h.is_skipped).length;
   const effectiveTotal = totalCount - skippedCount;
   const percentage = effectiveTotal > 0 ? (completedCount / effectiveTotal) * 100 : 0;
@@ -37,7 +37,7 @@ export function sortByCompletion(habits: HabitWithLog[]): HabitWithLog[] {
   const done: HabitWithLog[] = [];
 
   for (const habit of habits) {
-    if (habit.is_completed || habit.is_skipped) {
+    if (habit.is_period_completed || habit.is_skipped) {
       done.push(habit);
     } else {
       incomplete.push(habit);

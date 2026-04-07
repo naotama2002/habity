@@ -34,8 +34,15 @@ function createHabit(
     log_status: null,
     is_completed: false,
     is_skipped: false,
+    period_completed_count: 0,
+    is_period_completed: false,
     ...overrides,
   };
+}
+
+/** daily 習慣のヘルパー: is_completed と is_period_completed を同期 */
+function daily(completed: boolean) {
+  return {is_completed: completed, is_period_completed: completed};
 }
 
 describe('calculateProgress', () => {
@@ -52,9 +59,9 @@ describe('calculateProgress', () => {
 
   it('should calculate progress without skips', () => {
     const habits = [
-      createHabit({id: '1', is_completed: true}),
-      createHabit({id: '2', is_completed: false}),
-      createHabit({id: '3', is_completed: true}),
+      createHabit({id: '1', ...daily(true)}),
+      createHabit({id: '2', ...daily(false)}),
+      createHabit({id: '3', ...daily(true)}),
     ];
     const result = calculateProgress(habits);
     expect(result.completedCount).toBe(2);
@@ -66,9 +73,9 @@ describe('calculateProgress', () => {
 
   it('should exclude skipped habits from denominator', () => {
     const habits = [
-      createHabit({id: '1', is_completed: true}),
+      createHabit({id: '1', ...daily(true)}),
       createHabit({id: '2', is_skipped: true}),
-      createHabit({id: '3', is_completed: false}),
+      createHabit({id: '3', ...daily(false)}),
     ];
     const result = calculateProgress(habits);
     expect(result.completedCount).toBe(1);
@@ -90,10 +97,29 @@ describe('calculateProgress', () => {
     expect(result.percentage).toBe(0);
   });
 
+  it('should count weekly habit as completed when period goal is met', () => {
+    const habits = [
+      createHabit({id: '1', ...daily(true)}),
+      createHabit({id: '2', goal_period: 'weekly', goal_value: 3, period_completed_count: 3, is_period_completed: true}),
+      createHabit({id: '3', goal_period: 'weekly', goal_value: 3, period_completed_count: 1, is_period_completed: false}),
+    ];
+    const result = calculateProgress(habits);
+    expect(result.completedCount).toBe(2);
+    expect(result.effectiveTotal).toBe(3);
+  });
+
+  it('should not count weekly habit with today log but period unmet as completed', () => {
+    const habits = [
+      createHabit({id: '1', goal_period: 'weekly', goal_value: 3, is_completed: true, period_completed_count: 1, is_period_completed: false}),
+    ];
+    const result = calculateProgress(habits);
+    expect(result.completedCount).toBe(0);
+  });
+
   it('should return 100% when all non-skipped habits are completed', () => {
     const habits = [
-      createHabit({id: '1', is_completed: true}),
-      createHabit({id: '2', is_completed: true}),
+      createHabit({id: '1', ...daily(true)}),
+      createHabit({id: '2', ...daily(true)}),
       createHabit({id: '3', is_skipped: true}),
     ];
     const result = calculateProgress(habits);
@@ -106,9 +132,9 @@ describe('calculateProgress', () => {
 describe('sortByCompletion', () => {
   it('should place incomplete habits before completed ones', () => {
     const habits = [
-      createHabit({id: '1', is_completed: true, sort_order: 0}),
-      createHabit({id: '2', is_completed: false, sort_order: 1}),
-      createHabit({id: '3', is_completed: false, sort_order: 2}),
+      createHabit({id: '1', ...daily(true), sort_order: 0}),
+      createHabit({id: '2', ...daily(false), sort_order: 1}),
+      createHabit({id: '3', ...daily(false), sort_order: 2}),
     ];
     const sorted = sortByCompletion(habits);
     expect(sorted.map(h => h.id)).toEqual(['2', '3', '1']);
@@ -117,7 +143,7 @@ describe('sortByCompletion', () => {
   it('should place incomplete habits before skipped ones', () => {
     const habits = [
       createHabit({id: '1', is_skipped: true, sort_order: 0}),
-      createHabit({id: '2', is_completed: false, sort_order: 1}),
+      createHabit({id: '2', ...daily(false), sort_order: 1}),
     ];
     const sorted = sortByCompletion(habits);
     expect(sorted.map(h => h.id)).toEqual(['2', '1']);
@@ -125,9 +151,9 @@ describe('sortByCompletion', () => {
 
   it('should preserve sort_order within incomplete group', () => {
     const habits = [
-      createHabit({id: '1', is_completed: false, sort_order: 0}),
-      createHabit({id: '2', is_completed: false, sort_order: 1}),
-      createHabit({id: '3', is_completed: false, sort_order: 2}),
+      createHabit({id: '1', ...daily(false), sort_order: 0}),
+      createHabit({id: '2', ...daily(false), sort_order: 1}),
+      createHabit({id: '3', ...daily(false), sort_order: 2}),
     ];
     const sorted = sortByCompletion(habits);
     expect(sorted.map(h => h.id)).toEqual(['1', '2', '3']);
@@ -135,9 +161,9 @@ describe('sortByCompletion', () => {
 
   it('should preserve sort_order within completed group', () => {
     const habits = [
-      createHabit({id: '1', is_completed: true, sort_order: 0}),
+      createHabit({id: '1', ...daily(true), sort_order: 0}),
       createHabit({id: '2', is_skipped: true, sort_order: 1}),
-      createHabit({id: '3', is_completed: true, sort_order: 2}),
+      createHabit({id: '3', ...daily(true), sort_order: 2}),
     ];
     const sorted = sortByCompletion(habits);
     expect(sorted.map(h => h.id)).toEqual(['1', '2', '3']);
@@ -145,13 +171,22 @@ describe('sortByCompletion', () => {
 
   it('should handle mixed completed and skipped in done group', () => {
     const habits = [
-      createHabit({id: '1', is_completed: true, sort_order: 0}),
-      createHabit({id: '2', is_completed: false, sort_order: 1}),
+      createHabit({id: '1', ...daily(true), sort_order: 0}),
+      createHabit({id: '2', ...daily(false), sort_order: 1}),
       createHabit({id: '3', is_skipped: true, sort_order: 2}),
-      createHabit({id: '4', is_completed: false, sort_order: 3}),
+      createHabit({id: '4', ...daily(false), sort_order: 3}),
     ];
     const sorted = sortByCompletion(habits);
     expect(sorted.map(h => h.id)).toEqual(['2', '4', '1', '3']);
+  });
+
+  it('should sort weekly habit with period met as done', () => {
+    const habits = [
+      createHabit({id: '1', goal_period: 'weekly', is_period_completed: true, sort_order: 0}),
+      createHabit({id: '2', goal_period: 'weekly', is_period_completed: false, sort_order: 1}),
+    ];
+    const sorted = sortByCompletion(habits);
+    expect(sorted.map(h => h.id)).toEqual(['2', '1']);
   });
 
   it('should return empty array for empty input', () => {

@@ -38,6 +38,7 @@ export function useHabitStreaks(
   habitIds: string[],
   referenceDate = formatLocalDate(new Date()),
   previewPending = false,
+  weekStart = 1,
 ) {
   return useQuery({
     queryKey: streakKeys.byHabits(habitIds, referenceDate, previewPending),
@@ -46,6 +47,7 @@ export function useHabitStreaks(
         p_habit_ids: habitIds,
         p_today: referenceDate,
         p_preview_pending: previewPending,
+        p_week_start: weekStart,
       });
       if (error) throw error;
 
