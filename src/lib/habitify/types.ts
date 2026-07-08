@@ -28,11 +28,14 @@ export const HabitifyGoalSchema = z.object({
 });
 export type HabitifyGoal = z.infer<typeof HabitifyGoalSchema>;
 
-/** Occurrence — discriminated union for scheduling. */
-export const HabitifyOccurrenceSchema = z.discriminatedUnion('type', [
+/** Occurrence — union of known scheduling types, with a passthrough fallback
+ * for unknown/future types so the API adding new occurrence kinds doesn't
+ * break parsing of the whole habit. */
+export const HabitifyOccurrenceSchema = z.union([
   z.object({ type: z.literal('daily') }),
   z.object({ type: z.literal('weekDays'), days: z.array(z.number()) }),
   z.object({ type: z.literal('intervalDays'), interval: z.number() }),
+  z.object({ type: z.string() }).passthrough(),
 ]);
 export type HabitifyOccurrence = z.infer<typeof HabitifyOccurrenceSchema>;
 
@@ -54,7 +57,7 @@ export const HabitifyHabitSchema = z.object({
   id: z.string(),
   name: z.string(),
   icon: z.string().nullable().optional(),
-  colorHex: z.string().optional(),
+  colorHex: z.string().nullable().optional(),
   type: z.string().optional(),
   description: z.string().nullable().optional(),
   occurrence: HabitifyOccurrenceSchema,
@@ -120,3 +123,14 @@ export type HabitifyV2Response<T> = {
   data: T;
   pagination?: { total: number; limit: number; offset: number };
 };
+
+/**
+ * Response envelope for the habits list endpoint, with `data` treated as an
+ * array of unknown elements so each habit can be validated individually
+ * (one malformed habit shouldn't fail the whole page). `data` is also
+ * accepted as `null` (some API responses omit it entirely for empty pages).
+ */
+export const HabitifyHabitsEnvelopeSchema = z.object({
+  data: z.array(z.unknown()).nullable(),
+  pagination: HabitifyPaginationSchema.optional(),
+});

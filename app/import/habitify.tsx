@@ -47,7 +47,6 @@ export default function HabitifyImportScreen() {
         api_key: apiKey,
         import_habits: importHabits,
         import_logs: importLogs,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
       setResult(importResult);
       setScreenState('success');

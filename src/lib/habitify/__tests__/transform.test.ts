@@ -62,7 +62,8 @@ describe('transformHabit', () => {
 
     expect(result.user_id).toBe('user-1');
     expect(result.name).toBe('Morning Run');
-    expect(result.tracking_type).toBe('numeric');
+    // Default goal is 1 rep — Habitify's checkbox-style habit shape.
+    expect(result.tracking_type).toBe('boolean');
     expect(result.goal_value).toBe(1);
     expect(result.goal_unit).toBe('times');
     expect(result.goal_period).toBe('daily');
@@ -120,6 +121,15 @@ describe('transformHabit', () => {
     expect(result.goal_value).toBe(30);
   });
 
+  it('should use numeric tracking_type for a rep goal with value > 1', () => {
+    const h = makeHabit({
+      goals: [makeGoal({ unit: 'rep', value: 5 })],
+    });
+    const result = transformHabit(h, 'user-1', {});
+    expect(result.tracking_type).toBe('numeric');
+    expect(result.goal_value).toBe(5);
+  });
+
   it('should convert weekDays occurrence to RRULE', () => {
     const h = makeHabit({
       occurrence: { type: 'weekDays', days: [1, 3, 5] },
@@ -140,6 +150,19 @@ describe('transformHabit', () => {
     const h = makeHabit({ description: 'Run every morning' });
     const result = transformHabit(h, 'user-1', {});
     expect(result.description).toBe('Run every morning');
+  });
+
+  it('should import the habit with null goal fields when periodicity is unmappable', () => {
+    const h = makeHabit({
+      goals: [makeGoal({ periodicity: 'yearly', value: 5, unit: 'kM' })],
+    });
+    const result = transformHabit(h, 'user-1', {});
+    expect(result.goal_value).toBeNull();
+    expect(result.goal_unit).toBeNull();
+    expect(result.goal_period).toBeNull();
+    // The habit itself is still imported.
+    expect(result.name).toBe('Morning Run');
+    expect(result.external_id).toBe('h-1');
   });
 });
 
@@ -228,17 +251,28 @@ describe('findActiveGoal', () => {
 
 describe('inferTrackingType', () => {
   it.each([
-    { unit: 'min', expected: 'duration' },
-    { unit: 'hr', expected: 'duration' },
-    { unit: 'sec', expected: 'duration' },
-    { unit: 'ms', expected: 'duration' },
-    { unit: 'rep', expected: 'numeric' },
-    { unit: 'step', expected: 'numeric' },
-    { unit: 'kM', expected: 'numeric' },
-    { unit: 'm', expected: 'numeric' },
-  ])('should infer "$expected" for unit "$unit"', ({ unit, expected }) => {
-    expect(inferTrackingType(makeGoal({ unit }))).toBe(expected);
-  });
+    // Duration units always map to 'duration', regardless of goal value.
+    { unit: 'min', value: 1, expected: 'duration' },
+    { unit: 'min', value: 30, expected: 'duration' },
+    { unit: 'hr', value: 1, expected: 'duration' },
+    { unit: 'sec', value: 1, expected: 'duration' },
+    { unit: 'ms', value: 1, expected: 'duration' },
+    // 'rep' + value 1 is Habitify's checkbox ("just do it") shape → boolean.
+    { unit: 'rep', value: 1, expected: 'boolean' },
+    // 'rep' with any other value is a real numeric goal (e.g. "5 reps").
+    { unit: 'rep', value: 2, expected: 'numeric' },
+    { unit: 'rep', value: 5, expected: 'numeric' },
+    // Non-'rep' units are never treated as boolean, even at value 1.
+    { unit: 'step', value: 1, expected: 'numeric' },
+    { unit: 'step', value: 100, expected: 'numeric' },
+    { unit: 'kM', value: 1, expected: 'numeric' },
+    { unit: 'm', value: 1, expected: 'numeric' },
+  ])(
+    'should infer "$expected" for unit "$unit" and value $value',
+    ({ unit, value, expected }) => {
+      expect(inferTrackingType(makeGoal({ unit, value }))).toBe(expected);
+    },
+  );
 
   it('should return boolean when goal is null', () => {
     expect(inferTrackingType(null)).toBe('boolean');
@@ -256,6 +290,11 @@ describe('mapGoal', () => {
   it('should map a v2 goal', () => {
     const result = mapGoal(makeGoal({ value: 5, unit: 'kM', periodicity: 'weekly' }));
     expect(result).toEqual({ value: 5, unit: 'km', period: 'weekly' });
+  });
+
+  it('should not adopt the goal (null value/unit/period) when periodicity is unknown', () => {
+    const result = mapGoal(makeGoal({ value: 5, unit: 'kM', periodicity: 'yearly' }));
+    expect(result).toEqual({ value: null, unit: null, period: null });
   });
 });
 
@@ -288,11 +327,16 @@ describe('mapGoalPeriod', () => {
     ['daily', 'daily'],
     ['weekly', 'weekly'],
     ['monthly', 'monthly'],
-    ['yearly', 'daily'],
-    ['unknown', 'daily'],
   ])('should map "%s" to "%s"', (input, expected) => {
     expect(mapGoalPeriod(input)).toBe(expected);
   });
+
+  it.each(['yearly', 'unknown'])(
+    'should return null for unmappable periodicity "%s" instead of fabricating "daily"',
+    (input) => {
+      expect(mapGoalPeriod(input)).toBeNull();
+    },
+  );
 });
 
 // ─── occurrenceToRRule ────────────────────────────────
@@ -324,6 +368,16 @@ describe('occurrenceToRRule', () => {
     expect(
       occurrenceToRRule({ type: 'weekDays', days: [0, 1, 2, 3, 4, 5, 6] }),
     ).toBe('RRULE:FREQ=WEEKLY;BYDAY=SU,MO,TU,WE,TH,FR,SA');
+  });
+
+  it('should fall back to RRULE:FREQ=DAILY when weekDays.days has only out-of-range values', () => {
+    expect(occurrenceToRRule({ type: 'weekDays', days: [7, -1] })).toBe(
+      'RRULE:FREQ=DAILY',
+    );
+  });
+
+  it('should return null for an unknown occurrence type', () => {
+    expect(occurrenceToRRule({ type: 'timesPerWeek', times: 3 })).toBeNull();
   });
 });
 

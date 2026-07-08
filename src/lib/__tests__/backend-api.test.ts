@@ -37,7 +37,6 @@ describe('importFromHabitify', () => {
       api_key: 'habitify-api-key',
       import_habits: true,
       import_logs: true,
-      timezone: 'Asia/Tokyo',
     });
 
     expect(mockRunImport).toHaveBeenCalledWith(
@@ -45,7 +44,6 @@ describe('importFromHabitify', () => {
         apiKey: 'habitify-api-key',
         importHabits: true,
         importLogs: true,
-        timezone: 'Asia/Tokyo',
         userId: 'user-123',
       }),
     );
@@ -69,7 +67,6 @@ describe('importFromHabitify', () => {
       api_key: 'key',
       import_habits: true,
       import_logs: true,
-      timezone: 'UTC',
     });
 
     expect(result.errors).toEqual(['habit "X": DB error']);
@@ -85,7 +82,6 @@ describe('importFromHabitify', () => {
         api_key: 'key',
         import_habits: true,
         import_logs: true,
-        timezone: 'Asia/Tokyo',
       }),
     ).rejects.toThrow('Not authenticated');
   });
@@ -100,7 +96,6 @@ describe('importFromHabitify', () => {
         api_key: 'bad-key',
         import_habits: true,
         import_logs: true,
-        timezone: 'Asia/Tokyo',
       }),
     ).rejects.toThrow('get habits: status 401');
   });

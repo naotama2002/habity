@@ -17,9 +17,9 @@ export interface HabityHabit {
   description: string | null;
   category_id: string | null;
   tracking_type: string;
-  goal_value: number;
-  goal_unit: string;
-  goal_period: string;
+  goal_value: number | null;
+  goal_unit: string | null;
+  goal_period: string | null;
   recurrence_rule: string | null;
   time_of_day: string[];
   reminder_enabled: boolean;
@@ -113,7 +113,12 @@ export function findActiveGoal(goals: HabitifyGoal[]): HabitifyGoal | null {
   return goals.find((g) => g.isActive) ?? goals[0] ?? null;
 }
 
-/** Infer tracking_type from the active goal's unit. */
+/**
+ * Infer tracking_type from the active goal.
+ * Habitify represents simple checkbox ("just do it") habits as a goal of
+ * exactly 1 rep, so that combination maps back to 'boolean' rather than
+ * 'numeric'. Duration units always map to 'duration' regardless of value.
+ */
 export function inferTrackingType(goal: HabitifyGoal | null): string {
   if (!goal) return 'boolean';
 
@@ -122,22 +127,37 @@ export function inferTrackingType(goal: HabitifyGoal | null): string {
     return 'duration';
   }
 
+  if (goal.unit === 'rep' && goal.value === 1) {
+    return 'boolean';
+  }
+
   return 'numeric';
 }
 
-/** Extract goal value, unit, and period from a v2 goal. */
+/**
+ * Extract goal value, unit, and period from a v2 goal.
+ * If the goal's periodicity can't be mapped to a known period, the goal is
+ * not adopted at all (value/unit/period all null) rather than fabricating a
+ * period — the habit itself is still imported, just without a goal target.
+ */
 export function mapGoal(goal: HabitifyGoal | null): {
-  value: number;
-  unit: string;
-  period: string;
+  value: number | null;
+  unit: string | null;
+  period: string | null;
 } {
   if (!goal) {
     return { value: 1, unit: 'times', period: 'daily' };
   }
+
+  const period = mapGoalPeriod(goal.periodicity);
+  if (period === null) {
+    return { value: null, unit: null, period: null };
+  }
+
   return {
     value: goal.value,
     unit: mapGoalUnit(goal.unit),
-    period: mapGoalPeriod(goal.periodicity),
+    period,
   };
 }
 
@@ -201,14 +221,16 @@ export function mapGoalUnit(unit: string): string {
   }
 }
 
-export function mapGoalPeriod(periodicity: string): string {
+/** Map a v2 goal periodicity to a Habity goal_period, or null when unknown
+ * (e.g. 'yearly') rather than defaulting to 'daily'. */
+export function mapGoalPeriod(periodicity: string): string | null {
   switch (periodicity) {
     case 'daily':
     case 'weekly':
     case 'monthly':
       return periodicity;
     default:
-      return 'daily';
+      return null;
   }
 }
 
@@ -216,23 +238,31 @@ export function mapGoalPeriod(periodicity: string): string {
 
 const DAY_ABBREVS = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 
-/** Convert a v2 occurrence object to an RRULE string. */
+/**
+ * Convert a v2 occurrence object to an RRULE string.
+ * Unknown/future occurrence types (passed through by the schema so the whole
+ * habit doesn't fail to parse) fall back to null.
+ */
 export function occurrenceToRRule(occurrence: HabitifyOccurrence): string | null {
-  switch (occurrence.type) {
-    case 'daily':
-      return 'RRULE:FREQ=DAILY';
-    case 'weekDays': {
-      const days = occurrence.days
-        .map((d) => DAY_ABBREVS[d])
-        .filter(Boolean)
-        .join(',');
-      return days ? `RRULE:FREQ=WEEKLY;BYDAY=${days}` : 'RRULE:FREQ=DAILY';
-    }
-    case 'intervalDays':
-      return `RRULE:FREQ=DAILY;INTERVAL=${occurrence.interval}`;
-    default:
-      return null;
+  if (occurrence.type === 'daily') {
+    return 'RRULE:FREQ=DAILY';
   }
+
+  if (occurrence.type === 'weekDays') {
+    const rawDays = 'days' in occurrence ? occurrence.days : undefined;
+    const days = Array.isArray(rawDays) ? (rawDays as number[]) : [];
+    const dayNames = days.map((d) => DAY_ABBREVS[d]).filter(Boolean).join(',');
+    return dayNames ? `RRULE:FREQ=WEEKLY;BYDAY=${dayNames}` : 'RRULE:FREQ=DAILY';
+  }
+
+  if (occurrence.type === 'intervalDays') {
+    const rawInterval = 'interval' in occurrence ? occurrence.interval : undefined;
+    return typeof rawInterval === 'number'
+      ? `RRULE:FREQ=DAILY;INTERVAL=${rawInterval}`
+      : null;
+  }
+
+  return null;
 }
 
 // ─── TimeOfDay mapping ────────────────────────────────

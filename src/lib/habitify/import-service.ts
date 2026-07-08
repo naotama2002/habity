@@ -13,7 +13,6 @@ export interface ImportParams {
   apiKey: string;
   importHabits: boolean;
   importLogs: boolean;
-  timezone: string;
   userId: string;
   supabase: SupabaseClient;
 }
@@ -31,21 +30,37 @@ const BATCH_SIZE = 500;
 export async function runImport(params: ImportParams): Promise<ImportResult> {
   const { apiKey, importHabits, importLogs, userId, supabase } = params;
 
-  // 1. Fetch habits (also validates API key)
-  const habits = await getHabits(apiKey);
-
   const result: ImportResult = {
     habits_imported: 0,
     logs_imported: 0,
     errors: [],
   };
 
+  // 1. Fetch habits (also validates API key)
+  let habits: HabitifyHabit[];
+  try {
+    const fetched = await getHabits(apiKey);
+    habits = fetched.habits;
+    result.errors.push(...fetched.errors);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    result.errors.push(`Habitify API: ${msg}`);
+    return result;
+  }
+
   if (!importHabits && !importLogs) {
     return result;
   }
 
-  // 2. Extract areas → create categories
-  const categoryMap = await ensureCategories(supabase, userId, habits);
+  // 2. Extract areas → create categories. A failure here shouldn't block
+  // habit/log import — fall back to no categorization and keep going.
+  let categoryMap: Record<string, string> = {};
+  try {
+    categoryMap = await ensureCategories(supabase, userId, habits);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    result.errors.push(`categories: ${msg}`);
+  }
 
   // 3. Import habits (batch upsert)
   const habitIdMap = new Map<string, string>(); // habitify ID → habity ID
@@ -211,9 +226,9 @@ interface HabityHabitRow {
   description: string | null;
   category_id: string | null;
   tracking_type: string;
-  goal_value: number;
-  goal_unit: string;
-  goal_period: string;
+  goal_value: number | null;
+  goal_unit: string | null;
+  goal_period: string | null;
   recurrence_rule: string | null;
   time_of_day: string[];
   reminder_enabled: boolean;

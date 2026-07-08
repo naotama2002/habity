@@ -4,15 +4,28 @@ import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 global.fetch = mockFetch;
 
-import { getHabits, getStatistics, validate, formatDate } from '../client';
+import {
+  getHabits,
+  getStatistics,
+  validate,
+  formatDate,
+  __setRetrySleepForTesting,
+} from '../client';
 
-function jsonResponse(body: unknown, status = 200): Response {
+function jsonResponse(
+  body: unknown,
+  status = 200,
+  headers: Record<string, string> = {},
+): Response {
   return {
     ok: status >= 200 && status < 300,
     status,
     json: () => Promise.resolve(body),
     text: () => Promise.resolve(JSON.stringify(body)),
-  } as Response;
+    headers: {
+      get: (name: string) => headers[name] ?? null,
+    },
+  } as unknown as Response;
 }
 
 const sampleHabitV2 = {
@@ -44,6 +57,8 @@ const sampleHabitV2 = {
 describe('Habitify API v2 client', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Avoid real delays in retry-backoff tests.
+    __setRetrySleepForTesting(() => Promise.resolve());
   });
 
   describe('getHabits', () => {
@@ -63,7 +78,7 @@ describe('Habitify API v2 client', () => {
           }),
         );
 
-      const habits = await getHabits('test-api-key', 'http://localhost:9999');
+      const result = await getHabits('test-api-key', 'http://localhost:9999');
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining('http://localhost:9999/habits?'),
@@ -73,12 +88,13 @@ describe('Habitify API v2 client', () => {
         },
       );
 
-      expect(habits).toHaveLength(1);
-      expect(habits[0].id).toBe('habit-1');
-      expect(habits[0].name).toBe('Morning Run');
-      expect(habits[0].isArchived).toBe(false);
-      expect(habits[0].areas).toEqual([{ id: 'area-1', name: 'Health' }]);
-      expect(habits[0].goals).toHaveLength(1);
+      expect(result.errors).toEqual([]);
+      expect(result.habits).toHaveLength(1);
+      expect(result.habits[0].id).toBe('habit-1');
+      expect(result.habits[0].name).toBe('Morning Run');
+      expect(result.habits[0].isArchived).toBe(false);
+      expect(result.habits[0].areas).toEqual([{ id: 'area-1', name: 'Health' }]);
+      expect(result.habits[0].goals).toHaveLength(1);
     });
 
     it('should throw on unauthorized response', async () => {
@@ -121,9 +137,10 @@ describe('Habitify API v2 client', () => {
           }),
         );
 
-      const habits = await getHabits('test-api-key', 'http://localhost:9999');
+      const result = await getHabits('test-api-key', 'http://localhost:9999');
 
-      expect(habits).toHaveLength(110);
+      expect(result.habits).toHaveLength(110);
+      expect(result.errors).toEqual([]);
       expect(mockFetch).toHaveBeenCalledTimes(3); // 2 pages active + 1 page archived
     });
 
@@ -145,11 +162,11 @@ describe('Habitify API v2 client', () => {
           }),
         );
 
-      const habits = await getHabits('test-api-key', 'http://localhost:9999');
+      const result = await getHabits('test-api-key', 'http://localhost:9999');
 
-      expect(habits).toHaveLength(2);
-      expect(habits[0].id).toBe('active-1');
-      expect(habits[1].id).toBe('archived-1');
+      expect(result.habits).toHaveLength(2);
+      expect(result.habits[0].id).toBe('active-1');
+      expect(result.habits[1].id).toBe('archived-1');
 
       // Verify first call is for active, second for archived
       const url1 = (mockFetch.mock.calls[0] as [string])[0];
@@ -158,17 +175,65 @@ describe('Habitify API v2 client', () => {
       expect(url2).toContain('archived=true');
     });
 
-    it('should throw on malformed habit data (Zod validation)', async () => {
-      mockFetch.mockResolvedValue(
-        jsonResponse({
-          data: [{ is_archived: 'not-a-boolean' }],
-          pagination: { total: 1, limit: 100, offset: 0 },
-        }),
-      );
+    it('should skip a malformed habit and record an error instead of throwing', async () => {
+      mockFetch
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [{ is_archived: 'not-a-boolean' }],
+            pagination: { total: 1, limit: 100, offset: 0 },
+          }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [],
+            pagination: { total: 0, limit: 100, offset: 0 },
+          }),
+        );
 
-      await expect(
-        getHabits('test-api-key', 'http://localhost:9999'),
-      ).rejects.toThrow();
+      const result = await getHabits('test-api-key', 'http://localhost:9999');
+
+      expect(result.habits).toEqual([]);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toContain('index 0');
+    });
+
+    it('should import remaining habits when only one is malformed, and record the error', async () => {
+      const badHabit = { ...sampleHabitV2, id: 'bad-1', name: undefined };
+      mockFetch
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [sampleHabitV2, badHabit],
+            pagination: { total: 2, limit: 100, offset: 0 },
+          }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [],
+            pagination: { total: 0, limit: 100, offset: 0 },
+          }),
+        );
+
+      const result = await getHabits('test-api-key', 'http://localhost:9999');
+
+      expect(result.habits).toHaveLength(1);
+      expect(result.habits[0].id).toBe('habit-1');
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toContain('habit "undefined"');
+    });
+
+    it('should treat a null data field as an empty page', async () => {
+      mockFetch
+        .mockResolvedValueOnce(
+          jsonResponse({ data: null, pagination: { total: 0, limit: 100, offset: 0 } }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({ data: null, pagination: { total: 0, limit: 100, offset: 0 } }),
+        );
+
+      const result = await getHabits('test-api-key', 'http://localhost:9999');
+
+      expect(result.habits).toEqual([]);
+      expect(result.errors).toEqual([]);
     });
   });
 
@@ -236,6 +301,86 @@ describe('Habitify API v2 client', () => {
         getStatistics('test-api-key', 'habit-1', undefined, undefined, 'http://localhost:9999'),
       ).rejects.toThrow();
     });
+
+    it('should merge dailyProgress across paginated statistics pages', async () => {
+      const page1 = {
+        ...sampleStats,
+        dailyProgress: [
+          { date: '2024-01-15', totalLog: 1, status: 'completed' },
+          { date: '2024-01-16', totalLog: 0, status: 'skipped' },
+        ],
+      };
+      const page2 = {
+        ...sampleStats,
+        dailyProgress: [{ date: '2024-01-17', totalLog: 1, status: 'completed' }],
+      };
+
+      mockFetch
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: page1,
+            pagination: { total: 3, limit: 2, offset: 0 },
+          }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: page2,
+            pagination: { total: 3, limit: 2, offset: 2 },
+          }),
+        );
+
+      const stats = await getStatistics(
+        'test-api-key',
+        'habit-1',
+        undefined,
+        undefined,
+        'http://localhost:9999',
+      );
+
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(stats.dailyProgress).toEqual([
+        { date: '2024-01-15', totalLog: 1, status: 'completed' },
+        { date: '2024-01-16', totalLog: 0, status: 'skipped' },
+        { date: '2024-01-17', totalLog: 1, status: 'completed' },
+      ]);
+
+      const secondUrl = (mockFetch.mock.calls[1] as [string])[0];
+      expect(secondUrl).toContain('offset=2');
+    });
+
+    it('should fetch only once when there is no pagination info', async () => {
+      mockFetch.mockResolvedValue(jsonResponse({ data: sampleStats }));
+
+      const stats = await getStatistics(
+        'test-api-key',
+        'habit-1',
+        undefined,
+        undefined,
+        'http://localhost:9999',
+      );
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(stats.dailyProgress).toHaveLength(2);
+    });
+
+    it('should fetch only once when pagination indicates a single complete page', async () => {
+      mockFetch.mockResolvedValue(
+        jsonResponse({
+          data: sampleStats,
+          pagination: { total: 2, limit: 100, offset: 0 },
+        }),
+      );
+
+      await getStatistics(
+        'test-api-key',
+        'habit-1',
+        undefined,
+        undefined,
+        'http://localhost:9999',
+      );
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('validate', () => {
@@ -259,6 +404,73 @@ describe('Habitify API v2 client', () => {
       await expect(
         validate('bad-key', 'http://localhost:9999'),
       ).rejects.toThrow();
+    });
+  });
+
+  describe('retry behavior (429/5xx)', () => {
+    const okHabitsPage = {
+      data: [],
+      pagination: { total: 0, limit: 100, offset: 0 },
+    };
+
+    it('should retry on 429 and succeed', async () => {
+      mockFetch
+        .mockResolvedValueOnce(jsonResponse('', 429))
+        .mockResolvedValueOnce(jsonResponse(okHabitsPage))
+        .mockResolvedValueOnce(jsonResponse(okHabitsPage)); // archived page
+
+      const result = await getHabits('test-api-key', 'http://localhost:9999');
+
+      expect(result.habits).toEqual([]);
+      expect(result.errors).toEqual([]);
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('should respect a Retry-After header when retrying', async () => {
+      const sleepSpy = jest.fn<(ms: number) => Promise<void>>(() => Promise.resolve());
+      __setRetrySleepForTesting(sleepSpy);
+
+      mockFetch
+        .mockResolvedValueOnce(jsonResponse('', 429, { 'Retry-After': '2' }))
+        .mockResolvedValueOnce(jsonResponse(okHabitsPage))
+        .mockResolvedValueOnce(jsonResponse(okHabitsPage));
+
+      await getHabits('test-api-key', 'http://localhost:9999');
+
+      expect(sleepSpy).toHaveBeenCalledWith(2000);
+    });
+
+    it('should retry on 5xx and succeed', async () => {
+      mockFetch
+        .mockResolvedValueOnce(jsonResponse('', 503))
+        .mockResolvedValueOnce(jsonResponse(okHabitsPage))
+        .mockResolvedValueOnce(jsonResponse(okHabitsPage));
+
+      const result = await getHabits('test-api-key', 'http://localhost:9999');
+
+      expect(result.habits).toEqual([]);
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('should throw once the retry limit is exceeded', async () => {
+      mockFetch.mockResolvedValue(jsonResponse('', 503));
+
+      await expect(
+        getHabits('test-api-key', 'http://localhost:9999'),
+      ).rejects.toThrow('get habits: status 503');
+
+      // initial attempt + 3 retries = 4 calls before giving up
+      expect(mockFetch).toHaveBeenCalledTimes(4);
+    });
+
+    it('should not retry non-retryable 4xx errors', async () => {
+      mockFetch.mockResolvedValue(jsonResponse('', 400));
+
+      await expect(
+        getHabits('test-api-key', 'http://localhost:9999'),
+      ).rejects.toThrow('get habits: status 400');
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
     });
   });
 

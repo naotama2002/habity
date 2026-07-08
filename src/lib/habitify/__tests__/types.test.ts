@@ -77,10 +77,13 @@ describe('Habitify v2 Zod schemas', () => {
       expect(HabitifyOccurrenceSchema.parse(data)).toEqual(data);
     });
 
-    it('should reject unknown occurrence type', () => {
-      expect(() =>
-        HabitifyOccurrenceSchema.parse({ type: 'unknown' }),
-      ).toThrow(ZodError);
+    it('should accept an unknown occurrence type via the passthrough fallback', () => {
+      const data = { type: 'timesPerWeek', times: 3 };
+      expect(HabitifyOccurrenceSchema.parse(data)).toEqual(data);
+    });
+
+    it('should reject an occurrence with no type', () => {
+      expect(() => HabitifyOccurrenceSchema.parse({})).toThrow(ZodError);
     });
   });
 
@@ -129,6 +132,16 @@ describe('Habitify v2 Zod schemas', () => {
       const withExtra = { ...validHabit, unknown_field: true };
       const parsed = HabitifyHabitSchema.parse(withExtra);
       expect((parsed as Record<string, unknown>)['unknown_field']).toBeUndefined();
+    });
+
+    it('should accept a habit with colorHex: null', () => {
+      const data = { ...validHabit, colorHex: null };
+      expect(HabitifyHabitSchema.parse(data)).toMatchObject(data);
+    });
+
+    it('should accept a habit with colorHex omitted', () => {
+      const { colorHex: _colorHex, ...noColorHex } = validHabit;
+      expect(() => HabitifyHabitSchema.parse(noColorHex)).not.toThrow();
     });
   });
 
