@@ -11,16 +11,12 @@ import 'react-native-gesture-handler/jestSetup';
  */
 
 // SafeAreaContext - React Native のレイアウト機能
-jest.mock('react-native-safe-area-context', () => {
-  const inset = { top: 0, right: 0, bottom: 0, left: 0 };
-  return {
-    SafeAreaProvider: jest.fn().mockImplementation(({ children }) => children),
-    SafeAreaConsumer: jest
-      .fn()
-      .mockImplementation(({ children }) => children(inset)),
-    useSafeAreaInsets: jest.fn().mockImplementation(() => inset),
-  };
-});
+// ライブラリ公式のモックを使う。requireActual で実コンポーネント
+// (SafeAreaView など) はそのまま通し、insets/frame の計測だけ固定値にする。
+// 手書きモックだと公開 API が増えたときに undefined になり気付きにくい。
+jest.mock('react-native-safe-area-context', () =>
+  require('react-native-safe-area-context/jest/mock').default
+);
 
 // expo-constants - アプリ設定
 jest.mock('expo-constants', () => ({

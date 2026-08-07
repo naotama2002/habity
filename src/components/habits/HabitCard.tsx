@@ -376,7 +376,12 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   flashOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    // RN 0.86 で StyleSheet.absoluteFillObject が削除されたため展開して記述する
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     backgroundColor: colors.success[100],
     borderRadius: borderRadius.lg,
   },

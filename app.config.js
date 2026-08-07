@@ -19,7 +19,10 @@ export default {
       favicon: "./assets/favicon.png"
     },
     plugins: [
-      "expo-router"
+      "expo-router",
+      "expo-image",
+      "expo-status-bar",
+      "expo-font"
     ],
     experiments: {
       typedRoutes: true

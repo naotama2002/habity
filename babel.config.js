@@ -14,7 +14,9 @@ module.exports = function (api) {
           }
         }
       ],
-      "react-native-reanimated/plugin"
+      // Reanimated 4 から worklets は別パッケージに分離された。
+      // "react-native-reanimated/plugin" は再エクスポートするだけの shim。
+      "react-native-worklets/plugin"
     ]
   };
 };
