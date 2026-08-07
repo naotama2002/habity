@@ -21,7 +21,7 @@
     "intl:check": "node scripts/check-translations.js"
   },
   "dependencies": {
-    "@babel/runtime": "^7.28.6",
+    "@babel/runtime": "^8.0.0",
     "@expo/vector-icons": "^14.0.0",
     "@lingui/core": "^6.6.0",
     "@lingui/react": "^6.6.0",
