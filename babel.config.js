@@ -3,7 +3,7 @@ module.exports = function (api) {
   return {
     presets: ["babel-preset-expo"],
     plugins: [
-      "macros",
+      "@lingui/babel-plugin-lingui-macro",
       [
         "module-resolver",
         {

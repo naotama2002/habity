@@ -1,5 +1,5 @@
 import {View, Text, StyleSheet} from 'react-native';
-import { msg } from '@lingui/macro';
+import { msg } from '@lingui/core/macro';
 import {useLingui} from '@lingui/react';
 import {colors} from '@/lib/colors';
 import {typography} from '@/lib/typography';

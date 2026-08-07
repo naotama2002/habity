@@ -1,5 +1,5 @@
 import {View, Text, StyleSheet, Pressable} from 'react-native';
-import {msg} from '@lingui/macro';
+import {msg} from '@lingui/core/macro';
 import {useLingui} from '@lingui/react';
 import {SegmentedControl, Input} from '@/components/ui';
 import {lightTheme} from '@/lib/colors';
