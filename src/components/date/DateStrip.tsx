@@ -7,7 +7,7 @@ import {
   Pressable,
   LayoutChangeEvent,
 } from 'react-native';
-import {msg} from '@lingui/macro';
+import {msg} from '@lingui/core/macro';
 import {useLingui} from '@lingui/react';
 import {addDays, format, isToday, isTomorrow} from 'date-fns';
 import {ja, enUS} from 'date-fns/locale';

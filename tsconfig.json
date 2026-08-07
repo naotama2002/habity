@@ -2,6 +2,11 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    // expo/tsconfig.base は moduleResolution: "node" (node10) のため
+    // package.json の "exports" を解決できない。
+    // ESM-only の @lingui/* v6 を解決するために bundler 解決へ上書きする。
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],

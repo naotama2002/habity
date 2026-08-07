@@ -1,6 +1,6 @@
 import {useState, useMemo, useCallback, useRef} from 'react';
 import {View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, RefreshControl} from 'react-native';
-import {msg} from '@lingui/macro';
+import {msg} from '@lingui/core/macro';
 import {useLingui} from '@lingui/react';
 import {useRouter} from 'expo-router';
 import {SafeAreaView} from 'react-native-safe-area-context';

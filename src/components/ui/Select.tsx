@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Pressable, Modal, FlatList, SafeAreaView } from 'react-native';
 import { useState } from 'react';
-import { msg } from '@lingui/macro';
+import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
 import { Ionicons } from '@expo/vector-icons';
 import { lightTheme } from '@/lib/colors';

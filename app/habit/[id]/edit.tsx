@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
-import { msg } from '@lingui/macro';
+import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';

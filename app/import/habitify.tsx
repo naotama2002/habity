@@ -10,7 +10,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from 'react-native';
-import { msg } from '@lingui/macro';
+import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
