@@ -22,7 +22,7 @@
     "check:web": "node scripts/check-web-bundle.js"
   },
   "dependencies": {
-    "@babel/runtime": "^7.28.6",
+    "@babel/runtime": "^8.0.0",
     "@expo/metro-runtime": "~57.0.8",
     "@expo/vector-icons": "^15.1.1",
     "@lingui/core": "^6.6.0",
