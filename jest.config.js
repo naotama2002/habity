@@ -1,5 +1,8 @@
 module.exports = {
   preset: 'jest-expo',
+  // react-native-worklets (Reanimated 4) を jest から読めるようにする。
+  // 詳細は jest/resolver.js のコメントを参照。
+  resolver: './jest/resolver.js',
   setupFilesAfterEnv: [
     './jest/jestSetup.js',
     '@testing-library/react-native/extend-expect',

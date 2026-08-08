@@ -2,15 +2,15 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    // expo/tsconfig.base は moduleResolution: "node" (node10) のため
-    // package.json の "exports" を解決できない。
-    // ESM-only の @lingui/* v6 を解決するために bundler 解決へ上書きする。
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "baseUrl": ".",
+    // SDK 57 の expo/tsconfig.base 配下では node_modules/@types の
+    // 自動取り込みが効かず、jest / node のグローバル型が解決できない。
+    // 使用するアンビエント型を明示する。
+    "types": ["jest", "node"],
+    // baseUrl は TS 5.9 で deprecated。moduleResolution: "bundler" では
+    // paths が tsconfig.json からの相対で解決されるため不要。
     "paths": {
-      "@/*": ["src/*"],
-      "#/*": ["src/*"]
+      "@/*": ["./src/*"],
+      "#/*": ["./src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],

@@ -100,7 +100,7 @@ describe('HabitForm', () => {
         />
       );
 
-      const dateInput = root.findAll((node: {type: string | React.ComponentType}) => node.type === 'input')[0];
+      const dateInput = root.findAll((node) => node.type === 'input')[0];
       expect(dateInput.props.value).toBe('2025-06-15');
     });
 
@@ -170,7 +170,7 @@ describe('HabitForm', () => {
       );
 
       // Change the date via the native input's onChange handler
-      const dateInput = root.findAll((node: {type: string | React.ComponentType}) => node.type === 'input')[0];
+      const dateInput = root.findAll((node) => node.type === 'input')[0];
       act(() => {
         dateInput.props.onChange({ target: { value: '2025-06-15' } });
       });
@@ -353,7 +353,7 @@ describe('HabitForm', () => {
       );
 
       // Find date inputs (start_date and end_date)
-      const dateInputs = root.findAll((node: {type: string | React.ComponentType}) => node.type === 'input');
+      const dateInputs = root.findAll((node) => node.type === 'input');
       const endDateInput = dateInputs[1]; // second date input
       expect(endDateInput.props.value).toBe('2025-12-31');
     });
@@ -397,7 +397,7 @@ describe('HabitForm', () => {
       fireEvent.changeText(nameInput, 'Test Habit');
 
       // Set end date
-      const dateInputs = root.findAll((node: {type: string | React.ComponentType}) => node.type === 'input');
+      const dateInputs = root.findAll((node) => node.type === 'input');
       const endDateInput = dateInputs[1];
       act(() => {
         endDateInput.props.onChange({ target: { value: '2025-06-30' } });
