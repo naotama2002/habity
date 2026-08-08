@@ -35,3 +35,8 @@ jobs:
 
       - name: Export Web
         run: npx expo export --platform web
+
+      # export の成功だけでは、バンドルがブラウザで起動するかは分からない。
+      # 起動時例外で画面が真っ白になるケースを検出する。
+      - name: Smoke test web bundle
+        run: pnpm check:web

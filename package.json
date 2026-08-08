@@ -18,7 +18,8 @@
     "intl:extract": "lingui extract --clean",
     "intl:compile": "lingui compile",
     "intl:build": "pnpm intl:extract && pnpm intl:compile",
-    "intl:check": "node scripts/check-translations.js"
+    "intl:check": "node scripts/check-translations.js",
+    "check:web": "node scripts/check-web-bundle.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.28.6",
@@ -69,6 +70,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "jest": "^29.7.0",
     "jest-expo": "~57.0.3",
+    "jsdom": "^20.0.3",
     "prettier": "^3.3.0",
     "sharp": "^0.35.0",
     "typescript": "~6.0.3"
