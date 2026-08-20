@@ -8,9 +8,10 @@ import NewHabitScreen from '../new';
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
-      getUser: jest.fn(() =>
+      // 書き込みパスはネットワーク往復を避けるため getSession() を使う
+      getSession: jest.fn(() =>
         Promise.resolve({
-          data: { user: { id: 'test-user-id' } },
+          data: { session: { user: { id: 'test-user-id' } } },
           error: null,
         })
       ),

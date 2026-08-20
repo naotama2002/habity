@@ -19,9 +19,12 @@ export function useUserSettings() {
   return useQuery({
     queryKey: userSettingsKeys.detail(),
     queryFn: async () => {
+      // getUser() はネットワーク往復を伴い GoTrue のロックで直列化される。
+      // ローカルのセッションで足りるため getSession() を使う。
       const {
-        data: {user},
-      } = await supabase.auth.getUser();
+        data: {session},
+      } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) throw new Error('認証が必要です');
 
       const {data, error} = await supabase
