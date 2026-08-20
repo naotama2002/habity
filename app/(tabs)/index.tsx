@@ -37,7 +37,7 @@ export default function TodayScreen() {
   const [openMenuHabitId, setOpenMenuHabitId] = useState<string | null>(null);
   const weekStart = useWeekStart();
 
-  const {data: habits, isLoading, isFetching, error, refetch} = useHabitsWithLog(selectedDate, weekStart);
+  const {data: habits, isLoading, isFetching, error, refetch, dataUpdatedAt} = useHabitsWithLog(selectedDate, weekStart);
   const toggleLog = useToggleHabitLog();
   const skipLog = useSkipHabitLog();
   const unskipLog = useUnskipHabitLog();
@@ -171,6 +171,7 @@ export default function TodayScreen() {
                         habit={habit}
                         streak={getStreakForDate(habit.id)}
                         onToggle={handleToggle}
+                        syncedAt={dataUpdatedAt}
                         onSkip={() => handleSkip(habit)}
                         onUnskip={() => handleUnskip(habit)}
                         onUncomplete={() => handleToggle(habit)}

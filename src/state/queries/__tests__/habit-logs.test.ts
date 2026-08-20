@@ -2,14 +2,16 @@ import {describe, expect, it, jest, beforeEach} from '@jest/globals';
 
 // Supabase モック
 const mockFrom = jest.fn();
-const mockGetUser = jest.fn<() => Promise<{data: {user: {id: string} | null}}>>()
-  .mockResolvedValue({data: {user: {id: 'user-1'}}});
+// 書き込みパスはネットワーク往復を避けるため getSession() を使う
+const mockGetSession = jest
+  .fn<() => Promise<{data: {session: {user: {id: string}} | null}}>>()
+  .mockResolvedValue({data: {session: {user: {id: 'user-1'}}}});
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     from: (...args: unknown[]) => mockFrom(...args),
     auth: {
-      getUser: () => mockGetUser(),
+      getSession: () => mockGetSession(),
     },
   },
 }));
@@ -43,7 +45,7 @@ const mockedUseMutation = useMutation as jest.MockedFunction<typeof useMutation>
 describe('habit-logs queries', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetUser.mockResolvedValue({data: {user: {id: 'user-1'}}});
+    mockGetSession.mockResolvedValue({data: {session: {user: {id: 'user-1'}}}});
   });
 
   describe('useSkipHabitLog', () => {
@@ -124,7 +126,7 @@ describe('habit-logs queries', () => {
     });
 
     it('should throw when user is not authenticated', async () => {
-      mockGetUser.mockResolvedValue({data: {user: null}});
+      mockGetSession.mockResolvedValue({data: {session: null}});
 
       const mutationFn = getSkipMutationFn();
       await expect(

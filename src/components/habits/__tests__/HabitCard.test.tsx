@@ -441,4 +441,58 @@ describe('HabitCard', () => {
       expect(screen.queryByTestId('habit-actions-menu')).toBeNull();
     });
   });
+
+  describe('楽観表示のサーバ状態への復帰', () => {
+    // 回帰: チェックしても記録されず、以後つけ外ししても直らない不具合。
+    //
+    // ミューテーションが失敗するとサーバ状態は「変化しない」ため、
+    // habit.is_completed のみを依存にした同期では巻き戻しが走らず、
+    // チェックが付いたまま固着していた。
+    // その状態では次のタップが「完了解除」方向になるため、
+    // 完了時のみ再生されるフラッシュアニメーションも走らなくなる。
+    it('再取得後もサーバ状態が未完了なら、楽観表示のチェックを取り消す', () => {
+      const habit = createMockHabitWithLog({is_completed: false, log_id: null});
+      const {rerender} = render(<HabitCard habit={habit} syncedAt={1000} />);
+
+      fireEvent.press(screen.getByTestId('habit-checkbox'));
+      expect(screen.queryByText('✓')).toBeTruthy();
+
+      // ミューテーション失敗 → onSettled の invalidate で再取得が走るが
+      // サーバ状態は未完了のまま（dataUpdatedAt だけが進む）
+      rerender(<HabitCard habit={habit} syncedAt={2000} />);
+
+      expect(screen.queryByText('✓')).toBeNull();
+    });
+
+    it('巻き戻し後のタップは「完了」方向になる（アニメーション再生条件）', () => {
+      const onToggle = jest.fn();
+      const habit = createMockHabitWithLog({is_completed: false, log_id: null});
+      const {rerender} = render(
+        <HabitCard habit={habit} syncedAt={1000} onToggle={onToggle} />,
+      );
+
+      fireEvent.press(screen.getByTestId('habit-checkbox'));
+      rerender(
+        <HabitCard habit={habit} syncedAt={2000} onToggle={onToggle} />,
+      );
+
+      fireEvent.press(screen.getByTestId('habit-checkbox'));
+
+      expect(screen.queryByText('✓')).toBeTruthy();
+      expect(onToggle).toHaveBeenCalledTimes(2);
+    });
+
+    it('再取得でサーバ状態が完了になったらチェックを維持する', () => {
+      const before = createMockHabitWithLog({is_completed: false, log_id: null});
+      const {rerender} = render(<HabitCard habit={before} syncedAt={1000} />);
+
+      fireEvent.press(screen.getByTestId('habit-checkbox'));
+
+      const after = createMockHabitWithLog({is_completed: true, log_id: 'log-1'});
+      rerender(<HabitCard habit={after} syncedAt={2000} />);
+
+      expect(screen.queryByText('✓')).toBeTruthy();
+    });
+  });
+
 });
