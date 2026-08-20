@@ -32,6 +32,17 @@ interface HabitCardProps {
   onUncomplete?: () => void;
   /** メニュー開閉通知コールバック（リンクメニュー or アクションメニュー） */
   onMenuOpenChange?: (open: boolean) => void;
+  /**
+   * 一覧クエリが最後にサーバ応答を受け取った時刻 (React Query の dataUpdatedAt)。
+   *
+   * 楽観表示をサーバ状態へ戻すためのトリガーとして使う。
+   * habit.is_completed だけを依存にすると、ミューテーションが失敗して
+   * サーバ状態が「変わらなかった」場合に同期が走らず、
+   * チェックが付いたままなのに未記録という状態で固着する。
+   * dataUpdatedAt は内容が同一でも再取得のたびに変わるため、
+   * 失敗時にも確実に戻せる。
+   */
+  syncedAt?: number;
 }
 
 /**
@@ -46,6 +57,7 @@ export function HabitCard({
   onUnskip,
   onUncomplete,
   onMenuOpenChange,
+  syncedAt,
 }: HabitCardProps) {
   const {_} = useLingui();
   const isSkipped = habit.is_skipped;
@@ -57,9 +69,11 @@ export function HabitCard({
   const [actionMenuOpen, setActionMenuOpen] = useState(false);
 
   // サーバーからの確定データで同期
+  // syncedAt を依存に含めることで、ミューテーション失敗によりサーバ状態が
+  // 変化しなかった場合でも、再取得のたびに楽観表示を巻き戻せる。
   useEffect(() => {
     setOptimisticCompleted(habit.is_completed);
-  }, [habit.is_completed]);
+  }, [habit.is_completed, habit.log_id, syncedAt]);
 
   const urls = useMemo(() => extractUrls(habit.description), [habit.description]);
 

@@ -72,7 +72,11 @@ export function useCreateHabitLog() {
   return useMutation({
     mutationFn: async (input: CreateHabitLogInput) => {
       // 現在のユーザーIDを取得
-      const { data: { user } } = await supabase.auth.getUser();
+      // getUser() はネットワーク往復を伴い、GoTrue のロックで直列化される。
+      // 書き込みの前段で詰まると記録自体が失われるため、ローカルの
+      // セッションを読む getSession() を使う。
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) {
         throw new Error('認証が必要です');
       }
@@ -91,9 +95,12 @@ export function useCreateHabitLog() {
       if (error) throw error;
       return data as HabitLog;
     },
-    onSuccess: (data) => {
+    onSettled: (data) => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(data.target_date) });
+      // 失敗時は data が undefined になる
+      if (data) {
+        queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(data.target_date) });
+      }
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
       queryClient.invalidateQueries({ queryKey: streakKeys.all });
     },
@@ -123,9 +130,12 @@ export function useUpdateHabitLog() {
       if (error) throw error;
       return data as HabitLog;
     },
-    onSuccess: (data) => {
+    onSettled: (data) => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(data.target_date) });
+      // 失敗時は data が undefined になる
+      if (data) {
+        queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(data.target_date) });
+      }
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
       queryClient.invalidateQueries({ queryKey: streakKeys.all });
     },
@@ -153,7 +163,7 @@ export function useDeleteHabitLog() {
 
       return log?.target_date;
     },
-    onSuccess: (targetDate) => {
+    onSettled: (targetDate) => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       if (targetDate) {
         queryClient.invalidateQueries({ queryKey: habitLogKeys.byDate(targetDate) });
@@ -195,7 +205,8 @@ export function useToggleHabitLog() {
       } else {
         // Create new log (complete)
         // 現在のユーザーIDを取得
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
         if (!user) {
           throw new Error('認証が必要です');
         }
@@ -217,7 +228,7 @@ export function useToggleHabitLog() {
         return data as HabitLog;
       }
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
       queryClient.invalidateQueries({ queryKey: streakKeys.all });
@@ -242,7 +253,11 @@ export function useSkipHabitLog() {
       targetDate: string;
       currentLogId?: string | null;
     }) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      // getUser() はネットワーク往復を伴い、GoTrue のロックで直列化される。
+      // 書き込みの前段で詰まると記録自体が失われるため、ローカルの
+      // セッションを読む getSession() を使う。
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) {
         throw new Error('認証が必要です');
       }
@@ -277,7 +292,7 @@ export function useSkipHabitLog() {
         return data as HabitLog;
       }
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
       queryClient.invalidateQueries({ queryKey: streakKeys.all });
@@ -297,7 +312,7 @@ export function useUnskipHabitLog() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: habitLogKeys.lists() });
       queryClient.invalidateQueries({ queryKey: habitKeys.all });
       queryClient.invalidateQueries({ queryKey: streakKeys.all });
