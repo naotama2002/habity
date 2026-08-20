@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useHabits, useReorderHabits, useArchiveHabit, useUnarchiveHabit } from '@/state/queries/habits';
+import { useToast } from '@/state/toast';
 import { HabitListItem } from '@/components/habits';
 import { SearchInput, SegmentedControl, SortableList } from '@/components/ui';
 import { colors, lightTheme } from '@/lib/colors';
@@ -39,6 +40,7 @@ export default function HabitsScreen() {
   const [editMode, setEditMode] = useState(false);
   const [localHabits, setLocalHabits] = useState<Habit[]>([]);
   const [openMenuHabitId, setOpenMenuHabitId] = useState<string | null>(null);
+  const { showError } = useToast();
   const reorderMutation = useReorderHabits();
   const archiveHabit = useArchiveHabit();
   const unarchiveHabit = useUnarchiveHabit();
@@ -107,12 +109,27 @@ export default function HabitsScreen() {
     setEditMode(true);
   }, [habits]);
 
+  const handleArchive = useCallback((habitId: string) => {
+    archiveHabit.mutate(habitId, {
+      onError: () => showError(_(msg`Failed to archive. Please try again.`)),
+    });
+  }, [archiveHabit, showError, _]);
+
+  const handleUnarchive = useCallback((habitId: string) => {
+    unarchiveHabit.mutate(habitId, {
+      onError: () => showError(_(msg`Failed to unarchive. Please try again.`)),
+    });
+  }, [unarchiveHabit, showError, _]);
+
   // 編集モード終了・保存
   const handleDoneEdit = useCallback(() => {
     const updates = buildSortOrderUpdates(localHabits);
-    reorderMutation.mutate(updates);
+    // 失敗を黙って捨てるとローカルの並び順だけが変わって見えるため通知する
+    reorderMutation.mutate(updates, {
+      onError: () => showError(_(msg`Failed to reorder. Please try again.`)),
+    });
     setEditMode(false);
-  }, [localHabits, reorderMutation]);
+  }, [localHabits, reorderMutation, showError, _]);
 
   if (isLoading) {
     return (
@@ -244,8 +261,8 @@ export default function HabitsScreen() {
                           habit={habit}
                           onPress={handlePressHabit}
                           isArchived={habit.status === 'archived'}
-                          onArchive={() => archiveHabit.mutate(habit.id)}
-                          onUnarchive={() => unarchiveHabit.mutate(habit.id)}
+                          onArchive={() => handleArchive(habit.id)}
+                          onUnarchive={() => handleUnarchive(habit.id)}
                           onMenuOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
                         />
                       </View>
@@ -278,8 +295,8 @@ export default function HabitsScreen() {
                           habit={habit}
                           onPress={handlePressHabit}
                           isArchived={habit.status === 'archived'}
-                          onArchive={() => archiveHabit.mutate(habit.id)}
-                          onUnarchive={() => unarchiveHabit.mutate(habit.id)}
+                          onArchive={() => handleArchive(habit.id)}
+                          onUnarchive={() => handleUnarchive(habit.id)}
                           onMenuOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
                         />
                       </View>

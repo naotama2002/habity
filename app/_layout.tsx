@@ -5,6 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/react-query';
 import { SessionProvider, useSession } from '@/state/session';
+import { ToastProvider } from '@/state/toast';
 import { I18nProvider } from '@/locale';
 
 /**
@@ -85,7 +86,7 @@ function MainLayout() {
 
 /**
  * ルートレイアウト
- * Provider 階層: GestureHandler → I18n → QueryClient → Session
+ * Provider 階層: GestureHandler → I18n → QueryClient → Session → Toast
  */
 export default function RootLayout() {
   return (
@@ -93,7 +94,9 @@ export default function RootLayout() {
       <I18nProvider>
         <QueryClientProvider client={queryClient}>
           <SessionProvider>
-            <MainLayout />
+            <ToastProvider>
+              <MainLayout />
+            </ToastProvider>
           </SessionProvider>
         </QueryClientProvider>
       </I18nProvider>

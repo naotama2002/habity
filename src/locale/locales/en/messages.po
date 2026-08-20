@@ -30,13 +30,13 @@ msgstr "8+ chars, upper/lower/digit"
 msgid "About This App"
 msgstr "About This App"
 
-#: app/(tabs)/habits.tsx:48
+#: app/(tabs)/habits.tsx:50
 msgid "Active"
 msgstr "Active"
 
-#: app/(tabs)/habits.tsx:190
-#: app/(tabs)/habits.tsx:224
-#: app/(tabs)/index.tsx:151
+#: app/(tabs)/habits.tsx:207
+#: app/(tabs)/habits.tsx:241
+#: app/(tabs)/index.tsx:169
 msgid "Add a new habit to get started"
 msgstr "Add a new habit to get started"
 
@@ -45,7 +45,7 @@ msgstr "Add a new habit to get started"
 msgid "Afternoon"
 msgstr "Afternoon"
 
-#: app/(tabs)/habits.tsx:47
+#: app/(tabs)/habits.tsx:49
 msgid "All"
 msgstr "All"
 
@@ -66,7 +66,7 @@ msgstr "Appearance"
 msgid "Archive"
 msgstr "Archive"
 
-#: app/(tabs)/habits.tsx:49
+#: app/(tabs)/habits.tsx:51
 msgid "Archived"
 msgstr "Archived"
 
@@ -78,7 +78,7 @@ msgstr "Back"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: app/(tabs)/habits.tsx:263
+#: app/(tabs)/habits.tsx:280
 msgid "Category"
 msgstr "Category"
 
@@ -96,10 +96,11 @@ msgid "Click the link in the email to activate your account."
 msgstr "Click the link in the email to activate your account."
 
 #: app/import/habitify.tsx:259
+#: src/state/toast/index.tsx:73
 msgid "Close"
 msgstr "Close"
 
-#: app/(tabs)/index.tsx:213
+#: app/(tabs)/index.tsx:232
 msgid "completed"
 msgstr "completed"
 
@@ -155,7 +156,7 @@ msgstr "Discard Changes"
 msgid "Don't have an account?"
 msgstr "Don't have an account?"
 
-#: app/(tabs)/habits.tsx:147
+#: app/(tabs)/habits.tsx:164
 msgid "Done"
 msgstr "Done"
 
@@ -163,7 +164,7 @@ msgstr "Done"
 msgid "e.g., Reading, Exercise, Meditation"
 msgstr "e.g., Reading, Exercise, Meditation"
 
-#: app/(tabs)/habits.tsx:147
+#: app/(tabs)/habits.tsx:164
 msgid "Edit"
 msgstr "Edit"
 
@@ -210,14 +211,38 @@ msgstr "Evening"
 msgid "Export Data"
 msgstr "Export Data"
 
-#: app/(tabs)/habits.tsx:131
-#: app/(tabs)/index.tsx:125
+#: app/(tabs)/habits.tsx:114
+msgid "Failed to archive. Please try again."
+msgstr "Failed to archive. Please try again."
+
+#: app/(tabs)/habits.tsx:148
+#: app/(tabs)/index.tsx:143
 msgid "Failed to load habits"
 msgstr "Failed to load habits"
+
+#: app/(tabs)/index.tsx:119
+msgid "Failed to remove skip. Please try again."
+msgstr "Failed to remove skip. Please try again."
+
+#: app/(tabs)/habits.tsx:129
+msgid "Failed to reorder. Please try again."
+msgstr "Failed to reorder. Please try again."
 
 #: src/components/forms/HabitForm.tsx:207
 msgid "Failed to save. Please try again."
 msgstr "Failed to save. Please try again."
+
+#: app/(tabs)/index.tsx:109
+msgid "Failed to skip. Please try again."
+msgstr "Failed to skip. Please try again."
+
+#: app/(tabs)/habits.tsx:120
+msgid "Failed to unarchive. Please try again."
+msgstr "Failed to unarchive. Please try again."
+
+#: app/(tabs)/index.tsx:95
+msgid "Failed to update the check. Please try again."
+msgstr "Failed to update the check. Please try again."
 
 #: app/(tabs)/settings.tsx:72
 msgid "Feedback"
@@ -337,7 +362,7 @@ msgstr "Make habits simpler"
 msgid "Manage Categories"
 msgstr "Manage Categories"
 
-#: src/components/habits/HabitCard.tsx:186
+#: src/components/habits/HabitCard.tsx:200
 msgid "Mark as incomplete"
 msgstr "Mark as incomplete"
 
@@ -374,13 +399,13 @@ msgstr "New Habit"
 msgid "Night"
 msgstr "Night"
 
-#: app/(tabs)/habits.tsx:188
-#: app/(tabs)/habits.tsx:219
-#: app/(tabs)/index.tsx:149
+#: app/(tabs)/habits.tsx:205
+#: app/(tabs)/habits.tsx:236
+#: app/(tabs)/index.tsx:167
 msgid "No habits yet"
 msgstr "No habits yet"
 
-#: app/(tabs)/habits.tsx:219
+#: app/(tabs)/habits.tsx:236
 msgid "No search results"
 msgstr "No search results"
 
@@ -410,7 +435,7 @@ msgstr "Password"
 msgid "Please sign in"
 msgstr "Please sign in"
 
-#: app/(tabs)/index.tsx:126
+#: app/(tabs)/index.tsx:144
 msgid "Please try again"
 msgstr "Please try again"
 
@@ -430,7 +455,7 @@ msgstr "Registration complete"
 msgid "Registration failed. Please try again."
 msgstr "Registration failed. Please try again."
 
-#: src/components/habits/HabitCard.tsx:169
+#: src/components/habits/HabitCard.tsx:183
 msgid "Remove skip"
 msgstr "Remove skip"
 
@@ -447,7 +472,7 @@ msgstr "Save"
 msgid "Saving..."
 msgstr "Saving..."
 
-#: src/components/ui/Select.tsx:81
+#: src/components/ui/Select.tsx:82
 msgid "Select"
 msgstr "Select"
 
@@ -456,7 +481,7 @@ msgstr "Select"
 msgid "Select all"
 msgstr "Select all"
 
-#: src/components/ui/Select.tsx:41
+#: src/components/ui/Select.tsx:42
 msgid "Select an option"
 msgstr "Select an option"
 
@@ -490,11 +515,11 @@ msgstr "Sign Out"
 msgid "Sign Up"
 msgstr "Sign Up"
 
-#: src/components/habits/HabitCard.tsx:202
+#: src/components/habits/HabitCard.tsx:216
 msgid "Skip for today"
 msgstr "Skip for today"
 
-#: src/components/habits/HabitCard.tsx:265
+#: src/components/habits/HabitCard.tsx:279
 msgid "Skipped"
 msgstr "Skipped"
 
@@ -510,7 +535,7 @@ msgstr "Start Date"
 msgid "Statistics coming soon"
 msgstr "Statistics coming soon"
 
-#: src/components/habits/HabitCard.tsx:205
+#: src/components/habits/HabitCard.tsx:219
 msgid "Streak will not be broken"
 msgstr "Streak will not be broken"
 
@@ -554,7 +579,7 @@ msgstr "times per month"
 msgid "times per week"
 msgstr "times per week"
 
-#: app/(tabs)/index.tsx:77
+#: app/(tabs)/index.tsx:79
 #: src/components/date/DateStrip.tsx:121
 msgid "Today"
 msgstr "Today"
@@ -571,7 +596,7 @@ msgstr "Too many failed attempts. Try again in {remainingSeconds} seconds."
 msgid "Track your daily habits and become a better you"
 msgstr "Track your daily habits and become a better you"
 
-#: app/(tabs)/habits.tsx:223
+#: app/(tabs)/habits.tsx:240
 msgid "Try searching with different keywords"
 msgstr "Try searching with different keywords"
 
@@ -584,7 +609,7 @@ msgstr "Tue"
 msgid "Unarchive"
 msgstr "Unarchive"
 
-#: app/(tabs)/habits.tsx:234
+#: app/(tabs)/habits.tsx:251
 msgid "Uncategorized"
 msgstr "Uncategorized"
 
