@@ -196,7 +196,10 @@ export function useCreateHabit() {
   return useMutation({
     mutationFn: async (input: CreateHabitInput) => {
       // 現在のユーザーIDを取得
-      const { data: { user } } = await supabase.auth.getUser();
+      // getUser() はネットワーク往復を伴い GoTrue のロックで直列化される。
+      // 書き込みの前段で詰まると保存自体が失われるため getSession() を使う。
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) {
         throw new Error('認証が必要です');
       }

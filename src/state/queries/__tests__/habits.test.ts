@@ -7,7 +7,7 @@ jest.mock('@/lib/supabase', () => ({
   supabase: {
     from: (...args: unknown[]) => mockFrom(...args),
     auth: {
-      getUser: jest.fn(),
+      getSession: jest.fn(),
     },
   },
 }));

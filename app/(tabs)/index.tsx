@@ -11,6 +11,7 @@ import {useHabitsWithLog} from '@/state/queries/habits';
 import {useToggleHabitLog, useSkipHabitLog, useUnskipHabitLog} from '@/state/queries/habit-logs';
 import {useHabitStreaks} from '@/state/queries/streaks';
 import {useWeekStart} from '@/state/queries/user-settings';
+import {useToast} from '@/state/toast';
 import {calculateProgress, sortByCompletion} from '@/lib/progress';
 import {HabitCard, TimeOfDaySection} from '@/components/habits';
 import {DateStrip} from '@/components/date/DateStrip';
@@ -38,6 +39,7 @@ export default function TodayScreen() {
   const weekStart = useWeekStart();
 
   const {data: habits, isLoading, isFetching, error, refetch, dataUpdatedAt} = useHabitsWithLog(selectedDate, weekStart);
+  const {showError} = useToast();
   const toggleLog = useToggleHabitLog();
   const skipLog = useSkipHabitLog();
   const unskipLog = useUnskipHabitLog();
@@ -78,28 +80,44 @@ export default function TodayScreen() {
     : format(parseISO(selectedDate), 'M/d (EEE)', {locale: dateLocale});
 
   // 習慣をチェックイン
+  // 失敗は onError でトースト通知する。黙って落とすと
+  // 「チェックしたのに記録されていない」ことに気付けない。
   const handleToggle = (habit: HabitWithLog) => {
-    toggleLog.mutate({
-      habitId: habit.id,
-      targetDate: selectedDate,
-      currentLogId: habit.log_id,
-      value: habit.goal_value,
-    });
+    toggleLog.mutate(
+      {
+        habitId: habit.id,
+        targetDate: selectedDate,
+        currentLogId: habit.log_id,
+        value: habit.goal_value,
+      },
+      {
+        onError: () =>
+          showError(_(msg`Failed to update the check. Please try again.`)),
+      },
+    );
   };
 
   // 習慣をスキップ
   const handleSkip = (habit: HabitWithLog) => {
-    skipLog.mutate({
-      habitId: habit.id,
-      targetDate: selectedDate,
-      currentLogId: habit.log_id,
-    });
+    skipLog.mutate(
+      {
+        habitId: habit.id,
+        targetDate: selectedDate,
+        currentLogId: habit.log_id,
+      },
+      {
+        onError: () => showError(_(msg`Failed to skip. Please try again.`)),
+      },
+    );
   };
 
   // スキップを解除
   const handleUnskip = (habit: HabitWithLog) => {
     if (habit.log_id) {
-      unskipLog.mutate(habit.log_id);
+      unskipLog.mutate(habit.log_id, {
+        onError: () =>
+          showError(_(msg`Failed to remove skip. Please try again.`)),
+      });
     }
   };
 

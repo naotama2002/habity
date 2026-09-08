@@ -5,3 +5,4 @@ export { MultiSelect, timeOfDayOptions, weekdayOptions } from './MultiSelect';
 export { FormField } from './FormField';
 export { ConfirmDialog } from './ConfirmDialog';
 export { SortableList } from './SortableList';
+export { Toast } from './Toast';
