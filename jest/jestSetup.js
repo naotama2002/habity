@@ -10,6 +10,29 @@ import 'react-native-gesture-handler/jestSetup';
  * - ユーティリティ関数やロジックはモックしない
  */
 
+// TextEncoder / TextDecoder - jsdom が提供しないため Node の実装で補う
+// (undici 経由の fetch まわりが参照する)
+if (typeof global.TextEncoder === 'undefined') {
+  const {TextEncoder, TextDecoder} = require('util');
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
+// window.matchMedia - jsdom / RN の jest 環境が持たないブラウザ API
+// reanimated の web 実装 (ReducedMotion.ts) が読み込み時に参照する
+if (typeof window !== 'undefined' && !window.matchMedia) {
+  window.matchMedia = (query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  });
+}
+
 // SafeAreaContext - React Native のレイアウト機能
 // ライブラリ公式のモックを使う。requireActual で実コンポーネント
 // (SafeAreaView など) はそのまま通し、insets/frame の計測だけ固定値にする。
