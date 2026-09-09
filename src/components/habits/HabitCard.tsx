@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback, useMemo} from 'react';
+import {useState, useCallback, useMemo} from 'react';
 import {View, Text, StyleSheet, Pressable, Linking} from 'react-native';
 import {msg} from '@lingui/core/macro';
 import {useLingui} from '@lingui/react';
@@ -68,12 +68,19 @@ export function HabitCard({
   const [linkMenuOpen, setLinkMenuOpen] = useState(false);
   const [actionMenuOpen, setActionMenuOpen] = useState(false);
 
-  // サーバーからの確定データで同期
-  // syncedAt を依存に含めることで、ミューテーション失敗によりサーバ状態が
+  // サーバーからの確定データで同期する。
+  // syncedAt を含めることで、ミューテーション失敗によりサーバ状態が
   // 変化しなかった場合でも、再取得のたびに楽観表示を巻き戻せる。
-  useEffect(() => {
+  //
+  // effect ではなく描画中に state を調整する React 公式のパターンを使う
+  // (https://react.dev/reference/react/useState#storing-information-from-previous-renders)。
+  // effect にすると巻き戻し前の状態が一度描画され、余分な再描画も発生する。
+  const syncKey = `${habit.is_completed}|${habit.log_id}|${syncedAt}`;
+  const [prevSyncKey, setPrevSyncKey] = useState(syncKey);
+  if (syncKey !== prevSyncKey) {
+    setPrevSyncKey(syncKey);
     setOptimisticCompleted(habit.is_completed);
-  }, [habit.is_completed, habit.log_id, syncedAt]);
+  }
 
   const urls = useMemo(() => extractUrls(habit.description), [habit.description]);
 
