@@ -5,7 +5,6 @@ export interface ImportHabitifyParams {
   api_key: string;
   import_habits: boolean;
   import_logs: boolean;
-  timezone: string;
 }
 
 export interface ImportHabitifyResult {
@@ -28,7 +27,6 @@ export async function importFromHabitify(
     apiKey: params.api_key,
     importHabits: params.import_habits,
     importLogs: params.import_logs,
-    timezone: params.timezone,
     userId,
     supabase,
   });

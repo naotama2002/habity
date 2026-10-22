@@ -1,19 +1,18 @@
 /**
- * Habitify → Habity import service
+ * Habitify v2 → Habity import service
  *
  * Uses batch upsert to minimize API requests to Supabase.
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { HabitifyHabit } from './types';
-import { getHabits, getLogs } from './client';
-import { transformHabit, transformLog } from './transform';
+import { getHabits, getStatistics, formatDate } from './client';
+import { transformHabit, transformDailyProgress } from './transform';
 
 export interface ImportParams {
   apiKey: string;
   importHabits: boolean;
   importLogs: boolean;
-  timezone: string;
   userId: string;
   supabase: SupabaseClient;
 }
@@ -27,13 +26,9 @@ export interface ImportResult {
 /** Max rows per upsert request to stay within Supabase payload limits. */
 const BATCH_SIZE = 500;
 
-/** Run the full Habitify → Habity import. */
+/** Run the full Habitify v2 → Habity import. */
 export async function runImport(params: ImportParams): Promise<ImportResult> {
-  const { apiKey, importHabits, importLogs, timezone, userId, supabase } =
-    params;
-
-  // 1. Fetch habits (also validates API key)
-  const habits = await getHabits(apiKey);
+  const { apiKey, importHabits, importLogs, userId, supabase } = params;
 
   const result: ImportResult = {
     habits_imported: 0,
@@ -41,12 +36,31 @@ export async function runImport(params: ImportParams): Promise<ImportResult> {
     errors: [],
   };
 
+  // 1. Fetch habits (also validates API key)
+  let habits: HabitifyHabit[];
+  try {
+    const fetched = await getHabits(apiKey);
+    habits = fetched.habits;
+    result.errors.push(...fetched.errors);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    result.errors.push(`Habitify API: ${msg}`);
+    return result;
+  }
+
   if (!importHabits && !importLogs) {
     return result;
   }
 
-  // 2. Extract areas → create categories
-  const categoryMap = await ensureCategories(supabase, userId, habits);
+  // 2. Extract areas → create categories. A failure here shouldn't block
+  // habit/log import — fall back to no categorization and keep going.
+  let categoryMap: Record<string, string> = {};
+  try {
+    categoryMap = await ensureCategories(supabase, userId, habits);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    result.errors.push(`categories: ${msg}`);
+  }
 
   // 3. Import habits (batch upsert)
   const habitIdMap = new Map<string, string>(); // habitify ID → habity ID
@@ -94,7 +108,7 @@ export async function runImport(params: ImportParams): Promise<ImportResult> {
     }
   }
 
-  // 4. Import logs (batch upsert per habit, chunked)
+  // 4. Import logs via statistics endpoint (batch upsert per habit, chunked)
   if (importLogs) {
     for (const h of habits) {
       const habityHabitId = habitIdMap.get(h.id);
@@ -102,28 +116,27 @@ export async function runImport(params: ImportParams): Promise<ImportResult> {
         continue;
       }
 
-      const from = h.start_date
-        ? new Date(h.start_date)
-        : new Date('2020-01-01T00:00:00Z');
-      const to = new Date();
-
-      let logs;
+      let stats;
       try {
-        logs = await getLogs(apiKey, h.id, from, to);
+        const endDate = formatDate(new Date());
+        stats = await getStatistics(apiKey, h.id, h.startDate, endDate);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        result.errors.push(`logs for "${h.name}": ${msg}`);
+        result.errors.push(`statistics for "${h.name}": ${msg}`);
         continue;
       }
 
-      // Transform all logs for this habit
+      // Transform dailyProgress entries
       const rows: HabityLogRow[] = [];
-      for (const l of logs) {
+      for (const dp of stats.dailyProgress) {
         try {
-          rows.push(transformLog(l, habityHabitId, userId, timezone));
+          const log = transformDailyProgress(dp, habityHabitId, userId);
+          if (log) {
+            rows.push(log);
+          }
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
-          result.errors.push(`log ${l.id}: ${msg}`);
+          result.errors.push(`log ${dp.date}: ${msg}`);
         }
       }
 
@@ -158,15 +171,15 @@ async function ensureCategories(
 ): Promise<Record<string, string>> {
   const categoryMap: Record<string, string> = {};
 
-  // Collect unique areas
+  // Collect unique areas (use first area from each habit)
   const areas: { id: string; name: string }[] = [];
   const seen = new Set<string>();
   for (const h of habits) {
-    if (!h.area || seen.has(h.area.id)) {
-      continue;
-    }
-    seen.add(h.area.id);
-    areas.push(h.area);
+    if (h.areas.length === 0) continue;
+    const area = h.areas[0];
+    if (seen.has(area.id)) continue;
+    seen.add(area.id);
+    areas.push({ id: area.id, name: area.name });
   }
 
   if (areas.length === 0) {
@@ -213,9 +226,9 @@ interface HabityHabitRow {
   description: string | null;
   category_id: string | null;
   tracking_type: string;
-  goal_value: number;
-  goal_unit: string;
-  goal_period: string;
+  goal_value: number | null;
+  goal_unit: string | null;
+  goal_period: string | null;
   recurrence_rule: string | null;
   time_of_day: string[];
   reminder_enabled: boolean;
@@ -234,5 +247,5 @@ interface HabityLogRow {
   target_date: string;
   completed_at: string;
   status: string;
-  external_id: string;
+  external_id: string | null;
 }

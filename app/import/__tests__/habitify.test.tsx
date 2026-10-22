@@ -88,7 +88,6 @@ describe('HabitifyImportScreen', () => {
         api_key: 'my-api-key',
         import_habits: true,
         import_logs: true,
-        timezone: expect.any(String),
       });
     });
   });
