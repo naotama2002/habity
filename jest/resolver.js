@@ -34,19 +34,45 @@ const WEB_VARIANT_PACKAGES = [
 ];
 
 /**
+ * パッケージ全体ではなく、このモジュールだけ web 実装を解決させる。
+ *
+ * gesture-handler v3 の installUIRuntimeBindings (native) は worklets の
+ * UI runtime を要求し、web 実装の worklets では例外を投げる
+ * (`[Worklets] getUIRuntimeHolder is not supported on web.`)。
+ * .web 実装は no-op なのでこれを使う。
+ *
+ * gesture-handler 全体を web 実装にしてはいけない。findNodeHandle.web は
+ * 実 DOM ノードを前提としており、react-test-renderer では
+ * `Cannot convert undefined or null to object` で落ちる。
+ */
+const WEB_VARIANT_MODULES = ['installUIRuntimeBindings'];
+
+/**
  * この request/basedir が web 実装解決の対象か
  * @param {string} request
  * @param {string} basedir
  */
 function needsWebVariant(request, basedir) {
+  if (WEB_VARIANT_MODULES.some((mod) => request.includes(mod))) {
+    return true;
+  }
   return WEB_VARIANT_PACKAGES.some(
     (pkg) => basedir.includes(pkg) || request.includes(pkg),
   );
 }
 
-/** `.native` を含む拡張子を除外する */
-function stripNativeExtensions(extensions) {
-  return extensions?.filter((ext) => !ext.includes('native'));
+/**
+ * `.native` を除外し、`.web` を同じ拡張子より優先する拡張子リストを返す
+ *
+ * 例: ['.native.ts', '.ts'] -> ['.web.ts', '.ts']
+ */
+function preferWebExtensions(extensions) {
+  if (!extensions) {
+    return extensions;
+  }
+  return extensions
+    .filter((ext) => !ext.includes('native'))
+    .flatMap((ext) => [`.web${ext}`, ext]);
 }
 
 /** @type {import('jest-resolve').SyncResolver} */
@@ -54,7 +80,7 @@ const resolver = (request, options) => {
   if (needsWebVariant(request, options.basedir)) {
     return reactNativeResolver(request, {
       ...options,
-      extensions: stripNativeExtensions(options.extensions),
+      extensions: preferWebExtensions(options.extensions),
     });
   }
 
@@ -64,5 +90,6 @@ const resolver = (request, options) => {
 module.exports = resolver;
 // テスト用に内部ロジックを公開する
 module.exports.needsWebVariant = needsWebVariant;
-module.exports.stripNativeExtensions = stripNativeExtensions;
+module.exports.preferWebExtensions = preferWebExtensions;
 module.exports.WEB_VARIANT_PACKAGES = WEB_VARIANT_PACKAGES;
+module.exports.WEB_VARIANT_MODULES = WEB_VARIANT_MODULES;

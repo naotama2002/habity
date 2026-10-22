@@ -1,7 +1,17 @@
 import {describe, expect, it, jest} from '@jest/globals';
 import {render, screen} from '@testing-library/react-native';
 import {Text} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {SortableList} from '../SortableList';
+
+/**
+ * gesture-handler v3 から GestureDetector は GestureHandlerRootView の
+ * 配下であることが必須になった。本番は app/_layout.tsx で包まれているので、
+ * テストでも同じ構造で描画する。
+ */
+function renderInRoot(ui: React.ReactElement) {
+  return render(<GestureHandlerRootView>{ui}</GestureHandlerRootView>);
+}
 
 const mockData = [
   {id: '1', name: 'Item A'},
@@ -11,7 +21,7 @@ const mockData = [
 
 describe('SortableList', () => {
   it('should render all items', () => {
-    render(
+    renderInRoot(
       <SortableList
         data={mockData}
         keyExtractor={(item) => item.id}
@@ -26,7 +36,7 @@ describe('SortableList', () => {
   });
 
   it('should render grip handles for each item', () => {
-    render(
+    renderInRoot(
       <SortableList
         data={mockData}
         keyExtractor={(item) => item.id}
@@ -41,7 +51,7 @@ describe('SortableList', () => {
 
   it('should render empty list when data is empty', () => {
     const onReorder = jest.fn();
-    render(
+    renderInRoot(
       <SortableList
         data={[]}
         keyExtractor={(item: {id: string}) => item.id}
@@ -58,7 +68,7 @@ describe('SortableList', () => {
       <Text>{`${item.name}-${index}`}</Text>
     ));
 
-    render(
+    renderInRoot(
       <SortableList
         data={mockData}
         keyExtractor={(item) => item.id}
