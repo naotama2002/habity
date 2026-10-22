@@ -4,7 +4,6 @@ import {msg} from '@lingui/core/macro';
 import {useLingui} from '@lingui/react';
 import {useRouter} from 'expo-router';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Animated, {LinearTransition} from 'react-native-reanimated';
 import {format, parseISO, isToday as dateIsToday} from 'date-fns';
 import {ja, enUS} from 'date-fns/locale';
 import {useHabitsWithLog} from '@/state/queries/habits';
@@ -177,9 +176,8 @@ export default function TodayScreen() {
               return (
                 <TimeOfDaySection key={timeOfDay} timeOfDay={timeOfDay}>
                   {habitsInSection.map((habit) => (
-                    <Animated.View
+                    <View
                       key={habit.id}
-                      layout={LinearTransition.duration(300)}
                       style={openMenuHabitId === habit.id ? {zIndex: 9999} : undefined}
                     >
                       <HabitCard
@@ -192,7 +190,7 @@ export default function TodayScreen() {
                         onUncomplete={() => handleToggle(habit)}
                         onMenuOpenChange={(isOpen) => setOpenMenuHabitId(isOpen ? habit.id : null)}
                       />
-                    </Animated.View>
+                    </View>
                   ))}
                 </TimeOfDaySection>
               );

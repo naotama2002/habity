@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { Stack, useRouter, useSegments, Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/react-query';
 import { SessionProvider, useSession } from '@/state/session';
 import { ToastProvider } from '@/state/toast';
@@ -86,20 +85,18 @@ function MainLayout() {
 
 /**
  * ルートレイアウト
- * Provider 階層: GestureHandler → I18n → QueryClient → Session → Toast
+ * Provider 階層: I18n → QueryClient → Session → Toast
  */
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <I18nProvider>
-        <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <ToastProvider>
-              <MainLayout />
-            </ToastProvider>
-          </SessionProvider>
-        </QueryClientProvider>
-      </I18nProvider>
-    </GestureHandlerRootView>
+    <I18nProvider>
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <ToastProvider>
+            <MainLayout />
+          </ToastProvider>
+        </SessionProvider>
+      </QueryClientProvider>
+    </I18nProvider>
   );
 }

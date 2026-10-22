@@ -1,15 +1,14 @@
-import {useState, useCallback, useMemo} from 'react';
-import {View, Text, StyleSheet, Pressable, Linking} from 'react-native';
+import {useState, useCallback, useEffect, useMemo, useRef} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Linking,
+  Animated,
+} from 'react-native';
 import {msg} from '@lingui/core/macro';
 import {useLingui} from '@lingui/react';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSequence,
-  withTiming,
-  withDelay,
-  cancelAnimation,
-} from 'react-native-reanimated';
 import {colors, lightTheme} from '@/lib/colors';
 import {typography} from '@/lib/typography';
 import {spacing, borderRadius, shadows} from '@/lib/spacing';
@@ -84,15 +83,28 @@ export function HabitCard({
 
   const urls = useMemo(() => extractUrls(habit.description), [habit.description]);
 
-  // 緑フラッシュアニメーション用 shared value (0 = 透明, 1 = 不透明)
-  const flashOpacity = useSharedValue(0);
+  // 緑フラッシュアニメーション用の値 (0 = 透明, 1 = 不透明)
+  // RN コアの Animated を使う。Web にはネイティブ UI スレッドが無いため
+  // reanimated のワークレットを持ち込む利点がない。
+  const [flashOpacity] = useState(() => new Animated.Value(0));
+  // 実行中のアニメーション。delay や sequence の連鎖は値の stopAnimation()
+  // では止められないため、composite を保持して stop() する。
+  const flashAnimation = useRef<Animated.CompositeAnimation | null>(null);
+
+  const stopFlash = useCallback(() => {
+    flashAnimation.current?.stop();
+    flashAnimation.current = null;
+  }, []);
+
+  // アンマウント後にアニメーションが走り続けないよう停止する
+  useEffect(() => stopFlash, [stopFlash]);
 
   const handleToggle = () => {
     if (isSkipped) return; // スキップ中はトグル不可
 
     // 連打時に前のフラッシュアニメーションが残らないようキャンセル
-    cancelAnimation(flashOpacity);
-    flashOpacity.value = 0;
+    stopFlash();
+    flashOpacity.setValue(0);
 
     const willComplete = !optimisticCompleted;
 
@@ -101,13 +113,22 @@ export function HabitCard({
 
     // 2. 完了時のみ: 緑フラッシュをチェックの後に再生
     if (willComplete) {
-      flashOpacity.value = withDelay(
-        100,
-        withSequence(
-          withTiming(1, {duration: 200}),
-          withTiming(0, {duration: 300}),
-        ),
-      );
+      flashAnimation.current = Animated.sequence([
+        Animated.delay(100),
+        Animated.timing(flashOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(flashOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]);
+      flashAnimation.current.start(() => {
+        flashAnimation.current = null;
+      });
     }
 
     // 3. サーバーに送信
@@ -229,9 +250,7 @@ export function HabitCard({
     );
   };
 
-  const flashStyle = useAnimatedStyle(() => ({
-    opacity: flashOpacity.value,
-  }));
+  const flashStyle = {opacity: flashOpacity};
 
   // コンテナスタイルの決定
   const containerStyle = [

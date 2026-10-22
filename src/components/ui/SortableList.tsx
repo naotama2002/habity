@@ -1,22 +1,30 @@
-import { type ReactNode, useCallback, useRef, useState } from 'react';
-import { StyleSheet, View, type ViewStyle } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  measure,
-  runOnJS,
-  scrollTo,
-  useAnimatedRef,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useFrameCallback,
-  useSharedValue,
-  withTiming,
-  type SharedValue,
-} from 'react-native-reanimated';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import {
+  Animated,
+  ScrollView,
+  StyleSheet,
+  View,
+  type GestureResponderEvent,
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  type ViewStyle,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { lightTheme } from '@/lib/colors';
 import { spacing, shadows } from '@/lib/spacing';
 import { reorder } from '@/lib/reorder';
+import {
+  calculateAutoScrollSpeed,
+  calculateShift,
+  calculateTargetIndex,
+} from '@/lib/drag-reorder';
 
 interface SortableListProps<T> {
   data: T[];
@@ -29,223 +37,119 @@ interface SortableListProps<T> {
 
 const EDGE_THRESHOLD = 60;
 const MAX_AUTO_SCROLL_SPEED = 8;
-const TIMING_CONFIG = { duration: 200 };
+const SHIFT_DURATION = 200;
+
+/**
+ * ドラッグ中の状態。ドラッグしていないときは null。
+ *
+ * shifts は「他のアイテムが空きを作るためにずれる量」を index 順に持つ。
+ * 実測高さ (ref) から計算する必要があるが、描画中に ref を読まないよう
+ * 挿入先が変わったタイミング (イベント/RAF) で計算して state に入れる。
+ */
+interface DragState {
+  from: number;
+  to: number;
+  shifts: number[];
+}
 
 function SortableItem<T>({
   item,
   index,
-  itemCount,
   renderItem,
-  itemHeights,
-  activeOriginalIndex,
-  activeIndex,
-  fingerTranslation,
-  scrollCompensation,
-  autoScrollSpeed,
-  scrollRef,
-  containerTop,
-  containerBottom,
+  isDragging,
+  shift,
+  dragTranslate,
   onDragStart,
+  onDragMove,
   onDragEnd,
-  onScrollEnable,
+  onMeasure,
 }: {
   item: T;
   index: number;
-  itemCount: number;
   renderItem: (item: T, index: number) => ReactNode;
-  itemHeights: React.MutableRefObject<number[]>;
-  activeOriginalIndex: SharedValue<number>;
-  activeIndex: SharedValue<number>;
-  fingerTranslation: SharedValue<number>;
-  scrollCompensation: SharedValue<number>;
-  autoScrollSpeed: SharedValue<number>;
-  scrollRef: ReturnType<typeof useAnimatedRef<Animated.ScrollView>>;
-  containerTop: SharedValue<number>;
-  containerBottom: SharedValue<number>;
-  onDragStart: (index: number) => void;
-  onDragEnd: (from: number, to: number) => void;
-  onScrollEnable: (enabled: boolean) => void;
+  isDragging: boolean;
+  shift: number;
+  dragTranslate: Animated.Value;
+  onDragStart: (index: number, pageY: number) => void;
+  onDragMove: (pageY: number) => void;
+  onDragEnd: (commit: boolean) => void;
+  onMeasure: (index: number, height: number) => void;
 }) {
-  const isActive = useSharedValue(false);
+  const [shiftAnim] = useState(() => new Animated.Value(shift));
 
-  const calculateTargetIndex = (
-    totalDisplacement: number,
-    fromIndex: number,
-    heights: number[],
-    count: number,
-  ): number => {
-    'worklet';
-    let targetIndex = fromIndex;
-    if (totalDisplacement > 0) {
-      let accumulated = 0;
-      for (let i = fromIndex + 1; i < count; i++) {
-        accumulated += (heights[i] || 0) + spacing.sm;
-        if (totalDisplacement > accumulated - (heights[i] || 0) / 2) {
-          targetIndex = i;
-        } else {
-          break;
-        }
-      }
-    } else if (totalDisplacement < 0) {
-      let accumulated = 0;
-      for (let i = fromIndex - 1; i >= 0; i--) {
-        accumulated -= (heights[i] || 0) + spacing.sm;
-        if (totalDisplacement < accumulated + (heights[i] || 0) / 2) {
-          targetIndex = i;
-        } else {
-          break;
-        }
-      }
+  useEffect(() => {
+    if (isDragging) {
+      return;
     }
-    return targetIndex;
-  };
-
-  const panGesture = Gesture.Pan()
-    .activateAfterLongPress(150)
-    .onStart(() => {
-      isActive.value = true;
-      activeOriginalIndex.value = index;
-      activeIndex.value = index;
-      fingerTranslation.value = 0;
-      scrollCompensation.value = 0;
-      autoScrollSpeed.value = 0;
-
-      // Measure container for edge detection
-      const m = measure(scrollRef);
-      if (m) {
-        containerTop.value = m.pageY;
-        containerBottom.value = m.pageY + m.height;
-      }
-
-      runOnJS(onDragStart)(index);
-      runOnJS(onScrollEnable)(false);
-    })
-    .onChange((event) => {
-      fingerTranslation.value = event.translationY;
-      const totalDisplacement = event.translationY + scrollCompensation.value;
-
-      // Calculate target index
-      activeIndex.value = calculateTargetIndex(
-        totalDisplacement,
-        index,
-        itemHeights.current,
-        itemCount,
-      );
-
-      // Auto-scroll near edges
-      const fingerY = event.absoluteY;
-      const top = containerTop.value;
-      const bottom = containerBottom.value;
-      if (fingerY < top + EDGE_THRESHOLD && fingerY >= top) {
-        const factor = 1 - (fingerY - top) / EDGE_THRESHOLD;
-        autoScrollSpeed.value = -MAX_AUTO_SCROLL_SPEED * Math.max(0, factor);
-      } else if (fingerY > bottom - EDGE_THRESHOLD && fingerY <= bottom) {
-        const factor = 1 - (bottom - fingerY) / EDGE_THRESHOLD;
-        autoScrollSpeed.value = MAX_AUTO_SCROLL_SPEED * Math.max(0, factor);
-      } else {
-        autoScrollSpeed.value = 0;
-      }
-    })
-    .onEnd(() => {
-      const toIndex = activeIndex.value;
-      isActive.value = false;
-      autoScrollSpeed.value = 0;
-      fingerTranslation.value = withTiming(0, TIMING_CONFIG);
-      scrollCompensation.value = 0;
-      activeOriginalIndex.value = -1;
-      activeIndex.value = -1;
-      runOnJS(onDragEnd)(index, toIndex);
-      runOnJS(onScrollEnable)(true);
-    })
-    .onFinalize(() => {
-      if (!isActive.value) return;
-      isActive.value = false;
-      autoScrollSpeed.value = 0;
-      fingerTranslation.value = withTiming(0, TIMING_CONFIG);
-      scrollCompensation.value = 0;
-      activeOriginalIndex.value = -1;
-      activeIndex.value = -1;
-      runOnJS(onScrollEnable)(true);
+    const animation = Animated.timing(shiftAnim, {
+      toValue: shift,
+      duration: SHIFT_DURATION,
+      useNativeDriver: true,
     });
+    animation.start();
+    // アンマウント後にアニメーションが走り続けないよう停止する
+    return () => animation.stop();
+  }, [shift, shiftAnim, isDragging]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    if (isActive.value) {
-      return {
-        transform: [
-          { translateY: fingerTranslation.value + scrollCompensation.value },
-          { scale: 1.03 },
-        ],
+  const handleLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      onMeasure(index, event.nativeEvent.layout.height);
+    },
+    [index, onMeasure],
+  );
+
+  const animatedStyle = isDragging
+    ? {
+        transform: [{ translateY: dragTranslate }, { scale: 1.03 }],
         zIndex: 999,
         opacity: 0.9,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 8,
-      };
-    }
-
-    const from = activeOriginalIndex.value;
-    const to = activeIndex.value;
-    if (from === -1 || to === -1) {
-      return {
-        transform: [{ translateY: withTiming(0, TIMING_CONFIG) }],
+        ...shadows.sm,
+      }
+    : {
+        transform: [{ translateY: shiftAnim }],
         zIndex: 0,
         opacity: 1,
       };
-    }
-
-    // Shift non-active items to make room for the dragged item
-    const heights = itemHeights.current;
-    let shift = 0;
-    if (from < to) {
-      // Dragging down: items between from+1..to shift up
-      if (index > from && index <= to) {
-        shift = -((heights[from] || 0) + spacing.sm);
-      }
-    } else if (from > to) {
-      // Dragging up: items between to..from-1 shift down
-      if (index >= to && index < from) {
-        shift = (heights[from] || 0) + spacing.sm;
-      }
-    }
-
-    return {
-      transform: [{ translateY: withTiming(shift, TIMING_CONFIG) }],
-      zIndex: 0,
-      opacity: 1,
-    };
-  });
-
-  const handleLayout = useCallback(
-    (event: { nativeEvent: { layout: { height: number } } }) => {
-      itemHeights.current[index] = event.nativeEvent.layout.height;
-    },
-    [index, itemHeights],
-  );
 
   return (
     <Animated.View style={animatedStyle} onLayout={handleLayout}>
       <View style={styles.sortableItem}>
         <View style={styles.itemContent}>{renderItem(item, index)}</View>
-        <GestureDetector gesture={panGesture}>
-          <Animated.View
-            style={styles.gripHandle}
-            accessibilityRole="button"
-            accessibilityLabel="Reorder"
-          >
-            <Ionicons
-              name="reorder-three"
-              size={24}
-              color={lightTheme.textTertiary}
-            />
-          </Animated.View>
-        </GestureDetector>
+        <View
+          style={styles.gripHandle}
+          accessibilityRole="button"
+          accessibilityLabel="Reorder"
+          onStartShouldSetResponder={() => true}
+          onMoveShouldSetResponder={() => true}
+          onResponderTerminationRequest={() => false}
+          onResponderGrant={(event: GestureResponderEvent) =>
+            onDragStart(index, event.nativeEvent.pageY)
+          }
+          onResponderMove={(event: GestureResponderEvent) =>
+            onDragMove(event.nativeEvent.pageY)
+          }
+          onResponderRelease={() => onDragEnd(true)}
+          onResponderTerminate={() => onDragEnd(false)}
+        >
+          <Ionicons
+            name="reorder-three"
+            size={24}
+            color={lightTheme.textTertiary}
+          />
+        </View>
       </View>
     </Animated.View>
   );
 }
 
+/**
+ * ドラッグで並べ替えできるリスト
+ *
+ * Web 専用プロジェクトのため、React Native コアの Animated / PanResponder
+ * だけで実装している。reanimated / gesture-handler はネイティブ UI スレッドで
+ * アニメーションを動かすための仕組みであり、そのスレッドが存在しない Web では
+ * 利点がない一方、ビルド・テスト基盤に継続的な負担を強いていた。
+ */
 export function SortableList<T>({
   data,
   keyExtractor,
@@ -254,126 +158,202 @@ export function SortableList<T>({
   style,
   contentContainerStyle,
 }: SortableListProps<T>) {
-  const scrollRef = useAnimatedRef<Animated.ScrollView>();
-  const scrollOffset = useSharedValue(0);
-  const containerTop = useSharedValue(0);
-  const containerBottom = useSharedValue(0);
-  const contentHeight = useSharedValue(0);
-  const containerHeight = useSharedValue(0);
-  const autoScrollSpeed = useSharedValue(0);
-  const activeOriginalIndex = useSharedValue(-1);
-  const activeIndex = useSharedValue(-1);
-  const fingerTranslation = useSharedValue(0);
-  const scrollCompensation = useSharedValue(0);
+  const scrollRef = useRef<ScrollView>(null);
   const itemHeights = useRef<number[]>([]);
-  const dragFromIndex = useRef(-1);
-  const [scrollEnabled, setScrollEnabled] = useState(true);
 
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollOffset.value = event.contentOffset.y;
-    },
-  });
+  // ドラッグ中に毎フレーム変わる値。再描画を避けるため ref / Animated.Value に置く
+  const [dragTranslate] = useState(() => new Animated.Value(0));
+  const fingerTranslation = useRef(0);
+  const scrollCompensation = useRef(0);
+  const autoScrollSpeed = useRef(0);
+  const scrollOffset = useRef(0);
+  const contentHeight = useRef(0);
+  const containerHeight = useRef(0);
+  const containerTop = useRef(0);
+  const dragStartPageY = useRef(0);
+  const rafId = useRef<number | null>(null);
 
-  // Auto-scroll frame callback: runs every frame on UI thread
-  useFrameCallback(() => {
-    if (autoScrollSpeed.value === 0) return;
+  // 挿入先が変わったときだけ再描画する
+  const [drag, setDrag] = useState<DragState | null>(null);
+  const dragRef = useRef<DragState | null>(null);
 
-    const maxScroll = contentHeight.value - containerHeight.value;
-    if (maxScroll <= 0) return;
+  // 描画中に ref を書かないよう、最新の data は effect で同期する
+  const dataRef = useRef(data);
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
 
-    const currentOffset = scrollOffset.value;
-    const newOffset = Math.max(
-      0,
-      Math.min(currentOffset + autoScrollSpeed.value, maxScroll),
-    );
-    const actualDelta = newOffset - currentOffset;
-    if (actualDelta === 0) return;
-
-    scrollOffset.value = newOffset;
-    scrollTo(scrollRef, 0, newOffset, false);
-    scrollCompensation.value += actualDelta;
-
-    // Recalculate target index during auto-scroll
-    const fromIndex = activeOriginalIndex.value;
-    if (fromIndex === -1) return;
-
-    const totalDisplacement =
-      fingerTranslation.value + scrollCompensation.value;
+  /** 挿入先から各アイテムのずれ量を組み立てる */
+  const buildDragState = useCallback((from: number, to: number): DragState => {
     const heights = itemHeights.current;
-    const count = data.length;
-    let targetIndex = fromIndex;
-
-    if (totalDisplacement > 0) {
-      let accumulated = 0;
-      for (let i = fromIndex + 1; i < count; i++) {
-        accumulated += (heights[i] || 0) + spacing.sm;
-        if (totalDisplacement > accumulated - (heights[i] || 0) / 2) {
-          targetIndex = i;
-        } else {
-          break;
-        }
-      }
-    } else if (totalDisplacement < 0) {
-      let accumulated = 0;
-      for (let i = fromIndex - 1; i >= 0; i--) {
-        accumulated -= (heights[i] || 0) + spacing.sm;
-        if (totalDisplacement < accumulated + (heights[i] || 0) / 2) {
-          targetIndex = i;
-        } else {
-          break;
-        }
-      }
-    }
-    activeIndex.value = targetIndex;
-  });
-
-  const handleContainerLayout = useCallback(
-    (event: { nativeEvent: { layout: { height: number } } }) => {
-      containerHeight.value = event.nativeEvent.layout.height;
-    },
-    [containerHeight],
-  );
-
-  const handleContentSizeChange = useCallback(
-    (_w: number, h: number) => {
-      contentHeight.value = h;
-    },
-    [contentHeight],
-  );
-
-  const handleDragStart = useCallback((index: number) => {
-    dragFromIndex.current = index;
+    const shifts = dataRef.current.map((_item, index) =>
+      calculateShift(index, from, to, heights, spacing.sm),
+    );
+    return { from, to, shifts };
   }, []);
 
-  const handleDragEnd = useCallback(
-    (from: number, to: number) => {
+  const applyDragState = useCallback((next: DragState | null) => {
+    dragRef.current = next;
+    setDrag(next);
+  }, []);
+
+  const handleMeasure = useCallback((index: number, height: number) => {
+    itemHeights.current[index] = height;
+  }, []);
+
+  /** ドラッグ中の移動量から挿入先を再計算する */
+  const updateTargetIndex = useCallback(() => {
+    const current = dragRef.current;
+    if (!current) {
+      return;
+    }
+    const displacement = fingerTranslation.current + scrollCompensation.current;
+    const to = calculateTargetIndex(
+      displacement,
+      current.from,
+      itemHeights.current,
+      dataRef.current.length,
+      spacing.sm,
+    );
+    if (to !== current.to) {
+      applyDragState(buildDragState(current.from, to));
+    }
+  }, [applyDragState, buildDragState]);
+
+  const stopAutoScroll = useCallback(() => {
+    if (rafId.current !== null) {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = null;
+    }
+    autoScrollSpeed.current = 0;
+  }, []);
+
+  /** 端に寄っている間、毎フレームスクロールを進める */
+  const startAutoScroll = useCallback(() => {
+    // 自己参照のため関数宣言にする (const だと初期化前参照になる)
+    function step() {
+      rafId.current = null;
+
+      const speed = autoScrollSpeed.current;
+      const maxScroll = contentHeight.current - containerHeight.current;
+      if (speed !== 0 && maxScroll > 0) {
+        const next = Math.max(
+          0,
+          Math.min(scrollOffset.current + speed, maxScroll),
+        );
+        const delta = next - scrollOffset.current;
+        if (delta !== 0) {
+          scrollOffset.current = next;
+          scrollRef.current?.scrollTo({ y: next, animated: false });
+          // スクロールした分だけ指との相対位置がずれるので補正する
+          scrollCompensation.current += delta;
+          dragTranslate.setValue(
+            fingerTranslation.current + scrollCompensation.current,
+          );
+          updateTargetIndex();
+        }
+      }
+
+      if (dragRef.current) {
+        rafId.current = requestAnimationFrame(step);
+      }
+    }
+
+    rafId.current = requestAnimationFrame(step);
+  }, [dragTranslate, updateTargetIndex]);
+
+  const endDrag = useCallback(
+    (commit: boolean) => {
+      const current = dragRef.current;
+      stopAutoScroll();
+      if (!current) {
+        return;
+      }
+
+      applyDragState(null);
+      fingerTranslation.current = 0;
+      scrollCompensation.current = 0;
+      dragTranslate.setValue(0);
+
+      const { from, to } = current;
+      const items = dataRef.current;
       if (
+        commit &&
         from !== to &&
         from >= 0 &&
         to >= 0 &&
-        from < data.length &&
-        to < data.length
+        from < items.length &&
+        to < items.length
       ) {
-        onReorder(reorder(data, from, to));
+        onReorder(reorder(items, from, to));
       }
-      dragFromIndex.current = -1;
     },
-    [data, onReorder],
+    [applyDragState, dragTranslate, onReorder, stopAutoScroll],
   );
 
-  const handleScrollEnable = useCallback((enabled: boolean) => {
-    setScrollEnabled(enabled);
+  /** グリップに触れた時点でドラッグを開始する */
+  const handleDragStart = useCallback(
+    (index: number, pageY: number) => {
+      dragStartPageY.current = pageY;
+      fingerTranslation.current = 0;
+      scrollCompensation.current = 0;
+      dragTranslate.setValue(0);
+      applyDragState(buildDragState(index, index));
+
+      // 端の自動スクロール判定はページ座標と比較するため絶対位置を測る
+      scrollRef.current?.getNativeScrollRef()?.measureInWindow((_x, y) => {
+        containerTop.current = y;
+      });
+
+      startAutoScroll();
+    },
+    [applyDragState, buildDragState, dragTranslate, startAutoScroll],
+  );
+
+  const handleDragMove = useCallback(
+    (pageY: number) => {
+      const dy = pageY - dragStartPageY.current;
+      fingerTranslation.current = dy;
+      dragTranslate.setValue(dy + scrollCompensation.current);
+      updateTargetIndex();
+
+      autoScrollSpeed.current = calculateAutoScrollSpeed(
+        pageY,
+        containerTop.current,
+        containerTop.current + containerHeight.current,
+        EDGE_THRESHOLD,
+        MAX_AUTO_SCROLL_SPEED,
+      );
+    },
+    [dragTranslate, updateTargetIndex],
+  );
+
+  // アンマウント時に RAF を解放する
+  useEffect(() => stopAutoScroll, [stopAutoScroll]);
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      scrollOffset.current = event.nativeEvent.contentOffset.y;
+    },
+    [],
+  );
+
+  const handleContainerLayout = useCallback((event: LayoutChangeEvent) => {
+    containerHeight.current = event.nativeEvent.layout.height;
+  }, []);
+
+  const handleContentSizeChange = useCallback((_w: number, h: number) => {
+    contentHeight.current = h;
   }, []);
 
   return (
-    <Animated.ScrollView
+    <ScrollView
       ref={scrollRef}
       style={style}
       contentContainerStyle={contentContainerStyle}
-      scrollEnabled={scrollEnabled}
+      scrollEnabled={drag === null}
       showsVerticalScrollIndicator={false}
-      onScroll={scrollHandler}
+      onScroll={handleScroll}
       scrollEventThrottle={16}
       onLayout={handleContainerLayout}
       onContentSizeChange={handleContentSizeChange}
@@ -384,24 +364,18 @@ export function SortableList<T>({
             key={keyExtractor(item)}
             item={item}
             index={index}
-            itemCount={data.length}
             renderItem={renderItem}
-            itemHeights={itemHeights}
-            activeOriginalIndex={activeOriginalIndex}
-            activeIndex={activeIndex}
-            fingerTranslation={fingerTranslation}
-            scrollCompensation={scrollCompensation}
-            autoScrollSpeed={autoScrollSpeed}
-            scrollRef={scrollRef}
-            containerTop={containerTop}
-            containerBottom={containerBottom}
+            isDragging={drag?.from === index}
+            shift={drag?.shifts[index] ?? 0}
+            dragTranslate={dragTranslate}
             onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onScrollEnable={handleScrollEnable}
+            onDragMove={handleDragMove}
+            onDragEnd={endDrag}
+            onMeasure={handleMeasure}
           />
         ))}
       </View>
-    </Animated.ScrollView>
+    </ScrollView>
   );
 }
 
