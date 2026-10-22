@@ -72,7 +72,7 @@
     "jest-expo": "~57.0.3",
     "jsdom": "^20.0.3",
     "prettier": "^3.9.6",
-    "sharp": "^0.35.4",
+    "sharp": "^0.35.5",
     "typescript": "~6.0.3"
   }
 }
