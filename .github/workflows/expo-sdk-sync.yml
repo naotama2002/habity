@@ -1,0 +1,112 @@
+name: Expo SDK Drift Check
+
+# Expo SDK が管理するパッケージのズレを週次で検出する。
+#
+# これらは dependabot.yml で ignore している。Dependabot は SDK が検証した
+# 組み合わせを知らず、ズレが両方向に出てしまうため (expo-* は上がらず古くなる
+# 一方、react-native などは先行して上がる)。
+#
+# ignore しただけでは誰も更新しなくなるので、週次でズレを検出して Issue を立て、
+# 更新の「きっかけ」を作る。
+#
+# ■ なぜ PR を自動作成しないのか
+#
+# 自動更新 PR を作るには expo install --fix で新しいパッケージを解決・インストール
+# する必要があり、その時点で未レビューのコードが postinstall として CI 上で実行される。
+# さらに PR 作成には contents: write が要るため、書き込み権限を持つジョブの中で
+# 未レビューのコードが動くことになる。公開直後のパッケージに悪意が仕込まれた場合に
+# 被害が大きい。
+#
+# ここでは expo install --check のみを使う。これは検出だけを行い、
+# package.json も lockfile も変更せず、新しいパッケージのインストールもしない。
+# ジョブが扱うのは lockfile に固定済み = レビュー済みの依存だけになる。
+#
+# 実際の更新は人間がローカルで pnpm expo install --fix を実行する。
+# ローカルには .npmrc の minimum-release-age が効くため、公開直後の版を
+# 掴まない。通常の PR になるので CI も普通に走る。
+
+on:
+  schedule:
+    # 毎週月曜 09:00 JST (00:00 UTC)
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+# PR 作成はしないため書き込みは Issue だけ
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: expo install --check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # lockfile に固定済みの依存だけを入れる。新しい版は解決しない
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for SDK drift
+        id: check
+        run: |
+          if pnpm exec expo install --check > drift.txt 2>&1; then
+            echo "drift=false" >> "$GITHUB_OUTPUT"
+            echo "SDK とのズレはありません"
+          else
+            echo "drift=true" >> "$GITHUB_OUTPUT"
+            cat drift.txt
+          fi
+
+      - name: Open or update issue
+        if: steps.check.outputs.drift == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="Expo SDK とのバージョンずれを解消する"
+
+          {
+            echo 'Expo SDK が期待するバージョンとのズレを検出しました。'
+            echo
+            echo '## 解消方法'
+            echo
+            echo '```bash'
+            echo 'pnpm expo install --fix'
+            echo 'pnpm lint && pnpm typecheck && pnpm test:ci'
+            echo 'pnpm intl:compile && pnpm exec expo export --platform web && pnpm check:web'
+            echo '```'
+            echo
+            echo '変更をコミットして通常どおり PR を出してください。'
+            echo
+            echo '> [!NOTE]'
+            echo '> 自動 PR にしていないのは意図的です。'
+            echo '> `expo install --fix` は未レビューの新しいパッケージを'
+            echo '> インストールし postinstall を実行するため、書き込み権限を持つ'
+            echo '> CI ジョブ上で動かしたくありません。'
+            echo '> ローカルなら `.npmrc` の `minimum-release-age` が効くため、'
+            echo '> 公開直後の版を掴まずに済みます。'
+            echo
+            echo '## 検出内容'
+            echo
+            echo '```'
+            cat drift.txt
+            echo '```'
+          } > issue-body.md
+
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number')
+          if [ -n "$EXISTING" ]; then
+            gh issue edit "$EXISTING" --body-file issue-body.md
+            echo "Issue #$EXISTING を更新しました"
+          else
+            gh issue create --title "$TITLE" --body-file issue-body.md
+          fi
