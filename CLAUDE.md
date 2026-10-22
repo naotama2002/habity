@@ -107,7 +107,7 @@ pnpm test
 - TypeScript strict モード
 - ESLint + Prettier
 - React Query でサーバー状態管理
-- Zod でスキーマ検証
+- スキーマ検証は `src/lib/validate.ts`（zod は依存削減のため廃止）
 - Web 専用プロジェクト（ネイティブ分離なし）
 
 ## 国際化（i18n）ルール
