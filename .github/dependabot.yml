@@ -52,6 +52,23 @@ updates:
       - dependency-name: "react-native"
       - dependency-name: "react-native-*"
       - dependency-name: "@react-native/*"
+      # TypeScript の major は typescript-eslint が追従するまで保留する。
+      # TS 7 を入れると ts-api-utils が TS 7 の内部 API 変更で落ち、
+      # @typescript-eslint プラグインのロード自体が失敗して lint が動かない
+      # (typecheck / test / ビルドは TS 7 でも通る)。
+      #
+      #   TypeError: Failed to load plugin "@typescript-eslint":
+      #     Cannot read properties of undefined (reading "Intrinsic")
+      #
+      # typescript-eslint は latest も canary も peer が
+      # "typescript: >=4.8.4 <6.1.0" で、TS 7 を受け付けるリリースがまだ無い。
+      #
+      # なお lint を oxlint / Biome に移行すればこの制約は消える
+      # (どちらも Rust 実装で typescript パッケージに依存しない)。
+      # 移行した場合はこの ignore を外すこと。
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
 
   - package-ecosystem: "github-actions"
     directory: "/"
