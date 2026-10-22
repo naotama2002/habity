@@ -1,0 +1,139 @@
+name: Expo SDK Sync
+
+# Expo SDK が管理するパッケージを週次で揃える。
+#
+# これらは dependabot.yml で ignore している。Dependabot は SDK が検証した
+# 組み合わせを知らず、ズレが両方向に出てしまうため (expo-* は上がらず古くなる
+# 一方、react-native などは先行して上がる)。
+#
+# ignore しただけだと誰も更新しなくなるので、Dependabot と同じ週次で
+# expo install --fix を実行し、差分があれば PR を作る。
+
+on:
+  schedule:
+    # 毎週月曜 09:00 JST (00:00 UTC)
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: expo install --fix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Align to Expo SDK
+        run: pnpm exec expo install --fix
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet -- package.json pnpm-lock.yaml; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "SDK とのズレはありません"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --unified=0 -- package.json | grep -E '^[+-]  ' > version-diff.txt || true
+          fi
+
+      # 差分があるときだけ検証する。
+      #
+      # GITHUB_TOKEN で作成した PR は on: pull_request のワークフローを
+      # 起動しない (再帰防止のため) ので、通常の CI は走らない。
+      # そのためここで同等の検証を行い、結果を PR 本文に載せる。
+      #
+      # 失敗しても PR は作る。壊れていること自体が知りたい情報なので、
+      # 握り潰さず人が見られる形にする。
+      - name: Verify
+        if: steps.diff.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          pass() { echo "| $1 | ✅ |" >> verify.md; }
+          fail() { echo "| $1 | ❌ |" >> verify.md; echo "failed" > verify-failed; }
+
+          echo "| チェック | 結果 |" > verify.md
+          echo "|---|---|" >> verify.md
+
+          pnpm intl:compile  && pass "intl:compile"  || fail "intl:compile"
+          pnpm lint          && pass "lint"          || fail "lint"
+          pnpm typecheck     && pass "typecheck"     || fail "typecheck"
+          pnpm intl:check    && pass "intl:check"    || fail "intl:check"
+          pnpm test:ci       && pass "test:ci"       || fail "test:ci"
+          npx expo export --platform web && pass "expo export" || fail "expo export"
+          pnpm check:web     && pass "check:web"     || fail "check:web"
+
+          npx expo-doctor@latest > doctor.txt 2>&1 && pass "expo-doctor" || fail "expo-doctor"
+
+          cat verify.md
+
+      - name: Create pull request
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="chore/expo-sdk-sync"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # dist などの成果物はコミットしない
+          git checkout -B "$BRANCH"
+          git add package.json pnpm-lock.yaml
+          git commit -m "chore(deps): Expo SDK が検証した組み合わせに揃える"
+          git push --force origin "$BRANCH"
+
+          {
+            echo '`expo install --fix` による自動更新です。'
+            echo
+            echo 'Expo SDK が管理するパッケージは `dependabot.yml` で ignore しており、'
+            echo '代わりにこのワークフローが週次でまとめて更新します。'
+            echo
+            echo '## バージョン変更'
+            echo
+            echo '```diff'
+            cat version-diff.txt
+            echo '```'
+            echo
+            echo '## 検証結果'
+            echo
+            cat verify.md
+            echo
+            if [ -f verify-failed ]; then
+              echo '> [!WARNING]'
+              echo '> 失敗したチェックがあります。マージ前に確認してください。'
+              echo
+            fi
+            echo '<details><summary>expo-doctor の出力</summary>'
+            echo
+            echo '```'
+            tail -25 doctor.txt
+            echo '```'
+            echo
+            echo '</details>'
+            echo
+            echo 'GITHUB_TOKEN で作成した PR は通常の CI が起動しないため、'
+            echo '検証はワークフロー内で実行しています。'
+          } > pr-body.md
+
+          TITLE="chore(deps): Expo SDK が検証した組み合わせに揃える"
+          if gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+            gh pr edit "$BRANCH" --title "$TITLE" --body-file pr-body.md
+          else
+            gh pr create --base main --head "$BRANCH" --title "$TITLE" --body-file pr-body.md
+          fi

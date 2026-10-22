@@ -8,6 +8,7 @@
 #
 # npm: major は影響範囲が読めない (Expo SDK のメジャー更新など) ので
 #      グループから外し、従来どおり単独 PR で出す。
+#      また Expo SDK が管理するパッケージは ignore する (下記)。
 # github-actions: major bump (actions/checkout v4 -> v7 など) が常態で、
 #      lockfile も触らないため major も含めてまとめる。
 
@@ -24,6 +25,27 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # Expo SDK が検証した組み合わせを壊さないため、SDK 管理下の
+    # パッケージは Dependabot の対象から外す。
+    # これらは週次の expo-sdk-sync ワークフロー (expo install --fix) が
+    # まとめて更新する。
+    #
+    # 放置した結果、ズレが両方向に出ていた:
+    #   - Dependabot は expo-* を上げないため SDK より古くなる
+    #   - 一方 react-native などは SDK より先行して上がる
+    # 実際 react-native 0.88 を取り込んだ際、jest-expo が追従できず
+    # 全 44 suite が起動不能になった (#94)。
+    ignore:
+      - dependency-name: "expo"
+      - dependency-name: "expo-*"
+      - dependency-name: "@expo/*"
+      - dependency-name: "jest-expo"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "@types/react"
+      - dependency-name: "react-native"
+      - dependency-name: "react-native-*"
+      - dependency-name: "@react-native/*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
