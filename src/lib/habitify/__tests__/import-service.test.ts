@@ -88,7 +88,7 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertCategory = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'cat-uuid-1', name: 'Health' }],
         error: null,
       }),
@@ -97,7 +97,7 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertHabit = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'habity-h-1', external_id: 'h-1' }],
         error: null,
       }),
@@ -154,7 +154,7 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertCategory = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'cat-uuid-1', name: 'Health' }],
         error: null,
       }),
@@ -163,7 +163,7 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertHabit = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'habity-h-1', external_id: 'h-1' }],
         error: null,
       }),
@@ -226,7 +226,7 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertHabit = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'habity-h-1', external_id: 'h-1' }],
         error: null,
       }),
@@ -261,7 +261,7 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertCategory = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'cat-uuid-1', name: 'Health' }],
         error: null,
       }),
@@ -270,7 +270,7 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertHabit = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: null,
         error: { message: 'DB error' },
       }),
@@ -309,7 +309,7 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertCategory = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'cat-uuid-1', name: 'Health' }],
         error: null,
       }),
@@ -318,7 +318,7 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertHabit = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'habity-h-1', external_id: 'h-1' }],
         error: null,
       }),
@@ -359,22 +359,22 @@ describe('runImport', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertCategory = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: jest.fn<any>().mockResolvedValue({
+      select: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'cat-uuid-1', name: 'Health' }],
         error: null,
       }),
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mockEq = jest.fn<any>().mockReturnValue({
+    const mockEq = jest.fn<(...args: any[]) => any>().mockReturnValue({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      eq: jest.fn<any>().mockResolvedValue({
+      eq: jest.fn<(...args: any[]) => any>().mockResolvedValue({
         data: [{ id: 'existing-h-1', external_id: 'h-1' }],
         error: null,
       }),
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mockSelectFind = jest.fn<any>().mockReturnValue({ eq: mockEq });
+    const mockSelectFind = jest.fn<(...args: any[]) => any>().mockReturnValue({ eq: mockEq });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockUpsertLog = jest.fn<(...args: any[]) => any>().mockResolvedValue({
