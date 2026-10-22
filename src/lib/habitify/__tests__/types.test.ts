@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { ZodError } from 'zod';
+import { ValidationError } from '@/lib/validate';
 import {
   HabitifyAreaSchema,
   HabitifyGoalSchema,
@@ -8,7 +8,7 @@ import {
   HabitifyResponseSchema,
 } from '../types';
 
-describe('Habitify Zod schemas', () => {
+describe('Habitify schemas', () => {
   describe('HabitifyAreaSchema', () => {
     it('should accept a valid area', () => {
       const data = { id: 'area-1', name: 'Health' };
@@ -17,7 +17,7 @@ describe('Habitify Zod schemas', () => {
 
     it('should reject area with missing name', () => {
       expect(() => HabitifyAreaSchema.parse({ id: 'area-1' })).toThrow(
-        ZodError,
+        ValidationError,
       );
     });
   });
@@ -35,7 +35,7 @@ describe('Habitify Zod schemas', () => {
           value: 'one',
           periodicity: 'daily',
         }),
-      ).toThrow(ZodError);
+      ).toThrow(ValidationError);
     });
   });
 
@@ -65,7 +65,7 @@ describe('Habitify Zod schemas', () => {
 
     it('should reject a habit with missing id', () => {
       const { id: _, ...noId } = validHabit;
-      expect(() => HabitifyHabitSchema.parse(noId)).toThrow(ZodError);
+      expect(() => HabitifyHabitSchema.parse(noId)).toThrow(ValidationError);
     });
 
     it('should strip unknown fields', () => {
@@ -91,7 +91,7 @@ describe('Habitify Zod schemas', () => {
 
     it('should reject a log with missing habit_id', () => {
       const { habit_id: _, ...noHabitId } = validLog;
-      expect(() => HabitifyLogSchema.parse(noHabitId)).toThrow(ZodError);
+      expect(() => HabitifyLogSchema.parse(noHabitId)).toThrow(ValidationError);
     });
   });
 
@@ -116,7 +116,7 @@ describe('Habitify Zod schemas', () => {
           status: 'yes',
           version: 'v1.2',
         }),
-      ).toThrow(ZodError);
+      ).toThrow(ValidationError);
     });
   });
 });
