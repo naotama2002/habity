@@ -1,4 +1,4 @@
-import {useState, useMemo, useCallback, useRef} from 'react';
+import {useState, useMemo, useCallback} from 'react';
 import {View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, RefreshControl} from 'react-native';
 import {msg} from '@lingui/core/macro';
 import {useLingui} from '@lingui/react';
@@ -56,21 +56,18 @@ export default function TodayScreen() {
     weekStart,
   );
 
-  // ストリークデータを安定化（クエリ再取得中の一時的な undefined を防ぐ）
-  const lastStreaksRef = useRef(streaks);
-  if (streaks) {
-    lastStreaksRef.current = streaks;
-  }
-  const stableStreaks = streaks ?? lastStreaksRef.current;
+  // 再取得中の一時的な undefined は useHabitStreaks 側の
+  // placeholderData: keepPreviousData が吸収するため、
+  // ここでの安定化は不要（ref を描画中に書き換えるのは React の規約違反）。
 
   // selectedDate がストリーク範囲内のときのみ streak を返す
   const getStreakForDate = useCallback((habitId: string): number => {
-    const result = stableStreaks?.[habitId];
+    const result = streaks?.[habitId];
     if (!result || result.count === 0 || !result.from) return 0;
     // from <= selectedDate であればストリーク範囲内
     if (selectedDate >= result.from) return result.count;
     return 0;
-  }, [stableStreaks, selectedDate]);
+  }, [streaks, selectedDate]);
 
   const isSelectedToday = dateIsToday(parseISO(selectedDate));
 
