@@ -1,13 +1,29 @@
-name: Expo SDK Sync
+name: Expo SDK Drift Check
 
-# Expo SDK が管理するパッケージを週次で揃える。
+# Expo SDK が管理するパッケージのズレを週次で検出する。
 #
 # これらは dependabot.yml で ignore している。Dependabot は SDK が検証した
 # 組み合わせを知らず、ズレが両方向に出てしまうため (expo-* は上がらず古くなる
 # 一方、react-native などは先行して上がる)。
 #
-# ignore しただけだと誰も更新しなくなるので、Dependabot と同じ週次で
-# expo install --fix を実行し、差分があれば PR を作る。
+# ignore しただけでは誰も更新しなくなるので、週次でズレを検出して Issue を立て、
+# 更新の「きっかけ」を作る。
+#
+# ■ なぜ PR を自動作成しないのか
+#
+# 自動更新 PR を作るには expo install --fix で新しいパッケージを解決・インストール
+# する必要があり、その時点で未レビューのコードが postinstall として CI 上で実行される。
+# さらに PR 作成には contents: write が要るため、書き込み権限を持つジョブの中で
+# 未レビューのコードが動くことになる。公開直後のパッケージに悪意が仕込まれた場合に
+# 被害が大きい。
+#
+# ここでは expo install --check のみを使う。これは検出だけを行い、
+# package.json も lockfile も変更せず、新しいパッケージのインストールもしない。
+# ジョブが扱うのは lockfile に固定済み = レビュー済みの依存だけになる。
+#
+# 実際の更新は人間がローカルで pnpm expo install --fix を実行する。
+# ローカルには .npmrc の minimum-release-age が効くため、公開直後の版を
+# 掴まない。通常の PR になるので CI も普通に走る。
 
 on:
   schedule:
@@ -15,13 +31,14 @@ on:
     - cron: '0 0 * * 1'
   workflow_dispatch:
 
+# PR 作成はしないため書き込みは Issue だけ
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+  issues: write
 
 jobs:
-  sync:
-    name: expo install --fix
+  check:
+    name: expo install --check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,104 +53,60 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
+      # lockfile に固定済みの依存だけを入れる。新しい版は解決しない
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Align to Expo SDK
-        run: pnpm exec expo install --fix
-
-      - name: Check for changes
-        id: diff
+      - name: Check for SDK drift
+        id: check
         run: |
-          if git diff --quiet -- package.json pnpm-lock.yaml; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+          if pnpm exec expo install --check > drift.txt 2>&1; then
+            echo "drift=false" >> "$GITHUB_OUTPUT"
             echo "SDK とのズレはありません"
           else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            git diff --unified=0 -- package.json | grep -E '^[+-]  ' > version-diff.txt || true
+            echo "drift=true" >> "$GITHUB_OUTPUT"
+            cat drift.txt
           fi
 
-      # 差分があるときだけ検証する。
-      #
-      # GITHUB_TOKEN で作成した PR は on: pull_request のワークフローを
-      # 起動しない (再帰防止のため) ので、通常の CI は走らない。
-      # そのためここで同等の検証を行い、結果を PR 本文に載せる。
-      #
-      # 失敗しても PR は作る。壊れていること自体が知りたい情報なので、
-      # 握り潰さず人が見られる形にする。
-      - name: Verify
-        if: steps.diff.outputs.changed == 'true'
-        continue-on-error: true
-        run: |
-          pass() { echo "| $1 | ✅ |" >> verify.md; }
-          fail() { echo "| $1 | ❌ |" >> verify.md; echo "failed" > verify-failed; }
-
-          echo "| チェック | 結果 |" > verify.md
-          echo "|---|---|" >> verify.md
-
-          pnpm intl:compile  && pass "intl:compile"  || fail "intl:compile"
-          pnpm lint          && pass "lint"          || fail "lint"
-          pnpm typecheck     && pass "typecheck"     || fail "typecheck"
-          pnpm intl:check    && pass "intl:check"    || fail "intl:check"
-          pnpm test:ci       && pass "test:ci"       || fail "test:ci"
-          npx expo export --platform web && pass "expo export" || fail "expo export"
-          pnpm check:web     && pass "check:web"     || fail "check:web"
-
-          npx expo-doctor@latest > doctor.txt 2>&1 && pass "expo-doctor" || fail "expo-doctor"
-
-          cat verify.md
-
-      - name: Create pull request
-        if: steps.diff.outputs.changed == 'true'
+      - name: Open or update issue
+        if: steps.check.outputs.drift == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BRANCH="chore/expo-sdk-sync"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          # dist などの成果物はコミットしない
-          git checkout -B "$BRANCH"
-          git add package.json pnpm-lock.yaml
-          git commit -m "chore(deps): Expo SDK が検証した組み合わせに揃える"
-          git push --force origin "$BRANCH"
+          TITLE="Expo SDK とのバージョンずれを解消する"
 
           {
-            echo '`expo install --fix` による自動更新です。'
+            echo 'Expo SDK が期待するバージョンとのズレを検出しました。'
             echo
-            echo 'Expo SDK が管理するパッケージは `dependabot.yml` で ignore しており、'
-            echo '代わりにこのワークフローが週次でまとめて更新します。'
+            echo '## 解消方法'
             echo
-            echo '## バージョン変更'
-            echo
-            echo '```diff'
-            cat version-diff.txt
+            echo '```bash'
+            echo 'pnpm expo install --fix'
+            echo 'pnpm lint && pnpm typecheck && pnpm test:ci'
+            echo 'pnpm intl:compile && pnpm exec expo export --platform web && pnpm check:web'
             echo '```'
             echo
-            echo '## 検証結果'
+            echo '変更をコミットして通常どおり PR を出してください。'
             echo
-            cat verify.md
+            echo '> [!NOTE]'
+            echo '> 自動 PR にしていないのは意図的です。'
+            echo '> `expo install --fix` は未レビューの新しいパッケージを'
+            echo '> インストールし postinstall を実行するため、書き込み権限を持つ'
+            echo '> CI ジョブ上で動かしたくありません。'
+            echo '> ローカルなら `.npmrc` の `minimum-release-age` が効くため、'
+            echo '> 公開直後の版を掴まずに済みます。'
             echo
-            if [ -f verify-failed ]; then
-              echo '> [!WARNING]'
-              echo '> 失敗したチェックがあります。マージ前に確認してください。'
-              echo
-            fi
-            echo '<details><summary>expo-doctor の出力</summary>'
+            echo '## 検出内容'
             echo
             echo '```'
-            tail -25 doctor.txt
+            cat drift.txt
             echo '```'
-            echo
-            echo '</details>'
-            echo
-            echo 'GITHUB_TOKEN で作成した PR は通常の CI が起動しないため、'
-            echo '検証はワークフロー内で実行しています。'
-          } > pr-body.md
+          } > issue-body.md
 
-          TITLE="chore(deps): Expo SDK が検証した組み合わせに揃える"
-          if gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
-            gh pr edit "$BRANCH" --title "$TITLE" --body-file pr-body.md
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number')
+          if [ -n "$EXISTING" ]; then
+            gh issue edit "$EXISTING" --body-file issue-body.md
+            echo "Issue #$EXISTING を更新しました"
           else
-            gh pr create --base main --head "$BRANCH" --title "$TITLE" --body-file pr-body.md
+            gh issue create --title "$TITLE" --body-file issue-body.md
           fi

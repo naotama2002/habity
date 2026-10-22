@@ -18,6 +18,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # サプライチェーン対策: 公開直後のバージョンを採用しない。
+    # Dependabot は設定しなくても既定で 3 日のクールダウンを適用するが、
+    # .npmrc の minimum-release-age と揃えて 7 日にし、方針を明示する。
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     groups:
       npm-dependencies:
         patterns:
