@@ -130,10 +130,19 @@ ALTER TABLE public.tags ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can manage own tags"
   ON public.tags FOR ALL
   USING (auth.uid() = user_id);
+
+-- Data API (supabase-js / PostgREST) からのアクセス権限
+GRANT SELECT ON public.tags TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tags TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tags TO service_role;
 ```
 
 - `IF NOT EXISTS` / `IF EXISTS` を使い、冪等性を意識する
 - RLS ポリシーも同じマイグレーションに含める
+- **`public` スキーマに作るテーブルには、同じマイグレーションで `GRANT` を必ず書く**
+  - 2026-10-30 以降、Supabase は新しいテーブルに Data API の権限を自動で付けない
+  - `GRANT` がないと、アプリから `permission denied` エラーになる（`supabase db reset` やプレビューブランチも同様）
+  - 行単位のアクセス制御は RLS で行う。`anon` に `SELECT` を付けても、RLS ポリシーが許さない行は見えない
 - コメントで変更の意図を記述する
 
 ### ロールバック方針
