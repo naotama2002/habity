@@ -43,8 +43,10 @@ export function useHabits(status: string = 'active') {
   });
 }
 
-export function useHabitsWithLog(date?: string, weekStart: number = 1) {
-  const targetDate = date ?? new Date().toISOString().split('T')[0];
+// date は必須。描画中に new Date() を呼ぶと出力が実行時刻に依存し、
+// 再描画のたびに結果が変わりうるため (react/purity)。
+export function useHabitsWithLog(date: string, weekStart: number = 1) {
+  const targetDate = date;
 
   return useQuery({
     queryKey: habitKeys.byDate(targetDate),

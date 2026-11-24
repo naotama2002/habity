@@ -105,7 +105,7 @@ pnpm test
 ## コーディング規約
 
 - TypeScript strict モード
-- ESLint + Prettier
+- Lint は oxlint（設定は `.oxlintrc.json`）、整形は Prettier
 - React Query でサーバー状態管理
 - スキーマ検証は `src/lib/validate.ts`（zod は依存削減のため廃止）
 - Web 専用プロジェクト（ネイティブ分離なし）

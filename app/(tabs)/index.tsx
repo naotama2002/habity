@@ -46,7 +46,11 @@ export default function TodayScreen() {
   // ストリーク計算用データ
   const habitIds = useMemo(() =>
     habits?.map(h => h.id) ?? [], [habits]);
-  const todayDate = format(new Date(), 'yyyy-MM-dd');
+  // selectedDate と同じくマウント時に一度だけ決める。
+  // 描画のたびに new Date() を呼ぶと出力が実行時刻に依存するうえ
+  // (react/purity)、日付をまたいだとき todayDate だけが変わって
+  // selectedDate との比較結果が勝手に変わってしまう。
+  const [todayDate] = useState(() => format(new Date(), 'yyyy-MM-dd'));
   const shouldPreviewPendingStreak = selectedDate >= todayDate;
   const {data: streaks} = useHabitStreaks(
     habitIds,

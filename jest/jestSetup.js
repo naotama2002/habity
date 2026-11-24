@@ -88,7 +88,7 @@ jest.mock('@/locale/i18n', () => ({
 
 // @lingui/core/macro - i18n マクロ
 jest.mock('@lingui/core/macro', () => ({
-  msg: jest.fn().mockImplementation((strings, ...values) => {
+  msg: jest.fn().mockImplementation((strings, ..._values) => {
     // テンプレートリテラルを処理
     if (Array.isArray(strings)) {
       return { id: strings.join(''), message: strings.join('') };

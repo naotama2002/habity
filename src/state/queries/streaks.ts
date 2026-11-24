@@ -24,19 +24,11 @@ export const streakKeys = {
 // Queries
 // ===========================================
 
-/**
- * ローカルタイムゾーンの日付を 'YYYY-MM-DD' 形式で返す
- */
-function formatLocalDate(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
 
 export function useHabitStreaks(
   habitIds: string[],
-  referenceDate = formatLocalDate(new Date()),
+  // 描画中に new Date() を呼ばない (react/purity)。呼び出し側で日付を決める
+  referenceDate: string,
   previewPending = false,
   weekStart = 1,
 ) {

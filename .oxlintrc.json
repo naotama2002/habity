@@ -1,0 +1,48 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react"],
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true,
+    "jest": true
+  },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "off",
+    "style": "off"
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-require-imports": "off",
+    "no-unused-vars": "off",
+    "typescript/no-unused-vars": [
+      "warn",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+    ],
+
+    "react-hooks/exhaustive-deps": "error",
+    "react/hooks": "error",
+    "react/refs": "error",
+    "react/set-state-in-effect": "error",
+
+    "react/no-unstable-nested-components": ["error", { "allowAsProps": true }],
+
+    "eslint/no-unmodified-loop-condition": "off",
+    "react/style-prop-object": "off",
+    "eslint/no-underscore-dangle": "off",
+    "typescript/no-extraneous-class": "off",
+    "eslint/no-shadow": "off"
+  },
+  "ignorePatterns": [
+    "node_modules",
+    ".expo",
+    "dist",
+    "build",
+    "coverage",
+    "*.config.js"
+  ]
+}
