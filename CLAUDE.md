@@ -245,6 +245,26 @@ src/state/**/__tests__/*.test.ts     # 状態管理
 src/components/**/__tests__/*.test.tsx  # コンポーネント
 ```
 
+### RNTL (@testing-library/react-native) v14 の非同期 API
+
+v14 で描画系 API が非同期になった。**await を忘れると
+`` `render` function has not been called `` で落ちる。**
+
+| API | 書き方 |
+|-----|--------|
+| `render` / `renderHook` | `await render(<Foo />)` |
+| `fireEvent.*` | `await fireEvent.press(el)` |
+| `act` | `await act(() => { ... })` |
+| `rerender` / `unmount` | `await rerender(<Foo />)` |
+
+- クエリ (`screen.getBy*` など) と `waitFor` は従来どおり同期 / await 済み。
+- `@testing-library/react-native/extend-expect` は廃止。matcher は自動登録される。
+- ツリーにはホスト要素しか現れない（コンポーネントは出てこない）。
+  生の DOM 要素を拾うときは `const {container} = await render(...)` して
+  `container.queryAll(node => node.type === 'input')`。
+- 描画中に throw するケースは `await expect(async () => { await render(...) })
+  .rejects.toThrow(...)` で検証する。
+
 ### Jest 設定ファイル
 
 - `jest.config.js` - Jest 設定

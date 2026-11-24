@@ -37,7 +37,7 @@ describe('session cache clearing logic', () => {
   });
 
   it('should clear queryClient on SIGNED_OUT', async () => {
-    renderHook(() => null, { wrapper });
+    await renderHook(() => null, { wrapper });
 
     await act(() => {
       capturedAuthCallback!('SIGNED_OUT', null);
@@ -47,7 +47,7 @@ describe('session cache clearing logic', () => {
   });
 
   it('should clear queryClient on SIGNED_IN', async () => {
-    renderHook(() => null, { wrapper });
+    await renderHook(() => null, { wrapper });
 
     await act(() => {
       capturedAuthCallback!('SIGNED_IN', { user: { id: 'user-1' } });
@@ -57,7 +57,7 @@ describe('session cache clearing logic', () => {
   });
 
   it('should not clear queryClient on TOKEN_REFRESHED', async () => {
-    renderHook(() => null, { wrapper });
+    await renderHook(() => null, { wrapper });
 
     await act(() => {
       capturedAuthCallback!('TOKEN_REFRESHED', { user: { id: 'user-1' } });

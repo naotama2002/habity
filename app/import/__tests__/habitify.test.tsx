@@ -44,8 +44,8 @@ describe('HabitifyImportScreen', () => {
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
   });
 
-  it('should render the import form', () => {
-    render(<HabitifyImportScreen />);
+  it('should render the import form', async () => {
+    await render(<HabitifyImportScreen />);
 
     expect(screen.getByText('Import from Habitify')).toBeTruthy();
     expect(screen.getByTestId('api-key-input')).toBeTruthy();
@@ -54,17 +54,17 @@ describe('HabitifyImportScreen', () => {
     expect(screen.getByTestId('import-button')).toBeTruthy();
   });
 
-  it('should disable import button when API key is empty', () => {
-    render(<HabitifyImportScreen />);
+  it('should disable import button when API key is empty', async () => {
+    await render(<HabitifyImportScreen />);
 
     const button = screen.getByTestId('import-button');
     expect(button.props.accessibilityState?.disabled).toBe(true);
   });
 
-  it('should enable import button when API key is entered', () => {
-    render(<HabitifyImportScreen />);
+  it('should enable import button when API key is entered', async () => {
+    await render(<HabitifyImportScreen />);
 
-    fireEvent.changeText(screen.getByTestId('api-key-input'), 'test-key');
+    await fireEvent.changeText(screen.getByTestId('api-key-input'), 'test-key');
 
     const button = screen.getByTestId('import-button');
     expect(button.props.accessibilityState?.disabled).toBeFalsy();
@@ -78,10 +78,10 @@ describe('HabitifyImportScreen', () => {
       errors: [],
     });
 
-    render(<HabitifyImportScreen />);
+    await render(<HabitifyImportScreen />);
 
-    fireEvent.changeText(screen.getByTestId('api-key-input'), 'my-api-key');
-    fireEvent.press(screen.getByTestId('import-button'));
+    await fireEvent.changeText(screen.getByTestId('api-key-input'), 'my-api-key');
+    await fireEvent.press(screen.getByTestId('import-button'));
 
     await waitFor(() => {
       expect(mockImportFromHabitify).toHaveBeenCalledWith({
@@ -101,10 +101,10 @@ describe('HabitifyImportScreen', () => {
       errors: [],
     });
 
-    render(<HabitifyImportScreen />);
+    await render(<HabitifyImportScreen />);
 
-    fireEvent.changeText(screen.getByTestId('api-key-input'), 'my-api-key');
-    fireEvent.press(screen.getByTestId('import-button'));
+    await fireEvent.changeText(screen.getByTestId('api-key-input'), 'my-api-key');
+    await fireEvent.press(screen.getByTestId('import-button'));
 
     await waitFor(() => {
       expect(screen.getByText('Import Complete')).toBeTruthy();
@@ -120,18 +120,18 @@ describe('HabitifyImportScreen', () => {
       new Error('Invalid Habitify API key'),
     );
 
-    render(<HabitifyImportScreen />);
+    await render(<HabitifyImportScreen />);
 
-    fireEvent.changeText(screen.getByTestId('api-key-input'), 'bad-key');
-    fireEvent.press(screen.getByTestId('import-button'));
+    await fireEvent.changeText(screen.getByTestId('api-key-input'), 'bad-key');
+    await fireEvent.press(screen.getByTestId('import-button'));
 
     await waitFor(() => {
       expect(screen.getByText('Invalid Habitify API key')).toBeTruthy();
     });
   });
 
-  it('should toggle import options', () => {
-    render(<HabitifyImportScreen />);
+  it('should toggle import options', async () => {
+    await render(<HabitifyImportScreen />);
 
     const habitsSwitch = screen.getByTestId('import-habits-switch');
     const logsSwitch = screen.getByTestId('import-logs-switch');
@@ -141,7 +141,7 @@ describe('HabitifyImportScreen', () => {
     expect(logsSwitch.props.value).toBe(true);
 
     // Toggle habits off
-    fireEvent(habitsSwitch, 'valueChange', false);
+    await fireEvent(habitsSwitch, 'valueChange', false);
     expect(habitsSwitch.props.value).toBe(false);
   });
 });

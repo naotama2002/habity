@@ -32,34 +32,34 @@ describe('SettingsScreen', () => {
   });
 
   describe('user info display', () => {
-    it('should show email and username when logged in', () => {
+    it('should show email and username when logged in', async () => {
       mockUser = {
         email: 'test@example.com',
         user_metadata: { full_name: 'Test User' },
       };
 
-      render(<SettingsScreen />);
+      await render(<SettingsScreen />);
 
       expect(screen.getByText('Test User')).toBeTruthy();
       expect(screen.getByText('test@example.com')).toBeTruthy();
     });
 
-    it('should show email prefix as name when full_name is not set', () => {
+    it('should show email prefix as name when full_name is not set', async () => {
       mockUser = {
         email: 'hello@example.com',
         user_metadata: {},
       };
 
-      render(<SettingsScreen />);
+      await render(<SettingsScreen />);
 
       expect(screen.getByText('hello')).toBeTruthy();
       expect(screen.getByText('hello@example.com')).toBeTruthy();
     });
 
-    it('should show fallback text when not logged in', () => {
+    it('should show fallback text when not logged in', async () => {
       mockUser = null;
 
-      render(<SettingsScreen />);
+      await render(<SettingsScreen />);
 
       expect(screen.getByText('Guest User')).toBeTruthy();
       expect(screen.getByText('Please sign in')).toBeTruthy();
@@ -67,15 +67,15 @@ describe('SettingsScreen', () => {
   });
 
   describe('sign out', () => {
-    it('should call signOut from session API when sign out button is pressed', () => {
+    it('should call signOut from session API when sign out button is pressed', async () => {
       mockUser = {
         email: 'test@example.com',
         user_metadata: {},
       };
 
-      render(<SettingsScreen />);
+      await render(<SettingsScreen />);
 
-      fireEvent.press(screen.getByText('Sign Out'));
+      await fireEvent.press(screen.getByText('Sign Out'));
 
       expect(mockSignOut).toHaveBeenCalled();
     });

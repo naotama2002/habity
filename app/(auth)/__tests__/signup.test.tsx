@@ -46,15 +46,15 @@ describe('SignupScreen', () => {
     mockEnableSignup = true;
   });
 
-  it('should render signup form when signup is enabled', () => {
+  it('should render signup form when signup is enabled', async () => {
     mockEnableSignup = true;
-    render(<SignupScreen />);
+    await render(<SignupScreen />);
     expect(screen.getAllByText('Create Account').length).toBeGreaterThan(0);
   });
 
-  it('should redirect to welcome when signup is disabled', () => {
+  it('should redirect to welcome when signup is disabled', async () => {
     mockEnableSignup = false;
-    render(<SignupScreen />);
+    await render(<SignupScreen />);
     expect(mockReplace).toHaveBeenCalledWith('/(auth)/welcome');
   });
 });

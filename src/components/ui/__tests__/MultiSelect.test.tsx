@@ -10,9 +10,9 @@ describe('MultiSelect', () => {
   ];
 
   describe('rendering', () => {
-    it('should render all options', () => {
+    it('should render all options', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <MultiSelect
           options={basicOptions}
           value={[]}
@@ -25,9 +25,9 @@ describe('MultiSelect', () => {
       expect(screen.getByText('オプションC')).toBeTruthy();
     });
 
-    it('should show checkmark for selected options', () => {
+    it('should show checkmark for selected options', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <MultiSelect
           options={basicOptions}
           value={['a']}
@@ -45,9 +45,9 @@ describe('MultiSelect', () => {
   });
 
   describe('selection', () => {
-    it('should add option when unselected option is pressed', () => {
+    it('should add option when unselected option is pressed', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <MultiSelect
           options={basicOptions}
           value={['a']}
@@ -55,13 +55,13 @@ describe('MultiSelect', () => {
         />
       );
 
-      fireEvent.press(screen.getByText('オプションB'));
+      await fireEvent.press(screen.getByText('オプションB'));
       expect(onChange).toHaveBeenCalledWith(['a', 'b']);
     });
 
-    it('should remove option when selected option is pressed', () => {
+    it('should remove option when selected option is pressed', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <MultiSelect
           options={basicOptions}
           value={['a', 'b']}
@@ -69,13 +69,13 @@ describe('MultiSelect', () => {
         />
       );
 
-      fireEvent.press(screen.getByText('オプションA'));
+      await fireEvent.press(screen.getByText('オプションA'));
       expect(onChange).toHaveBeenCalledWith(['b']);
     });
 
-    it('should not remove last option when minSelect is 1', () => {
+    it('should not remove last option when minSelect is 1', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <MultiSelect
           options={basicOptions}
           value={['a']}
@@ -84,14 +84,14 @@ describe('MultiSelect', () => {
         />
       );
 
-      fireEvent.press(screen.getByText('オプションA'));
+      await fireEvent.press(screen.getByText('オプションA'));
       // Should not call onChange because we can't go below minSelect
       expect(onChange).not.toHaveBeenCalled();
     });
 
-    it('should not add option when maxSelect is reached', () => {
+    it('should not add option when maxSelect is reached', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <MultiSelect
           options={basicOptions}
           value={['a', 'b']}
@@ -100,16 +100,16 @@ describe('MultiSelect', () => {
         />
       );
 
-      fireEvent.press(screen.getByText('オプションC'));
+      await fireEvent.press(screen.getByText('オプションC'));
       // Should not call onChange because we're at maxSelect
       expect(onChange).not.toHaveBeenCalled();
     });
   });
 
   describe('disabled state', () => {
-    it('should not respond to press when disabled', () => {
+    it('should not respond to press when disabled', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <MultiSelect
           options={basicOptions}
           value={['a']}
@@ -118,7 +118,7 @@ describe('MultiSelect', () => {
         />
       );
 
-      fireEvent.press(screen.getByText('オプションB'));
+      await fireEvent.press(screen.getByText('オプションB'));
       expect(onChange).not.toHaveBeenCalled();
     });
   });

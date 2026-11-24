@@ -65,8 +65,8 @@ describe('NewHabitScreen', () => {
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
   });
 
-  const renderWithProviders = (component: React.ReactElement) => {
-    return render(
+  const renderWithProviders = async (component: React.ReactElement) => {
+    return await render(
       <QueryClientProvider client={queryClient}>
         {component}
       </QueryClientProvider>
@@ -74,15 +74,15 @@ describe('NewHabitScreen', () => {
   };
 
   describe('rendering', () => {
-    it('should render screen with header', () => {
-      renderWithProviders(<NewHabitScreen />);
+    it('should render screen with header', async () => {
+      await renderWithProviders(<NewHabitScreen />);
 
       // Screen header (i18n mock returns English)
       expect(screen.getByText('New Habit')).toBeTruthy();
     });
 
-    it('should render HabitForm', () => {
-      renderWithProviders(<NewHabitScreen />);
+    it('should render HabitForm', async () => {
+      await renderWithProviders(<NewHabitScreen />);
 
       // i18n mock returns English strings
       expect(screen.getByText('Habit Name')).toBeTruthy();
@@ -90,8 +90,8 @@ describe('NewHabitScreen', () => {
       expect(screen.getByText('Cancel')).toBeTruthy();
     });
 
-    it('should render close button in header', () => {
-      renderWithProviders(<NewHabitScreen />);
+    it('should render close button in header', async () => {
+      await renderWithProviders(<NewHabitScreen />);
 
       // Close icon should be rendered
       expect(screen.getByText('close')).toBeTruthy();
@@ -99,25 +99,25 @@ describe('NewHabitScreen', () => {
   });
 
   describe('navigation', () => {
-    it('should call router.back when close button is pressed and history exists', () => {
-      renderWithProviders(<NewHabitScreen />);
+    it('should call router.back when close button is pressed and history exists', async () => {
+      await renderWithProviders(<NewHabitScreen />);
 
       // Find and press the close button (parent pressable of the close icon)
       const closeIcon = screen.getByText('close');
       const closeButton = closeIcon.parent;
       if (closeButton) {
-        fireEvent.press(closeButton);
+        await fireEvent.press(closeButton);
       }
 
       expect(mockRouter.back).toHaveBeenCalled();
     });
 
-    it('should call router.replace when cancel button is pressed and no history', () => {
+    it('should call router.replace when cancel button is pressed and no history', async () => {
       mockRouter.canGoBack.mockReturnValue(false);
-      renderWithProviders(<NewHabitScreen />);
+      await renderWithProviders(<NewHabitScreen />);
 
       // i18n mock returns English
-      fireEvent.press(screen.getByText('Cancel'));
+      await fireEvent.press(screen.getByText('Cancel'));
 
       expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
     });
@@ -125,14 +125,14 @@ describe('NewHabitScreen', () => {
 
   describe('form submission', () => {
     it('should navigate back after successful submission when history exists', async () => {
-      renderWithProviders(<NewHabitScreen />);
+      await renderWithProviders(<NewHabitScreen />);
 
       // Fill in the form (i18n placeholder)
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Test Habit');
+      await fireEvent.changeText(nameInput, 'Test Habit');
 
       // Submit (i18n button text)
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockRouter.back).toHaveBeenCalled();
@@ -141,14 +141,14 @@ describe('NewHabitScreen', () => {
 
     it('should navigate to tabs after successful submission when no history', async () => {
       mockRouter.canGoBack.mockReturnValue(false);
-      renderWithProviders(<NewHabitScreen />);
+      await renderWithProviders(<NewHabitScreen />);
 
       // Fill in the form (i18n placeholder)
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Test Habit');
+      await fireEvent.changeText(nameInput, 'Test Habit');
 
       // Submit (i18n button text)
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
