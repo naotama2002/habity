@@ -87,8 +87,13 @@ describe('EditHabitScreen', () => {
     jest.clearAllMocks();
     queryClient = new QueryClient({
       defaultOptions: {
-        queries: { retry: false },
-        mutations: { retry: false },
+        // gcTime: 0 — 既定の 5 分だと、最後の observer が外れた時点で
+        // 5 分後の setTimeout が張られる。これが jest のワーカープロセスを
+        // 生かし続け "A worker process has failed to exit gracefully" になる。
+        // RNTL の自動 unmount は afterEach の後段で走るため、queryClient.clear()
+        // では間に合わない (unmount 時に張り直される)。
+        queries: { retry: false, gcTime: 0 },
+        mutations: { retry: false, gcTime: 0 },
       },
     });
     // デフォルトは履歴ありでback()を使用
