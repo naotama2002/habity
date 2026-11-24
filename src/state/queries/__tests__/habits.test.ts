@@ -29,7 +29,7 @@ const mockedUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
 const mockedUseQueryClient = useQueryClient as jest.MockedFunction<typeof useQueryClient>;
 
 // テスト用ヘルパー: useQuery に渡された queryFn を取得して実行
-function getQueryFn(date?: string) {
+function getQueryFn(date: string = '2026-03-16') {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useHabitsWithLog(date);
   const call = mockedUseQuery.mock.calls[mockedUseQuery.mock.calls.length - 1];
