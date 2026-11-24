@@ -10,9 +10,9 @@ describe('Select', () => {
   ];
 
   describe('rendering', () => {
-    it('should show placeholder when no value is selected', () => {
+    it('should show placeholder when no value is selected', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <Select
           options={options}
           value={null}
@@ -24,9 +24,9 @@ describe('Select', () => {
       expect(screen.getByText('Please select')).toBeTruthy();
     });
 
-    it('should show selected option label', () => {
+    it('should show selected option label', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <Select
           options={options}
           value="option2"
@@ -37,9 +37,9 @@ describe('Select', () => {
       expect(screen.getByText('Option 2')).toBeTruthy();
     });
 
-    it('should use default placeholder when not provided', () => {
+    it('should use default placeholder when not provided', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <Select
           options={options}
           value={null}
@@ -53,9 +53,9 @@ describe('Select', () => {
   });
 
   describe('modal interaction', () => {
-    it('should open modal when pressed', () => {
+    it('should open modal when pressed', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <Select
           options={options}
           value={null}
@@ -64,7 +64,7 @@ describe('Select', () => {
       );
 
       // Press the trigger to open modal (i18n mock returns English)
-      fireEvent.press(screen.getByText('Select an option'));
+      await fireEvent.press(screen.getByText('Select an option'));
 
       // Modal should show "Select" title and all options
       expect(screen.getByText('Select')).toBeTruthy();
@@ -73,9 +73,9 @@ describe('Select', () => {
       expect(screen.getByText('Option 3')).toBeTruthy();
     });
 
-    it('should call onChange when option is selected', () => {
+    it('should call onChange when option is selected', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <Select
           options={options}
           value={null}
@@ -84,19 +84,19 @@ describe('Select', () => {
       );
 
       // Open modal
-      fireEvent.press(screen.getByText('Select an option'));
+      await fireEvent.press(screen.getByText('Select an option'));
 
       // Select an option
-      fireEvent.press(screen.getByText('Option 2'));
+      await fireEvent.press(screen.getByText('Option 2'));
 
       expect(onChange).toHaveBeenCalledWith('option2');
     });
   });
 
   describe('disabled state', () => {
-    it('should not open modal when disabled', () => {
+    it('should not open modal when disabled', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <Select
           options={options}
           value={null}
@@ -105,7 +105,7 @@ describe('Select', () => {
         />
       );
 
-      fireEvent.press(screen.getByText('Select an option'));
+      await fireEvent.press(screen.getByText('Select an option'));
 
       // Modal title should not appear
       expect(screen.queryByText('Select')).toBeNull();
@@ -113,9 +113,9 @@ describe('Select', () => {
   });
 
   describe('accessibility', () => {
-    it('should have correct accessibility label for trigger', () => {
+    it('should have correct accessibility label for trigger', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <Select
           options={options}
           value="option1"
@@ -127,9 +127,9 @@ describe('Select', () => {
       expect(trigger.props.accessibilityLabel).toBe('Option 1');
     });
 
-    it('should use placeholder as accessibility label when no value', () => {
+    it('should use placeholder as accessibility label when no value', async () => {
       const onChange = jest.fn();
-      render(
+      await render(
         <Select
           options={options}
           value={null}

@@ -15,8 +15,8 @@ describe('HabitForm', () => {
   });
 
   describe('rendering', () => {
-    it('should render all form fields', () => {
-      render(
+    it('should render all form fields', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -31,8 +31,8 @@ describe('HabitForm', () => {
       expect(screen.getByText('Start Date')).toBeTruthy();
     });
 
-    it('should render Goal Frequency section', () => {
-      render(
+    it('should render Goal Frequency section', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -44,8 +44,8 @@ describe('HabitForm', () => {
       expect(screen.getByText('Daily')).toBeTruthy();
     });
 
-    it('should render submit and cancel buttons', () => {
-      render(
+    it('should render submit and cancel buttons', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -56,8 +56,8 @@ describe('HabitForm', () => {
       expect(screen.getByText('Cancel')).toBeTruthy();
     });
 
-    it('should render recurrence picker with default interval type', () => {
-      render(
+    it('should render recurrence picker with default interval type', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -72,8 +72,8 @@ describe('HabitForm', () => {
   });
 
   describe('initial values', () => {
-    it('should populate form with initial values', () => {
-      render(
+    it('should populate form with initial values', async () => {
+      await render(
         <HabitForm
           initialValues={{
             name: 'Test Habit',
@@ -88,8 +88,8 @@ describe('HabitForm', () => {
       expect(screen.getByDisplayValue('Test Description')).toBeTruthy();
     });
 
-    it('should render start date input with initial value', () => {
-      const { root } = render(
+    it('should render start date input with initial value', async () => {
+      const { container } = await render(
         <HabitForm
           initialValues={{
             name: 'Test Habit',
@@ -100,12 +100,12 @@ describe('HabitForm', () => {
         />
       );
 
-      const dateInput = root.findAll((node) => node.type === 'input')[0];
+      const dateInput = container.queryAll((node) => node.type === 'input')[0];
       expect(dateInput.props.value).toBe('2025-06-15');
     });
 
-    it('should parse recurrence_rule for editing', () => {
-      render(
+    it('should parse recurrence_rule for editing', async () => {
+      await render(
         <HabitForm
           initialValues={{
             name: 'Test Habit',
@@ -123,7 +123,7 @@ describe('HabitForm', () => {
 
   describe('validation', () => {
     it('should not call onSubmit when form is invalid', async () => {
-      render(
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -131,14 +131,14 @@ describe('HabitForm', () => {
       );
 
       // Press submit without entering name (form is invalid)
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.press(screen.getByText('Save'));
 
       // onSubmit should not be called for invalid form
       expect(mockOnSubmit).not.toHaveBeenCalled();
     });
 
     it('should show error after field is touched', async () => {
-      render(
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -147,7 +147,7 @@ describe('HabitForm', () => {
 
       // Focus and blur the name input
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent(nameInput, 'blur');
+      await fireEvent(nameInput, 'blur');
 
       await waitFor(() => {
         expect(screen.getByText('習慣名を入力してください')).toBeTruthy();
@@ -159,7 +159,7 @@ describe('HabitForm', () => {
     it('should update start date when date is changed', async () => {
       mockOnSubmit.mockResolvedValue(undefined);
 
-      const { root } = render(
+      const { container } = await render(
         <HabitForm
           initialValues={{
             start_date: '2025-01-01',
@@ -170,15 +170,15 @@ describe('HabitForm', () => {
       );
 
       // Change the date via the native input's onChange handler
-      const dateInput = root.findAll((node) => node.type === 'input')[0];
-      act(() => {
+      const dateInput = container.queryAll((node) => node.type === 'input')[0];
+      await act(() => {
         dateInput.props.onChange({ target: { value: '2025-06-15' } });
       });
 
       // Fill in required name field and submit
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Test Habit');
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.changeText(nameInput, 'Test Habit');
+      await fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledTimes(1);
@@ -193,7 +193,7 @@ describe('HabitForm', () => {
     it('should call onSubmit with correct data when valid', async () => {
       mockOnSubmit.mockResolvedValue(undefined);
 
-      render(
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -202,10 +202,10 @@ describe('HabitForm', () => {
 
       // Fill in required fields
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Test Habit');
+      await fireEvent.changeText(nameInput, 'Test Habit');
 
       // Submit
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledTimes(1);
@@ -220,8 +220,8 @@ describe('HabitForm', () => {
       expect(submittedData.recurrence_rule).toContain('FREQ=DAILY');
     });
 
-    it('should show loading state when submitting', () => {
-      render(
+    it('should show loading state when submitting', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -235,7 +235,7 @@ describe('HabitForm', () => {
     it('should show alert on submit error', async () => {
       mockOnSubmit.mockRejectedValue(new Error('Test error'));
 
-      render(
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -244,10 +244,10 @@ describe('HabitForm', () => {
 
       // Fill in required fields
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Test Habit');
+      await fireEvent.changeText(nameInput, 'Test Habit');
 
       // Submit
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(window.alert).toHaveBeenCalledWith(
@@ -258,22 +258,22 @@ describe('HabitForm', () => {
   });
 
   describe('cancel behavior', () => {
-    it('should call onCancel directly when form is not dirty', () => {
-      render(
+    it('should call onCancel directly when form is not dirty', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
         />
       );
 
-      fireEvent.press(screen.getByText('Cancel'));
+      await fireEvent.press(screen.getByText('Cancel'));
 
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
       expect(screen.queryByText('Discard Changes')).toBeNull();
     });
 
-    it('should show confirmation dialog when form is dirty', () => {
-      render(
+    it('should show confirmation dialog when form is dirty', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -282,16 +282,16 @@ describe('HabitForm', () => {
 
       // Make form dirty by changing a field
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Changed Value');
+      await fireEvent.changeText(nameInput, 'Changed Value');
 
-      fireEvent.press(screen.getByText('Cancel'));
+      await fireEvent.press(screen.getByText('Cancel'));
 
       expect(screen.getByText('Discard Changes')).toBeTruthy();
       expect(screen.getByText('Your input will not be saved. Are you sure?')).toBeTruthy();
     });
 
-    it('should call onCancel when confirm button is pressed in dialog', () => {
-      render(
+    it('should call onCancel when confirm button is pressed in dialog', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -299,16 +299,16 @@ describe('HabitForm', () => {
       );
 
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Changed Value');
+      await fireEvent.changeText(nameInput, 'Changed Value');
 
-      fireEvent.press(screen.getByText('Cancel'));
-      fireEvent.press(screen.getByText('Discard'));
+      await fireEvent.press(screen.getByText('Cancel'));
+      await fireEvent.press(screen.getByText('Discard'));
 
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
     });
 
-    it('should close dialog when cancel button is pressed in dialog', () => {
-      render(
+    it('should close dialog when cancel button is pressed in dialog', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -316,10 +316,10 @@ describe('HabitForm', () => {
       );
 
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Changed Value');
+      await fireEvent.changeText(nameInput, 'Changed Value');
 
-      fireEvent.press(screen.getByText('Cancel'));
-      fireEvent.press(screen.getByText('Continue Editing'));
+      await fireEvent.press(screen.getByText('Cancel'));
+      await fireEvent.press(screen.getByText('Continue Editing'));
 
       expect(screen.queryByText('Discard Changes')).toBeNull();
       expect(mockOnCancel).not.toHaveBeenCalled();
@@ -327,8 +327,8 @@ describe('HabitForm', () => {
   });
 
   describe('end date', () => {
-    it('should render End Date field', () => {
-      render(
+    it('should render End Date field', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -339,8 +339,8 @@ describe('HabitForm', () => {
       expect(screen.getByText('Optional. Leave empty for an ongoing habit.')).toBeTruthy();
     });
 
-    it('should render end date input with initial value', () => {
-      const { root } = render(
+    it('should render end date input with initial value', async () => {
+      const { container } = await render(
         <HabitForm
           initialValues={{
             name: 'Test Habit',
@@ -353,7 +353,7 @@ describe('HabitForm', () => {
       );
 
       // Find date inputs (start_date and end_date)
-      const dateInputs = root.findAll((node) => node.type === 'input');
+      const dateInputs = container.queryAll((node) => node.type === 'input');
       const endDateInput = dateInputs[1]; // second date input
       expect(endDateInput.props.value).toBe('2025-12-31');
     });
@@ -361,7 +361,7 @@ describe('HabitForm', () => {
     it('should submit null when end date is not set', async () => {
       mockOnSubmit.mockResolvedValue(undefined);
 
-      render(
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -369,8 +369,8 @@ describe('HabitForm', () => {
       );
 
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Test Habit');
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.changeText(nameInput, 'Test Habit');
+      await fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledTimes(1);
@@ -383,7 +383,7 @@ describe('HabitForm', () => {
     it('should submit end_date value when set', async () => {
       mockOnSubmit.mockResolvedValue(undefined);
 
-      const { root } = render(
+      const { container } = await render(
         <HabitForm
           initialValues={{
             start_date: '2025-01-01',
@@ -394,16 +394,16 @@ describe('HabitForm', () => {
       );
 
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Test Habit');
+      await fireEvent.changeText(nameInput, 'Test Habit');
 
       // Set end date
-      const dateInputs = root.findAll((node) => node.type === 'input');
+      const dateInputs = container.queryAll((node) => node.type === 'input');
       const endDateInput = dateInputs[1];
-      act(() => {
+      await act(() => {
         endDateInput.props.onChange({ target: { value: '2025-06-30' } });
       });
 
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledTimes(1);
@@ -415,8 +415,8 @@ describe('HabitForm', () => {
   });
 
   describe('goal frequency', () => {
-    it('should show goal value input when Weekly is selected in goal frequency', () => {
-      render(
+    it('should show goal value input when Weekly is selected in goal frequency', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -425,7 +425,7 @@ describe('HabitForm', () => {
 
       // Goal Frequency section — first "Weekly" is the goal frequency one
       const weeklyButtons = screen.getAllByText('Weekly');
-      fireEvent.press(weeklyButtons[0]);
+      await fireEvent.press(weeklyButtons[0]);
 
       expect(screen.getByText('times per week')).toBeTruthy();
     });
@@ -433,7 +433,7 @@ describe('HabitForm', () => {
     it('should submit weekly goal data correctly', async () => {
       mockOnSubmit.mockResolvedValue(undefined);
 
-      render(
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -442,14 +442,14 @@ describe('HabitForm', () => {
 
       // Fill in name
       const nameInput = screen.getByPlaceholderText('e.g., Reading, Exercise, Meditation');
-      fireEvent.changeText(nameInput, 'Golf Practice');
+      await fireEvent.changeText(nameInput, 'Golf Practice');
 
       // Select Weekly in goal frequency
       const weeklyButtons = screen.getAllByText('Weekly');
-      fireEvent.press(weeklyButtons[0]);
+      await fireEvent.press(weeklyButtons[0]);
 
       // Submit
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.press(screen.getByText('Save'));
 
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledTimes(1);
@@ -460,8 +460,8 @@ describe('HabitForm', () => {
       expect(submittedData.goal_value).toBe(3); // default for weekly
     });
 
-    it('should populate goal fields from initial values', () => {
-      render(
+    it('should populate goal fields from initial values', async () => {
+      await render(
         <HabitForm
           initialValues={{
             name: 'Existing Habit',
@@ -477,8 +477,8 @@ describe('HabitForm', () => {
       expect(screen.getByText('times per week')).toBeTruthy();
     });
 
-    it('should not show goal value input for daily', () => {
-      render(
+    it('should not show goal value input for daily', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -489,8 +489,8 @@ describe('HabitForm', () => {
       expect(screen.queryByText('times per month')).toBeNull();
     });
 
-    it('should clamp goal_value when switching from monthly to weekly', () => {
-      render(
+    it('should clamp goal_value when switching from monthly to weekly', async () => {
+      await render(
         <HabitForm
           initialValues={{
             name: 'Test',
@@ -507,7 +507,7 @@ describe('HabitForm', () => {
 
       // Switch to Weekly — value should clamp to 7
       const weeklyButtons = screen.getAllByText('Weekly');
-      fireEvent.press(weeklyButtons[0]);
+      await fireEvent.press(weeklyButtons[0]);
 
       expect(screen.getByDisplayValue('7')).toBeTruthy();
       expect(screen.getByText('times per week')).toBeTruthy();
@@ -515,8 +515,8 @@ describe('HabitForm', () => {
   });
 
   describe('recurrence picker integration', () => {
-    it('should switch to weekly mode when Weekly is pressed in recurrence', () => {
-      render(
+    it('should switch to weekly mode when Weekly is pressed in recurrence', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
@@ -526,20 +526,20 @@ describe('HabitForm', () => {
       // Weekly appears in both Goal Frequency and Recurrence sections
       // The second one is the recurrence picker's Weekly button
       const weeklyButtons = screen.getAllByText('Weekly');
-      fireEvent.press(weeklyButtons[weeklyButtons.length - 1]);
+      await fireEvent.press(weeklyButtons[weeklyButtons.length - 1]);
 
       expect(screen.getByText('Select days of the week')).toBeTruthy();
     });
 
-    it('should update time of day when chip is pressed', () => {
-      render(
+    it('should update time of day when chip is pressed', async () => {
+      await render(
         <HabitForm
           onSubmit={mockOnSubmit}
           onCancel={mockOnCancel}
         />
       );
 
-      fireEvent.press(screen.getByText('Morning'));
+      await fireEvent.press(screen.getByText('Morning'));
 
       const morningChip = screen.getByLabelText('Morning');
       expect(morningChip.props.accessibilityState.checked).toBe(true);

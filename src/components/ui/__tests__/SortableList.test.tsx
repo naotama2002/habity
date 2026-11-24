@@ -10,8 +10,8 @@ const mockData = [
 ];
 
 describe('SortableList', () => {
-  it('should render all items', () => {
-    render(
+  it('should render all items', async () => {
+    await render(
       <SortableList
         data={mockData}
         keyExtractor={(item) => item.id}
@@ -25,8 +25,8 @@ describe('SortableList', () => {
     expect(screen.getByText('Item C')).toBeTruthy();
   });
 
-  it('should render grip handles for each item', () => {
-    render(
+  it('should render grip handles for each item', async () => {
+    await render(
       <SortableList
         data={mockData}
         keyExtractor={(item) => item.id}
@@ -39,9 +39,9 @@ describe('SortableList', () => {
     expect(handles).toHaveLength(3);
   });
 
-  it('should render empty list when data is empty', () => {
+  it('should render empty list when data is empty', async () => {
     const onReorder = jest.fn();
-    render(
+    await render(
       <SortableList
         data={[]}
         keyExtractor={(item: {id: string}) => item.id}
@@ -53,12 +53,12 @@ describe('SortableList', () => {
     expect(screen.queryByText('Item')).toBeNull();
   });
 
-  it('should pass correct index to renderItem', () => {
+  it('should pass correct index to renderItem', async () => {
     const renderItem = jest.fn((item: typeof mockData[number], index: number) => (
       <Text>{`${item.name}-${index}`}</Text>
     ));
 
-    render(
+    await render(
       <SortableList
         data={mockData}
         keyExtractor={(item) => item.id}

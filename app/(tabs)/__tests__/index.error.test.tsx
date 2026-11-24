@@ -81,8 +81,8 @@ describe('Today 画面のエラー通知', () => {
     jest.clearAllMocks();
   });
 
-  it('チェックの更新に失敗したらトーストで通知する', () => {
-    render(
+  it('チェックの更新に失敗したらトーストで通知する', async () => {
+    await render(
       <ToastProvider>
         <TodayScreen />
       </ToastProvider>,
@@ -91,7 +91,7 @@ describe('Today 画面のエラー通知', () => {
     // 失敗前はトーストが無い
     expect(screen.queryByTestId('toast')).toBeNull();
 
-    fireEvent.press(screen.getByTestId('habit-checkbox'));
+    await fireEvent.press(screen.getByTestId('habit-checkbox'));
 
     expect(mockFailingMutate).toHaveBeenCalledTimes(1);
     // i18n モックは英語メッセージを返す

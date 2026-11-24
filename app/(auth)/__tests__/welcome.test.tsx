@@ -38,21 +38,21 @@ describe('WelcomeScreen', () => {
     mockEnableSignup = true;
   });
 
-  it('should show sign up link when signup is enabled', () => {
+  it('should show sign up link when signup is enabled', async () => {
     mockEnableSignup = true;
-    render(<WelcomeScreen />);
+    await render(<WelcomeScreen />);
     expect(screen.getByText(/Sign Up/)).toBeTruthy();
   });
 
-  it('should hide sign up link when signup is disabled', () => {
+  it('should hide sign up link when signup is disabled', async () => {
     mockEnableSignup = false;
-    render(<WelcomeScreen />);
+    await render(<WelcomeScreen />);
     expect(screen.queryByText(/Sign Up/)).toBeNull();
   });
 
-  it('should always show sign in buttons regardless of signup setting', () => {
+  it('should always show sign in buttons regardless of signup setting', async () => {
     mockEnableSignup = false;
-    render(<WelcomeScreen />);
+    await render(<WelcomeScreen />);
     expect(screen.getByText('Sign in with GitHub')).toBeTruthy();
     expect(screen.getByText('Sign in with Email')).toBeTruthy();
   });

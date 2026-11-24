@@ -22,10 +22,10 @@ describe('I18nProvider', () => {
     resetI18nInitializedForTest();
   });
 
-  it('初回描画で children を返す（準備待ちの空描画を挟まない）', () => {
+  it('初回描画で children を返す（準備待ちの空描画を挟まない）', async () => {
     // 回帰: 以前は effect + setState で初期化していたため
     // 初回に null を返す余分な描画が入っていた
-    render(
+    await render(
       <I18nProvider>
         <Text>content</Text>
       </I18nProvider>,
@@ -34,8 +34,8 @@ describe('I18nProvider', () => {
     expect(screen.getByText('content')).toBeTruthy();
   });
 
-  it('デフォルト言語で i18n を初期化する', () => {
-    render(
+  it('デフォルト言語で i18n を初期化する', async () => {
+    await render(
       <I18nProvider>
         <Text>content</Text>
       </I18nProvider>,
@@ -44,13 +44,13 @@ describe('I18nProvider', () => {
     expect(mockInitI18n).toHaveBeenCalledWith(DEFAULT_LANGUAGE);
   });
 
-  it('再描画しても初期化は一度だけ', () => {
-    const {rerender} = render(
+  it('再描画しても初期化は一度だけ', async () => {
+    const {rerender} = await render(
       <I18nProvider>
         <Text>a</Text>
       </I18nProvider>,
     );
-    rerender(
+    await rerender(
       <I18nProvider>
         <Text>b</Text>
       </I18nProvider>,

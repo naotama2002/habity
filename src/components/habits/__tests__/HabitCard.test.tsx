@@ -43,86 +43,86 @@ function createMockHabitWithLog(
 }
 
 describe('HabitCard', () => {
-  it('should render habit name', () => {
+  it('should render habit name', async () => {
     const habit = createMockHabitWithLog({name: 'Morning Run'});
-    render(<HabitCard habit={habit} />);
+    await render(<HabitCard habit={habit} />);
     expect(screen.getByText('Morning Run')).toBeTruthy();
   });
 
-  it('should show checkmark when completed', () => {
+  it('should show checkmark when completed', async () => {
     const habit = createMockHabitWithLog({
       is_completed: true,
       log_status: 'completed',
     });
-    render(<HabitCard habit={habit} />);
+    await render(<HabitCard habit={habit} />);
     expect(screen.getByText('✓')).toBeTruthy();
   });
 
-  it('should show skip mark when skipped', () => {
+  it('should show skip mark when skipped', async () => {
     const habit = createMockHabitWithLog({
       is_skipped: true,
       log_status: 'skipped',
     });
-    render(<HabitCard habit={habit} />);
+    await render(<HabitCard habit={habit} />);
     expect(screen.getByText('⊘')).toBeTruthy();
   });
 
-  it('should show "Skipped" label when skipped', () => {
+  it('should show "Skipped" label when skipped', async () => {
     const habit = createMockHabitWithLog({
       is_skipped: true,
       log_status: 'skipped',
     });
-    render(<HabitCard habit={habit} />);
+    await render(<HabitCard habit={habit} />);
     expect(screen.getByText('Skipped')).toBeTruthy();
   });
 
-  it('should not show goal text for boolean tracking type', () => {
+  it('should not show goal text for boolean tracking type', async () => {
     const habit = createMockHabitWithLog({
       tracking_type: 'boolean',
       goal_value: 1,
       goal_unit: 'times',
     });
-    render(<HabitCard habit={habit} />);
+    await render(<HabitCard habit={habit} />);
     // No goal progress text should be visible
     expect(screen.queryByText(/\/.*times/)).toBeNull();
   });
 
   describe('period progress', () => {
-    it('should not show period progress for daily habits', () => {
+    it('should not show period progress for daily habits', async () => {
       const habit = createMockHabitWithLog({goal_period: 'daily'});
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
       expect(screen.queryByTestId('period-progress')).toBeNull();
     });
 
-    it('should show period progress for weekly habits', () => {
+    it('should show period progress for weekly habits', async () => {
       const habit = createMockHabitWithLog({
         goal_period: 'weekly',
         goal_value: 3,
         period_completed_count: 2,
       });
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
       expect(screen.getByTestId('period-progress')).toBeTruthy();
       expect(screen.getByText('2/3')).toBeTruthy();
     });
 
-    it('should show period progress for monthly habits', () => {
+    it('should show period progress for monthly habits', async () => {
       const habit = createMockHabitWithLog({
         goal_period: 'monthly',
         goal_value: 10,
         period_completed_count: 5,
       });
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
       expect(screen.getByText('5/10')).toBeTruthy();
     });
 
-    it('should show exceeded count (5/3)', () => {
+    it('should show exceeded count (5/3)', async () => {
       const habit = createMockHabitWithLog({
         goal_period: 'weekly',
         goal_value: 3,
         period_completed_count: 5,
         is_completed: true,
       });
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
       expect(screen.getByText('5/3')).toBeTruthy();
     });
   });
@@ -130,9 +130,9 @@ describe('HabitCard', () => {
   it('should call onToggle when checkbox is pressed for non-skipped habit', async () => {
     const habit = createMockHabitWithLog();
     const onToggle = jest.fn();
-    render(<HabitCard habit={habit} onToggle={onToggle} />);
+    await render(<HabitCard habit={habit} onToggle={onToggle} />);
 
-    fireEvent.press(screen.getByTestId('habit-checkbox'));
+    await fireEvent.press(screen.getByTestId('habit-checkbox'));
     await waitFor(() => {
       expect(onToggle).toHaveBeenCalledWith(habit);
     });
@@ -144,31 +144,31 @@ describe('HabitCard', () => {
       log_status: 'skipped',
     });
     const onToggle = jest.fn();
-    render(<HabitCard habit={habit} onToggle={onToggle} />);
+    await render(<HabitCard habit={habit} onToggle={onToggle} />);
 
-    fireEvent.press(screen.getByTestId('habit-checkbox'));
+    await fireEvent.press(screen.getByTestId('habit-checkbox'));
     await waitFor(() => {
       expect(onToggle).not.toHaveBeenCalled();
     });
   });
 
-  it('should show checkmark immediately on toggle (optimistic update)', () => {
+  it('should show checkmark immediately on toggle (optimistic update)', async () => {
     const habit = createMockHabitWithLog({is_completed: false});
-    render(<HabitCard habit={habit} onToggle={jest.fn()} />);
+    await render(<HabitCard habit={habit} onToggle={jest.fn()} />);
 
     // チェックマークがまだ表示されていないことを確認
     expect(screen.queryByText('✓')).toBeNull();
 
     // チェックボックスを押す
-    fireEvent.press(screen.getByTestId('habit-checkbox'));
+    await fireEvent.press(screen.getByTestId('habit-checkbox'));
 
     // サーバー応答前にチェックマークが即座に表示される
     expect(screen.getByText('✓')).toBeTruthy();
   });
 
-  it('should render streak badge as inactive when today is not completed', () => {
+  it('should render streak badge as inactive when today is not completed', async () => {
     const habit = createMockHabitWithLog({is_completed: false, is_skipped: false});
-    render(<HabitCard habit={habit} streak={5} />);
+    await render(<HabitCard habit={habit} streak={5} />);
 
     const streakText = screen.getByTestId('habit-streak-badge-text');
     expect(StyleSheet.flatten(streakText.props.style)).toMatchObject({
@@ -176,11 +176,11 @@ describe('HabitCard', () => {
     });
   });
 
-  it('should render streak badge as active immediately after checking today', () => {
+  it('should render streak badge as active immediately after checking today', async () => {
     const habit = createMockHabitWithLog({is_completed: false, is_skipped: false});
-    render(<HabitCard habit={habit} streak={5} onToggle={jest.fn()} />);
+    await render(<HabitCard habit={habit} streak={5} onToggle={jest.fn()} />);
 
-    fireEvent.press(screen.getByTestId('habit-checkbox'));
+    await fireEvent.press(screen.getByTestId('habit-checkbox'));
 
     const streakText = screen.getByTestId('habit-streak-badge-text');
     expect(StyleSheet.flatten(streakText.props.style)).toMatchObject({
@@ -188,256 +188,256 @@ describe('HabitCard', () => {
     });
   });
 
-  it('should hide checkmark immediately on uncomplete toggle (optimistic update)', () => {
+  it('should hide checkmark immediately on uncomplete toggle (optimistic update)', async () => {
     const habit = createMockHabitWithLog({
       is_completed: true,
       log_id: 'log-1',
       log_status: 'completed',
     });
-    render(<HabitCard habit={habit} onToggle={jest.fn()} />);
+    await render(<HabitCard habit={habit} onToggle={jest.fn()} />);
 
     // チェックマークが表示されていることを確認
     expect(screen.getByText('✓')).toBeTruthy();
 
     // チェックボックスを押す（未完了に戻す）
-    fireEvent.press(screen.getByTestId('habit-checkbox'));
+    await fireEvent.press(screen.getByTestId('habit-checkbox'));
 
     // チェックマークが即座に消える
     expect(screen.queryByText('✓')).toBeNull();
   });
 
   describe('link button', () => {
-    it('should not show link button when description has no URLs', () => {
+    it('should not show link button when description has no URLs', async () => {
       const habit = createMockHabitWithLog({description: 'No links here'});
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
       expect(screen.queryByTestId('habit-link-button')).toBeNull();
     });
 
-    it('should not show link button when description is null', () => {
+    it('should not show link button when description is null', async () => {
       const habit = createMockHabitWithLog({description: null});
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
       expect(screen.queryByTestId('habit-link-button')).toBeNull();
     });
 
-    it('should show link button when description contains a URL', () => {
+    it('should show link button when description contains a URL', async () => {
       const habit = createMockHabitWithLog({
         description: 'Open https://example.com',
       });
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
       expect(screen.getByTestId('habit-link-button')).toBeTruthy();
     });
 
-    it('should show link menu when link button is pressed', () => {
+    it('should show link menu when link button is pressed', async () => {
       const habit = createMockHabitWithLog({
         description: 'Open https://example.com',
       });
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
 
-      fireEvent.press(screen.getByTestId('habit-link-button'));
+      await fireEvent.press(screen.getByTestId('habit-link-button'));
       expect(screen.getByTestId('habit-link-menu')).toBeTruthy();
     });
 
-    it('should display URLs in link menu', () => {
+    it('should display URLs in link menu', async () => {
       const habit = createMockHabitWithLog({
         description: 'Visit https://example.com and myapp://start',
       });
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
 
-      fireEvent.press(screen.getByTestId('habit-link-button'));
+      await fireEvent.press(screen.getByTestId('habit-link-button'));
       expect(screen.getByText('https://example.com')).toBeTruthy();
       expect(screen.getByText('myapp://start')).toBeTruthy();
     });
 
-    it('should call Linking.openURL when a URL in the menu is pressed', () => {
+    it('should call Linking.openURL when a URL in the menu is pressed', async () => {
       const openURLSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined as never);
       const habit = createMockHabitWithLog({
         description: 'Open https://example.com',
       });
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
 
-      fireEvent.press(screen.getByTestId('habit-link-button'));
-      fireEvent.press(screen.getByText('https://example.com'));
+      await fireEvent.press(screen.getByTestId('habit-link-button'));
+      await fireEvent.press(screen.getByText('https://example.com'));
 
       expect(openURLSpy).toHaveBeenCalledWith('https://example.com');
       openURLSpy.mockRestore();
     });
 
-    it('should close menu after URL is pressed', () => {
+    it('should close menu after URL is pressed', async () => {
       jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined as never);
       const habit = createMockHabitWithLog({
         description: 'Open https://example.com',
       });
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
 
-      fireEvent.press(screen.getByTestId('habit-link-button'));
+      await fireEvent.press(screen.getByTestId('habit-link-button'));
       expect(screen.getByTestId('habit-link-menu')).toBeTruthy();
 
-      fireEvent.press(screen.getByText('https://example.com'));
+      await fireEvent.press(screen.getByText('https://example.com'));
       expect(screen.queryByTestId('habit-link-menu')).toBeNull();
 
       jest.restoreAllMocks();
     });
 
-    it('should close menu when overlay is pressed', () => {
+    it('should close menu when overlay is pressed', async () => {
       const habit = createMockHabitWithLog({
         description: 'Open https://example.com',
       });
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
 
-      fireEvent.press(screen.getByTestId('habit-link-button'));
+      await fireEvent.press(screen.getByTestId('habit-link-button'));
       expect(screen.getByTestId('habit-link-menu')).toBeTruthy();
 
-      fireEvent.press(screen.getByTestId('habit-link-overlay'));
+      await fireEvent.press(screen.getByTestId('habit-link-overlay'));
       expect(screen.queryByTestId('habit-link-menu')).toBeNull();
     });
 
-    it('should call onMenuOpenChange when link menu opens and closes', () => {
+    it('should call onMenuOpenChange when link menu opens and closes', async () => {
       const onMenuOpenChange = jest.fn();
       const habit = createMockHabitWithLog({
         description: 'Open https://example.com',
       });
-      render(
+      await render(
         <HabitCard habit={habit} onMenuOpenChange={onMenuOpenChange} />,
       );
 
-      fireEvent.press(screen.getByTestId('habit-link-button'));
+      await fireEvent.press(screen.getByTestId('habit-link-button'));
       expect(onMenuOpenChange).toHaveBeenCalledWith(true);
 
-      fireEvent.press(screen.getByTestId('habit-link-overlay'));
+      await fireEvent.press(screen.getByTestId('habit-link-overlay'));
       expect(onMenuOpenChange).toHaveBeenCalledWith(false);
     });
   });
 
   describe('action menu', () => {
-    it('should render action menu button', () => {
+    it('should render action menu button', async () => {
       const habit = createMockHabitWithLog();
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
       expect(screen.getByTestId('habit-actions-button')).toBeTruthy();
     });
 
-    it('should show menu with skip option when button is pressed (incomplete habit)', () => {
+    it('should show menu with skip option when button is pressed (incomplete habit)', async () => {
       const habit = createMockHabitWithLog();
-      render(<HabitCard habit={habit} onSkip={jest.fn()} />);
+      await render(<HabitCard habit={habit} onSkip={jest.fn()} />);
 
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
 
       expect(screen.getByTestId('habit-actions-menu')).toBeTruthy();
       expect(screen.getByText('Skip for today')).toBeTruthy();
       expect(screen.getByText('Streak will not be broken')).toBeTruthy();
     });
 
-    it('should show unskip option when habit is already skipped', () => {
+    it('should show unskip option when habit is already skipped', async () => {
       const habit = createMockHabitWithLog({is_skipped: true, log_status: 'skipped'});
-      render(<HabitCard habit={habit} onUnskip={jest.fn()} />);
+      await render(<HabitCard habit={habit} onUnskip={jest.fn()} />);
 
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
 
       expect(screen.getByText('Remove skip')).toBeTruthy();
       expect(screen.queryByText('Skip for today')).toBeNull();
     });
 
-    it('should show uncomplete option when habit is completed', () => {
+    it('should show uncomplete option when habit is completed', async () => {
       const habit = createMockHabitWithLog({is_completed: true, log_status: 'completed'});
-      render(<HabitCard habit={habit} onUncomplete={jest.fn()} />);
+      await render(<HabitCard habit={habit} onUncomplete={jest.fn()} />);
 
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
 
       expect(screen.getByText('Mark as incomplete')).toBeTruthy();
       expect(screen.queryByText('Skip for today')).toBeNull();
       expect(screen.queryByText('Remove skip')).toBeNull();
     });
 
-    it('should call onSkip when skip option is pressed', () => {
+    it('should call onSkip when skip option is pressed', async () => {
       const onSkip = jest.fn();
       const habit = createMockHabitWithLog();
-      render(<HabitCard habit={habit} onSkip={onSkip} />);
+      await render(<HabitCard habit={habit} onSkip={onSkip} />);
 
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
-      fireEvent.press(screen.getByTestId('habit-action-skip'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-action-skip'));
 
       expect(onSkip).toHaveBeenCalled();
     });
 
-    it('should call onUnskip when unskip option is pressed', () => {
+    it('should call onUnskip when unskip option is pressed', async () => {
       const onUnskip = jest.fn();
       const habit = createMockHabitWithLog({is_skipped: true, log_status: 'skipped'});
-      render(<HabitCard habit={habit} onUnskip={onUnskip} />);
+      await render(<HabitCard habit={habit} onUnskip={onUnskip} />);
 
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
-      fireEvent.press(screen.getByTestId('habit-action-unskip'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-action-unskip'));
 
       expect(onUnskip).toHaveBeenCalled();
     });
 
-    it('should call onUncomplete when uncomplete option is pressed', () => {
+    it('should call onUncomplete when uncomplete option is pressed', async () => {
       const onUncomplete = jest.fn();
       const habit = createMockHabitWithLog({is_completed: true, log_status: 'completed'});
-      render(<HabitCard habit={habit} onUncomplete={onUncomplete} />);
+      await render(<HabitCard habit={habit} onUncomplete={onUncomplete} />);
 
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
-      fireEvent.press(screen.getByTestId('habit-action-uncomplete'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-action-uncomplete'));
 
       expect(onUncomplete).toHaveBeenCalled();
     });
 
-    it('should close menu after action', () => {
+    it('should close menu after action', async () => {
       const habit = createMockHabitWithLog();
-      render(<HabitCard habit={habit} onSkip={jest.fn()} />);
+      await render(<HabitCard habit={habit} onSkip={jest.fn()} />);
 
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
       expect(screen.getByTestId('habit-actions-menu')).toBeTruthy();
 
-      fireEvent.press(screen.getByTestId('habit-action-skip'));
+      await fireEvent.press(screen.getByTestId('habit-action-skip'));
       expect(screen.queryByTestId('habit-actions-menu')).toBeNull();
     });
 
-    it('should call onMenuOpenChange when action menu opens and closes', () => {
+    it('should call onMenuOpenChange when action menu opens and closes', async () => {
       const onMenuOpenChange = jest.fn();
       const habit = createMockHabitWithLog();
-      render(<HabitCard habit={habit} onMenuOpenChange={onMenuOpenChange} />);
+      await render(<HabitCard habit={habit} onMenuOpenChange={onMenuOpenChange} />);
 
       // Open
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
       expect(onMenuOpenChange).toHaveBeenCalledWith(true);
 
       // Close
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
       expect(onMenuOpenChange).toHaveBeenCalledWith(false);
     });
 
-    it('should call onMenuOpenChange(false) when action is taken', () => {
+    it('should call onMenuOpenChange(false) when action is taken', async () => {
       const onMenuOpenChange = jest.fn();
       const habit = createMockHabitWithLog();
-      render(<HabitCard habit={habit} onSkip={jest.fn()} onMenuOpenChange={onMenuOpenChange} />);
+      await render(<HabitCard habit={habit} onSkip={jest.fn()} onMenuOpenChange={onMenuOpenChange} />);
 
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
       onMenuOpenChange.mockClear();
 
-      fireEvent.press(screen.getByTestId('habit-action-skip'));
+      await fireEvent.press(screen.getByTestId('habit-action-skip'));
       expect(onMenuOpenChange).toHaveBeenCalledWith(false);
     });
 
-    it('should toggle menu on button press', () => {
+    it('should toggle menu on button press', async () => {
       const habit = createMockHabitWithLog();
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
 
       // Open
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
       expect(screen.getByTestId('habit-actions-menu')).toBeTruthy();
 
       // Close
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
       expect(screen.queryByTestId('habit-actions-menu')).toBeNull();
     });
 
-    it('should close menu when overlay is pressed', () => {
+    it('should close menu when overlay is pressed', async () => {
       const habit = createMockHabitWithLog();
-      render(<HabitCard habit={habit} />);
+      await render(<HabitCard habit={habit} />);
 
-      fireEvent.press(screen.getByTestId('habit-actions-button'));
+      await fireEvent.press(screen.getByTestId('habit-actions-button'));
       expect(screen.getByTestId('habit-actions-menu')).toBeTruthy();
 
-      fireEvent.press(screen.getByTestId('habit-actions-overlay'));
+      await fireEvent.press(screen.getByTestId('habit-actions-overlay'));
       expect(screen.queryByTestId('habit-actions-menu')).toBeNull();
     });
   });
@@ -450,46 +450,46 @@ describe('HabitCard', () => {
     // チェックが付いたまま固着していた。
     // その状態では次のタップが「完了解除」方向になるため、
     // 完了時のみ再生されるフラッシュアニメーションも走らなくなる。
-    it('再取得後もサーバ状態が未完了なら、楽観表示のチェックを取り消す', () => {
+    it('再取得後もサーバ状態が未完了なら、楽観表示のチェックを取り消す', async () => {
       const habit = createMockHabitWithLog({is_completed: false, log_id: null});
-      const {rerender} = render(<HabitCard habit={habit} syncedAt={1000} />);
+      const {rerender} = await render(<HabitCard habit={habit} syncedAt={1000} />);
 
-      fireEvent.press(screen.getByTestId('habit-checkbox'));
+      await fireEvent.press(screen.getByTestId('habit-checkbox'));
       expect(screen.queryByText('✓')).toBeTruthy();
 
       // ミューテーション失敗 → onSettled の invalidate で再取得が走るが
       // サーバ状態は未完了のまま（dataUpdatedAt だけが進む）
-      rerender(<HabitCard habit={habit} syncedAt={2000} />);
+      await rerender(<HabitCard habit={habit} syncedAt={2000} />);
 
       expect(screen.queryByText('✓')).toBeNull();
     });
 
-    it('巻き戻し後のタップは「完了」方向になる（アニメーション再生条件）', () => {
+    it('巻き戻し後のタップは「完了」方向になる（アニメーション再生条件）', async () => {
       const onToggle = jest.fn();
       const habit = createMockHabitWithLog({is_completed: false, log_id: null});
-      const {rerender} = render(
+      const {rerender} = await render(
         <HabitCard habit={habit} syncedAt={1000} onToggle={onToggle} />,
       );
 
-      fireEvent.press(screen.getByTestId('habit-checkbox'));
-      rerender(
+      await fireEvent.press(screen.getByTestId('habit-checkbox'));
+      await rerender(
         <HabitCard habit={habit} syncedAt={2000} onToggle={onToggle} />,
       );
 
-      fireEvent.press(screen.getByTestId('habit-checkbox'));
+      await fireEvent.press(screen.getByTestId('habit-checkbox'));
 
       expect(screen.queryByText('✓')).toBeTruthy();
       expect(onToggle).toHaveBeenCalledTimes(2);
     });
 
-    it('再取得でサーバ状態が完了になったらチェックを維持する', () => {
+    it('再取得でサーバ状態が完了になったらチェックを維持する', async () => {
       const before = createMockHabitWithLog({is_completed: false, log_id: null});
-      const {rerender} = render(<HabitCard habit={before} syncedAt={1000} />);
+      const {rerender} = await render(<HabitCard habit={before} syncedAt={1000} />);
 
-      fireEvent.press(screen.getByTestId('habit-checkbox'));
+      await fireEvent.press(screen.getByTestId('habit-checkbox'));
 
       const after = createMockHabitWithLog({is_completed: true, log_id: 'log-1'});
-      rerender(<HabitCard habit={after} syncedAt={2000} />);
+      await rerender(<HabitCard habit={after} syncedAt={2000} />);
 
       expect(screen.queryByText('✓')).toBeTruthy();
     });

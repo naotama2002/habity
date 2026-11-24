@@ -97,8 +97,8 @@ describe('EditHabitScreen', () => {
     (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'habit-123' });
   });
 
-  const renderWithProviders = (component: React.ReactElement) => {
-    return render(
+  const renderWithProviders = async (component: React.ReactElement) => {
+    return await render(
       <QueryClientProvider client={queryClient}>
         {component}
       </QueryClientProvider>
@@ -107,7 +107,7 @@ describe('EditHabitScreen', () => {
 
   describe('rendering', () => {
     it('should render screen with header', async () => {
-      renderWithProviders(<EditHabitScreen />);
+      await renderWithProviders(<EditHabitScreen />);
 
       await waitFor(
         () => {
@@ -117,15 +117,15 @@ describe('EditHabitScreen', () => {
       );
     }, 15000);
 
-    it('should show loading indicator initially', () => {
-      renderWithProviders(<EditHabitScreen />);
+    it('should show loading indicator initially', async () => {
+      await renderWithProviders(<EditHabitScreen />);
 
       // Loading indicator should be present initially
       // (may be replaced by content quickly in tests)
     });
 
     it('should render HabitForm with initial values after loading', async () => {
-      renderWithProviders(<EditHabitScreen />);
+      await renderWithProviders(<EditHabitScreen />);
 
       await waitFor(
         () => {
@@ -136,7 +136,7 @@ describe('EditHabitScreen', () => {
     }, 15000);
 
     it('should show habit description in form', async () => {
-      renderWithProviders(<EditHabitScreen />);
+      await renderWithProviders(<EditHabitScreen />);
 
       await waitFor(
         () => {
@@ -149,7 +149,7 @@ describe('EditHabitScreen', () => {
 
   describe('navigation', () => {
     it('should call router.back when close button is pressed and history exists', async () => {
-      renderWithProviders(<EditHabitScreen />);
+      await renderWithProviders(<EditHabitScreen />);
 
       await waitFor(
         () => {
@@ -162,7 +162,7 @@ describe('EditHabitScreen', () => {
       const closeIcon = screen.getByText('close');
       const closeButton = closeIcon.parent;
       if (closeButton) {
-        fireEvent.press(closeButton);
+        await fireEvent.press(closeButton);
       }
 
       expect(mockRouter.back).toHaveBeenCalled();
@@ -170,7 +170,7 @@ describe('EditHabitScreen', () => {
 
     it('should call router.replace when close button is pressed and no history', async () => {
       mockRouter.canGoBack.mockReturnValue(false);
-      renderWithProviders(<EditHabitScreen />);
+      await renderWithProviders(<EditHabitScreen />);
 
       await waitFor(
         () => {
@@ -183,7 +183,7 @@ describe('EditHabitScreen', () => {
       const closeIcon = screen.getByText('close');
       const closeButton = closeIcon.parent;
       if (closeButton) {
-        fireEvent.press(closeButton);
+        await fireEvent.press(closeButton);
       }
 
       expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
@@ -192,7 +192,7 @@ describe('EditHabitScreen', () => {
 
   describe('form submission', () => {
     it('should navigate back after successful update when history exists', async () => {
-      renderWithProviders(<EditHabitScreen />);
+      await renderWithProviders(<EditHabitScreen />);
 
       await waitFor(
         () => {
@@ -203,10 +203,10 @@ describe('EditHabitScreen', () => {
 
       // Modify the form
       const nameInput = screen.getByDisplayValue('読書');
-      fireEvent.changeText(nameInput, '読書タイム');
+      await fireEvent.changeText(nameInput, '読書タイム');
 
       // Submit (i18n returns English)
-      fireEvent.press(screen.getByText('Save'));
+      await fireEvent.press(screen.getByText('Save'));
 
       await waitFor(
         () => {
@@ -237,7 +237,7 @@ describe('EditHabitScreen', () => {
         })),
       }));
 
-      renderWithProviders(<EditHabitScreen />);
+      await renderWithProviders(<EditHabitScreen />);
 
       await waitFor(
         () => {

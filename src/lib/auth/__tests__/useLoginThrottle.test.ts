@@ -11,18 +11,18 @@ describe('useLoginThrottle', () => {
     jest.useRealTimers();
   });
 
-  it('should start with unlocked state', () => {
-    const { result } = renderHook(() => useLoginThrottle());
+  it('should start with unlocked state', async () => {
+    const { result } = await renderHook(() => useLoginThrottle());
 
     expect(result.current.isLocked).toBe(false);
     expect(result.current.remainingSeconds).toBe(0);
   });
 
-  it('should stay unlocked after 4 failures', () => {
-    const { result } = renderHook(() => useLoginThrottle());
+  it('should stay unlocked after 4 failures', async () => {
+    const { result } = await renderHook(() => useLoginThrottle());
 
     for (let i = 0; i < 4; i++) {
-      act(() => {
+      await act(() => {
         result.current.recordFailure();
       });
     }
@@ -31,11 +31,11 @@ describe('useLoginThrottle', () => {
     expect(result.current.remainingSeconds).toBe(0);
   });
 
-  it('should lock after 5 failures', () => {
-    const { result } = renderHook(() => useLoginThrottle());
+  it('should lock after 5 failures', async () => {
+    const { result } = await renderHook(() => useLoginThrottle());
 
     for (let i = 0; i < 5; i++) {
-      act(() => {
+      await act(() => {
         result.current.recordFailure();
       });
     }
@@ -44,35 +44,35 @@ describe('useLoginThrottle', () => {
     expect(result.current.remainingSeconds).toBe(60);
   });
 
-  it('should return true from recordFailure when locking', () => {
-    const { result } = renderHook(() => useLoginThrottle());
+  it('should return true from recordFailure when locking', async () => {
+    const { result } = await renderHook(() => useLoginThrottle());
 
     let locked = false;
     for (let i = 0; i < 4; i++) {
-      act(() => {
+      await act(() => {
         locked = result.current.recordFailure();
       });
       expect(locked).toBe(false);
     }
 
-    act(() => {
+    await act(() => {
       locked = result.current.recordFailure();
     });
     expect(locked).toBe(true);
   });
 
-  it('should count down remaining seconds', () => {
-    const { result } = renderHook(() => useLoginThrottle());
+  it('should count down remaining seconds', async () => {
+    const { result } = await renderHook(() => useLoginThrottle());
 
     for (let i = 0; i < 5; i++) {
-      act(() => {
+      await act(() => {
         result.current.recordFailure();
       });
     }
 
     expect(result.current.remainingSeconds).toBe(60);
 
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(10000);
     });
 
@@ -80,16 +80,16 @@ describe('useLoginThrottle', () => {
     expect(result.current.isLocked).toBe(true);
   });
 
-  it('should unlock and reset count after 60 seconds', () => {
-    const { result } = renderHook(() => useLoginThrottle());
+  it('should unlock and reset count after 60 seconds', async () => {
+    const { result } = await renderHook(() => useLoginThrottle());
 
     for (let i = 0; i < 5; i++) {
-      act(() => {
+      await act(() => {
         result.current.recordFailure();
       });
     }
 
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(60000);
     });
 
@@ -98,25 +98,25 @@ describe('useLoginThrottle', () => {
 
     // After unlock, failure count should be reset so 4 more failures don't lock
     for (let i = 0; i < 4; i++) {
-      act(() => {
+      await act(() => {
         result.current.recordFailure();
       });
     }
     expect(result.current.isLocked).toBe(false);
   });
 
-  it('should immediately unlock on reset()', () => {
-    const { result } = renderHook(() => useLoginThrottle());
+  it('should immediately unlock on reset()', async () => {
+    const { result } = await renderHook(() => useLoginThrottle());
 
     for (let i = 0; i < 5; i++) {
-      act(() => {
+      await act(() => {
         result.current.recordFailure();
       });
     }
 
     expect(result.current.isLocked).toBe(true);
 
-    act(() => {
+    await act(() => {
       result.current.reset();
     });
 

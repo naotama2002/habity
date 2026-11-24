@@ -1,9 +1,8 @@
 module.exports = {
   preset: 'jest-expo',
-  setupFilesAfterEnv: [
-    './jest/jestSetup.js',
-    '@testing-library/react-native/extend-expect',
-  ],
+  // RNTL 14 で extend-expect エントリは廃止された。
+  // matchers は '@testing-library/react-native' の import 時に自動登録される。
+  setupFilesAfterEnv: ['./jest/jestSetup.js'],
   transformIgnorePatterns: [
     'node_modules/(?!(.pnpm|((jest-)?react-native|@react-native(-community)?|@react-native/.*)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@supabase/.*))',
   ],
